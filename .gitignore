@@ -23,10 +23,12 @@ venv.bak/
 # ---- Reflex ----
 .web/
 .next/
-reflex.db
 .rx/
 build/
 dist/
+assets/external/
+.states
+*.db
 
 # ---- Dependencias ----
 *.lock
