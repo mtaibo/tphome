@@ -24,7 +24,6 @@ venv.bak/
 .web/
 .next/
 reflex.db
-rxconfig.json
 .rx/
 build/
 dist/
