@@ -21,7 +21,7 @@ env.bak/
 venv.bak/
 
 # ---- Reflex ----
-.web/
+.web
 .next/
 .rx/
 build/
