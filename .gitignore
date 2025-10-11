@@ -12,7 +12,7 @@ __pycache__/
 *.pyc
 *.pkl
 
-# ---- Entorno virtual ----
+# ---- Virtual Enviroment ----
 .env
 .venv/
 venv/
@@ -30,11 +30,14 @@ assets/external/
 .states
 *.db
 
-# ---- Dependencias ----
+# ---- Dependencies ----
 *.lock
 poetry.lock
 Pipfile.lock
 node_modules/
 
-# ---- Archivos del sistema ----
+# ---- System Files ----
 .DS_Store
+
+# ---- Database ----
+database.json
