@@ -25,4 +25,4 @@ PIN LIST:
 
     EXTRA:
       - PIN 1, 3: Transmiting and Receiving Pins
-      - PIN 6-11: Probably Flash Memory Pins
+      - PIN 4-11: Probably Flash Memory Pins
