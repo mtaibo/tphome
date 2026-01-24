@@ -2,11 +2,13 @@
 #include "config.h"
 #include "pins.h"
 
+int pause_control = false;
+unsigned long mid_stop_time;
 
-unsigned long nextBlinkTime = 0;
 int blinkCount = 0;
 int blinkingLed = LED_GREEN;
 bool blinkingLedState = false;
+unsigned long nextBlinkTime = 0;
 
 void startBlink(int led) {
     blinkCount = 20;
@@ -14,10 +16,32 @@ void startBlink(int led) {
 }
 
 void updateActions() {
+    
+    if (config.is_waiting && millis() >= config.motor_safe_time) {
+        digitalWrite(config.pending_relay, HIGH);
+        config.is_moving = true;
+        config.is_waiting = false;
+        
+        if (config.pending_relay == RELAY_UP) {
+            config.stop_time = millis() + config.up_time;
+            config.active_relay = RELAY_UP;
+        } else {
+            config.stop_time = millis() + config.down_time;
+            config.active_relay = RELAY_DOWN;
+        }
+    }
+
     if (config.is_moving && millis() >= config.stop_time) {
         blindStop();
     }
 
+    // Code to control pause button
+    if (pause_control == true && millis() >= mid_stop_time) {
+        digitalWrite(LED_MID, LOW);
+        pause_control = false;
+    }
+
+    // Code to control blinking
     if (blinkCount > 0 && millis() >= nextBlinkTime) {
         blinkingLedState = !blinkingLedState;
         digitalWrite(blinkingLed, blinkingLedState);
@@ -34,36 +58,28 @@ void handleButtonAction(int pin, unsigned long duration) {
     if (duration == 0) return;
 
     if (pin == BTN_TOP) {
-        if (duration < config.short_pulse) {
-            blindUp();
-        } 
+        if (duration < config.short_pulse) blindUp();
     } 
     
     else if (pin == BTN_MID) {
-        blindStop();
-
-        if (duration > config.short_pulse) {
-            startBlink(LED_GREEN); 
-        }
+        if (duration < config.short_pulse) blindStop();
+        else if (duration > config.short_pulse) startBlink(LED_GREEN); 
     } 
     
     else if (pin == BTN_BOTTOM) {
-        if (duration < config.short_pulse) {
-            blindDown();
-        }
+        if (duration < config.short_pulse) blindDown();
     }
 }
 
 void blindUp() {
-    if (config.is_moving) blindStop(); 
+    if (config.is_moving) blindStop();
 
     digitalWrite(LED_TOP, HIGH);
-    digitalWrite(RELAY_UP, HIGH);
-
-    config.is_moving = true;
-    config.stop_time = millis() + config.up_time; 
-
-    config.active_relay = RELAY_UP;
+    
+    config.is_waiting = true;
+    config.motor_safe_time = millis() + 500; 
+    config.pending_relay = RELAY_UP;
+    
     config.active_led = LED_TOP;
 }
 
@@ -71,18 +87,20 @@ void blindDown() {
     if (config.is_moving) blindStop();
 
     digitalWrite(LED_BOTTOM, HIGH);
-    digitalWrite(RELAY_DOWN, HIGH);
-
-    config.is_moving = true;
-    config.stop_time = millis() + config.down_time;
-
-    config.active_relay = RELAY_DOWN;
+    
+    config.is_waiting = true;
+    config.motor_safe_time = millis() + 500; 
+    config.pending_relay = RELAY_DOWN;
+    
     config.active_led = LED_BOTTOM;
 }
 
 void blindStop() {
     digitalWrite(config.active_relay, LOW);
     digitalWrite(config.active_led, LOW);
-    
     config.is_moving = false;
+
+    digitalWrite(LED_MID, HIGH);
+    mid_stop_time = millis() + 1000;
+    pause_control = true;
 }

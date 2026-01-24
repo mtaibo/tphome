@@ -11,6 +11,7 @@ void config_default() {
 
     // Execution data
     config.is_moving = false;
+    config.is_waiting = false;
 
     // Preferences
     config.block_buttons = false;
