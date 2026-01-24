@@ -17,7 +17,6 @@ struct Config {
 
     // Execution data
     bool is_moving;
-    unsigned long start_time;
   
     // Preferences
     bool block_buttons;    
@@ -27,6 +26,6 @@ struct Config {
 
 extern Config config; 
 
-void config_init();
+void config_default();
 
 #endif
