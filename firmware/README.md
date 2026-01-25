@@ -53,3 +53,26 @@ PIN LIST:
       - PIN 1, 3: Transmiting and Receiving Pins
       - PIN 6-11: Probably Flash Memory Pins
       - PIN 4: Unkown
+
+
+
+ACTIONS:
+
+  Each button will have three phases, the short pulse, the medium pulse and
+  the long pulse. Each kind of pulse will make a different action that will
+  be defined below here:
+
+  TOP_BUTTON:
+    - short_pulse: blind_up
+    - medium_pulse: 
+    - long_pulse: 
+
+  MEDIUM_BUTTON:
+    - short_pulse: blind_stop
+    - medium_pulse: 
+    - long_pulse: 
+  
+  BOTTOM_BUTTON:
+    - short_pulse: blind_down
+    - medium_pulse: 
+    - long_pulse: 

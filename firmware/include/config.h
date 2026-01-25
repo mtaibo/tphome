@@ -39,6 +39,7 @@ struct Config {
 
 extern Config config; 
 
+void config_init();
 void config_default();
 
 #endif

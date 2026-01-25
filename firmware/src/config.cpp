@@ -3,6 +3,13 @@
 
 Config config;
 
+void config_init() {
+
+    config_default();
+
+}
+
+
 void config_default() {
 
     // Network configuration

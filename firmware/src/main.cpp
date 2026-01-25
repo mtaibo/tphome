@@ -8,10 +8,9 @@ int output_pins[] = {LED_TOP, LED_MID, LED_BOTTOM, LED_GREEN, RELAY_UP, RELAY_DO
 
 void setup() {
 
-    // Set configuration to default options
-    // TODO: Use config_intit() an previous configuration on the flash memory 
-    config_default();
+    config_init();
 
+    // Buttons setup
     buttonTop.setup();
     buttonMid.setup();
     buttonBottom.setup();

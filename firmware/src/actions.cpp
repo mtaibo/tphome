@@ -1,6 +1,6 @@
-#include "actions.h"
-#include "config.h"
-#include "pins.h"
+#include <actions.h>
+#include <config.h>
+#include <pins.h>
 
 int pause_control = false;
 unsigned long mid_stop_time;
@@ -13,6 +13,42 @@ unsigned long nextBlinkTime = 0;
 void startBlink(int led) {
     blinkCount = 20;
     nextBlinkTime = millis();
+}
+
+
+
+void blindUp() {
+    if (config.is_moving) blindStop();
+
+    digitalWrite(LED_TOP, HIGH);
+    
+    config.is_waiting = true;
+    config.motor_safe_time = millis() + 500; 
+    config.pending_relay = RELAY_UP;
+    
+    config.active_led = LED_TOP;
+}
+
+void blindDown() {
+    if (config.is_moving) blindStop();
+
+    digitalWrite(LED_BOTTOM, HIGH);
+    
+    config.is_waiting = true;
+    config.motor_safe_time = millis() + 500; 
+    config.pending_relay = RELAY_DOWN;
+    
+    config.active_led = LED_BOTTOM;
+}
+
+void blindStop() {
+    digitalWrite(config.active_relay, LOW);
+    digitalWrite(config.active_led, LOW);
+    config.is_moving = false;
+
+    digitalWrite(LED_MID, HIGH);
+    mid_stop_time = millis() + 1000;
+    pause_control = true;
 }
 
 void updateActions() {
@@ -55,10 +91,10 @@ void updateActions() {
 }
 
 void handleButtonAction(int pin, unsigned long duration) {
-    if (duration == 0) return;
 
     if (pin == BTN_TOP) {
         if (duration < config.short_pulse) blindUp();
+        else if (duration > config.short_pulse) startBlink(LED_TOP);
     } 
     
     else if (pin == BTN_MID) {
@@ -68,39 +104,6 @@ void handleButtonAction(int pin, unsigned long duration) {
     
     else if (pin == BTN_BOTTOM) {
         if (duration < config.short_pulse) blindDown();
+        else if (duration > config.short_pulse) startBlink(LED_BOTTOM);
     }
-}
-
-void blindUp() {
-    if (config.is_moving) blindStop();
-
-    digitalWrite(LED_TOP, HIGH);
-    
-    config.is_waiting = true;
-    config.motor_safe_time = millis() + 500; 
-    config.pending_relay = RELAY_UP;
-    
-    config.active_led = LED_TOP;
-}
-
-void blindDown() {
-    if (config.is_moving) blindStop();
-
-    digitalWrite(LED_BOTTOM, HIGH);
-    
-    config.is_waiting = true;
-    config.motor_safe_time = millis() + 500; 
-    config.pending_relay = RELAY_DOWN;
-    
-    config.active_led = LED_BOTTOM;
-}
-
-void blindStop() {
-    digitalWrite(config.active_relay, LOW);
-    digitalWrite(config.active_led, LOW);
-    config.is_moving = false;
-
-    digitalWrite(LED_MID, HIGH);
-    mid_stop_time = millis() + 1000;
-    pause_control = true;
 }

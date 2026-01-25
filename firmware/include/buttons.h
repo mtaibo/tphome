@@ -7,6 +7,7 @@ class Button {
         int _pin;
         unsigned long _startTime;
         bool _isPressed;
+        bool _waitingRelease;
 
         unsigned long get_duration(); 
     
