@@ -8,7 +8,10 @@ struct Config {
     // Network configuration
     char wifi_ssid[32];
     char wifi_password[64];
+
     char mqtt_server[40];
+    char mqtt_user[40];
+    char mqtt_pass[40];
   
     // Blind configuration
     unsigned long up_time;    // ms

@@ -4,6 +4,13 @@ Config config;
 
 void config_default() {
 
+    // Network configuration
+    strcpy(config.wifi_ssid, "");
+    strcpy(config.wifi_password, "");
+
+    strcpy(config.mqtt_user, "");
+    strcpy(config.mqtt_pass, "");
+
     // Blind configuration
     config.up_time = 30000;
     config.down_time = 25000;
