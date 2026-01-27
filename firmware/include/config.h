@@ -10,7 +10,7 @@ struct Config {
     char wifi_password[64];
 
     // MQTT configuration
-    char mqtt_server[40];
+    char mqtt_server[40]; // Raspberry IP
     char mqtt_user[40];
     char mqtt_pass[40];
   

@@ -2,6 +2,8 @@
 #include <config.h>
 #include <pins.h>
 
+enum Direction { UP = 1, DOWN = 0, STOP = -1 };
+
 int pause_control = false;
 unsigned long mid_stop_time;
 
@@ -15,38 +17,42 @@ void startBlink(int led) {
     nextBlinkTime = millis();
 }
 
-void blindUp() {
-    if (config.is_moving) blindStop();
+void moveBlind(Direction direction) {
 
-    digitalWrite(LED_TOP, HIGH);
+    // Check if moving its needed
+    if (config.is_moving || direction == STOP) {
+
+        // Check if blind is already moving on same direction
+        if (config.active_relay == RELAY_UP && direction == 1) return;
+        if (config.active_relay == RELAY_DOWN && direction == 0) return;
+        
+        // Stop every led and relay
+        digitalWrite(RELAY_UP, LOW);
+        digitalWrite(RELAY_DOWN, LOW);
+        digitalWrite(LED_TOP, LOW);
+        digitalWrite(LED_BOTTOM, LOW);
+
+        config.is_moving = false;
+        mid_stop_time = millis() + 1000;
+        pause_control = true;
+
+        // If the order was just to STOP, finish the action
+        if (direction == STOP) {digitalWrite(LED_MID, HIGH); return;}
+    }
+
+    // Check if blind is already at its lowest or highest position
+    if (config.current_position == 0.0 && direction == 0) return;
+    else if (config.current_position == 100.0 && direction == 1) return;
     
-    config.is_waiting = true;
+    config.active_led = (direction == UP) ? LED_TOP : LED_BOTTOM;
+    config.pending_relay = (direction == UP) ? RELAY_UP : RELAY_DOWN;
+    
+    digitalWrite(config.active_led, HIGH);
+
+    // Adjust time and config to close the blind
+    // ! Take a look at this two lines
     config.motor_safe_time = millis() + 500; 
-    config.pending_relay = RELAY_UP;
-    
-    config.active_led = LED_TOP;
-}
-
-void blindStop() {
-    digitalWrite(config.active_relay, LOW);
-    digitalWrite(config.active_led, LOW);
-
-    if (!config.is_moving) digitalWrite(LED_MID, HIGH);
-    mid_stop_time = millis() + 1000;
-    pause_control = true;
-    config.is_moving = false;
-}
-
-void blindDown() {
-    if (config.is_moving) blindStop();
-
-    digitalWrite(LED_BOTTOM, HIGH);
-    
     config.is_waiting = true;
-    config.motor_safe_time = millis() + 500; 
-    config.pending_relay = RELAY_DOWN;
-    
-    config.active_led = LED_BOTTOM;
 }
 
 void updateActions() {
@@ -91,20 +97,20 @@ void updateActions() {
 void handleButtonAction(int pin, unsigned long duration) {
 
     if (pin == BTN_TOP) {
-        if (duration < config.short_pulse) blindUp();
+        if (duration < config.short_pulse) moveBlind(UP);
         else if (duration > config.short_pulse && duration < config.long_pulse) startBlink(LED_TOP);
         else if (duration > config.long_pulse) ;
     } 
     
     else if (pin == BTN_MID) {
-        if (duration < config.short_pulse) blindStop();
-        else if (duration > config.short_pulse && duration < config.long_pulse) startBlink(LED_TOP);
+        if (duration < config.short_pulse) moveBlind(STOP);
+        else if (duration > config.short_pulse && duration < config.long_pulse) startBlink(LED_MID);
         else if (duration > config.long_pulse) ;
     } 
     
     else if (pin == BTN_BOTTOM) {
-        if (duration < config.short_pulse) blindDown();
-        else if (duration > config.short_pulse && duration < config.long_pulse) startBlink(LED_TOP);
+        if (duration < config.short_pulse) moveBlind(DOWN); 
+        else if (duration > config.short_pulse && duration < config.long_pulse) startBlink(LED_BOTTOM);
         else if (duration > config.long_pulse) ;
     }
 }
