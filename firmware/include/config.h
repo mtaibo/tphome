@@ -22,18 +22,20 @@ struct Config {
     // Execution data
     bool is_moving;
     bool is_waiting;
+    bool pause_control;
 
     unsigned long stop_time; 
-    unsigned long motor_safe_time;
 
     // Information about running relay and led
     int active_relay;  
     int active_led;          
     int pending_relay;
+    int pending_led;
   
     // Preferences
-    bool block_buttons;    
     unsigned long stop_led_time;
+    unsigned long motor_safe_time;
+
     unsigned long short_pulse;
     unsigned long long_pulse;
 };

@@ -30,8 +30,9 @@ void config_default() {
     config.is_waiting = false;
 
     // Preferences
-    config.block_buttons = false;
     config.stop_led_time = 750;
+    config.motor_safe_time = 500;
+
     config.short_pulse = 3000;
     config.long_pulse = 10000;
 }
