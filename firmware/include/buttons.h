@@ -6,7 +6,7 @@ class Button {
     private:
         int _pin;
         unsigned long _startTime;
-        bool _isPressed;
+        bool _wasPressed;
         bool _waitingRelease;
 
         unsigned long get_duration(); 
