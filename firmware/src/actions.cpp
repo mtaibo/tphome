@@ -22,8 +22,9 @@ void moveBlind(Direction direction) {
         config.active_relay = -1;
 
         // Adjust time and config to stop the blind
-        config.stop_led_time = millis() + config.mid_led_time;
-        config.stop_time = millis() + config.motor_safe_time;
+        config.stop_led_time = millis();
+        config.stop_time = millis();
+
         config.pause_control = true;
         config.is_moving = false;
         config.is_waiting = false;
@@ -40,13 +41,16 @@ void moveBlind(Direction direction) {
     config.pending_led = (direction == UP) ? LED_TOP : LED_BOTTOM;
     config.pending_relay = (direction == UP) ? RELAY_UP : RELAY_DOWN;
 
+    config.stop_time = millis();
     config.is_waiting = true;
 }
 
 void updateActions() {
 
+    unsigned long now = millis();
+
     // Control waiting and pending status for relays
-    if (config.is_waiting && millis() >= config.stop_time) {
+    if (config.is_waiting && (now - config.stop_time >= config.motor_safe_time)) {
 
         config.active_led = config.pending_led;
         config.active_relay = config.pending_relay;
@@ -54,17 +58,18 @@ void updateActions() {
         digitalWrite(config.active_led, HIGH);
         digitalWrite(config.active_relay, HIGH);
         
-        config.stop_time = (config.active_relay == RELAY_UP) ? millis() + config.up_time : millis() + config.down_time;
+        config.stop_time = now; 
+        config.current_limit = (config.active_relay == RELAY_UP) ? config.up_time : config.down_time;
         
         config.is_moving = true;
         config.is_waiting = false;
     }
 
     // Control common moving with stop_time
-    else if (config.is_moving && millis() >= config.stop_time) moveBlind(STOP);
+    else if (config.is_moving && (now - config.stop_time >= config.current_limit)) moveBlind(STOP);
 
     // Code to control pause button
-    else if (config.pause_control && millis() >= config.stop_led_time) {
+    else if (config.pause_control && (now - config.stop_led_time >= config.mid_led_time)) {
         digitalWrite(LED_MID, LOW);
         config.pause_control = false;
     }

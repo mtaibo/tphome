@@ -22,10 +22,13 @@ struct Config {
     // Execution data
     bool is_moving;
     bool is_waiting;
+
     bool pause_control;
 
     unsigned long stop_time; 
     unsigned long stop_led_time;
+
+    unsigned long current_limit;
 
     // Information about running relay and led
     int active_relay;  
