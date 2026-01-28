@@ -22,9 +22,10 @@ void moveBlind(Direction direction) {
         config.active_relay = -1;
 
         // Adjust time and config to stop the blind
-        config.stop_time = millis() + config.stop_led_time;
+        config.stop_led_time = millis() + config.mid_led_time;
         config.pause_control = true;
         config.is_moving = false;
+        config.is_waiting = false;
 
         // If the order was just to STOP, finish the action
         if (direction == STOP) {digitalWrite(LED_MID, HIGH); return;}
@@ -44,15 +45,9 @@ void moveBlind(Direction direction) {
 }
 
 void updateActions() {
-    
-    // Control common moving with stop_time
-    if (config.is_moving && millis() >= config.stop_time) moveBlind(STOP);
 
-    // Control waiting and pending status
+    // Control waiting and pending status for relays
     if (config.is_waiting && millis() >= config.stop_time) {
-
-        config.is_moving = true;
-        config.is_waiting = false;
 
         config.active_led = config.pending_led;
         config.active_relay = config.pending_relay;
@@ -61,10 +56,16 @@ void updateActions() {
         digitalWrite(config.active_relay, HIGH);
         
         config.stop_time = (config.active_relay == RELAY_UP) ? millis() + config.up_time : millis() + config.down_time;
+        
+        config.is_moving = true;
+        config.is_waiting = false;
     }
 
+    // Control common moving with stop_time
+    else if (config.is_moving && millis() >= config.stop_time) moveBlind(STOP);
+
     // Code to control pause button
-    if (config.pause_control == true && millis() >= config.stop_time) {
+    else if (config.pause_control && millis() >= config.stop_led_time) {
         digitalWrite(LED_MID, LOW);
         config.pause_control = false;
     }

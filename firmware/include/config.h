@@ -25,6 +25,7 @@ struct Config {
     bool pause_control;
 
     unsigned long stop_time; 
+    unsigned long stop_led_time;
 
     // Information about running relay and led
     int active_relay;  
@@ -33,7 +34,7 @@ struct Config {
     int pending_led;
   
     // Preferences
-    unsigned long stop_led_time;
+    unsigned long mid_led_time;
     unsigned long motor_safe_time;
 
     unsigned long short_pulse;
