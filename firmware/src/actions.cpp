@@ -32,7 +32,7 @@ void blink(int pin, int control) {
 void moveBlind(Direction direction) {
 
     // Check if moving its needed
-    if (config.is_moving || direction == STOP) {
+    if (config.is_moving || direction == STOP || config.is_waiting) {
 
         // Check if blind is already moving on same direction
         if (config.active_relay == RELAY_UP && direction == UP) return;
@@ -49,29 +49,33 @@ void moveBlind(Direction direction) {
         config.active_relay = -1;
 
         // Adjust time and config to stop the blind
-        config.stop_led_time = millis();
         config.stop_time = millis();
 
-        config.pause_control = true;
         config.is_moving = false;
         config.is_waiting = false;
 
         // If the order was just to STOP, finish the action
-        if (direction == STOP) {digitalWrite(LED_MID, HIGH); return;}
+        if (direction == STOP) {
+            config.stop_led_time = millis();
+            config.pause_control = true;
+            digitalWrite(LED_MID, HIGH); 
+            return;
+        }
     } 
-    
-    else if (!config.is_waiting) {
         
-        // Check if blind is already at its lowest or highest position
-        if (config.current_position <= 0.0 && direction == DOWN) return;
-        if (config.current_position >= 100.0 && direction == UP) return;
+    // Check if blind is already at its lowest or highest position
+    if (config.current_position <= 0.0 && direction == DOWN) return;
+    if (config.current_position >= 100.0 && direction == UP) return;
         
-        // Set the next led and relay to be turned on
-        config.pending_led = (direction == UP) ? LED_TOP : LED_BOTTOM;
-        config.pending_relay = (direction == UP) ? RELAY_UP : RELAY_DOWN;
+    // Set the next led and relay to be turned on
+    config.pending_led = (direction == UP) ? LED_TOP : LED_BOTTOM;
+    config.pending_relay = (direction == UP) ? RELAY_UP : RELAY_DOWN;
 
-        config.stop_time = millis();
-        config.is_waiting = true;
+    config.is_waiting = true;
+
+    // Strange trick that AI recommend me to try
+    if (millis() - config.stop_time > config.motor_safe_time) {
+        config.stop_time = millis() - config.motor_safe_time;
     }
 }
 
