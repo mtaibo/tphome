@@ -35,6 +35,12 @@ struct Config {
     int active_led;          
     int pending_relay;
     int pending_led;
+
+    // Blinking control
+    bool is_blinking;
+    int blinking_led;
+    int blinking_state;
+    unsigned long last_blink;
   
     // Preferences
     unsigned long mid_led_time;
