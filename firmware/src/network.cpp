@@ -46,10 +46,14 @@ bool mqtt_reconnect() {
 void network_check() {
 
     // This line activates the green_led while the wifi is not connected
-    if (WiFi.status() != WL_CONNECTED) {if (!config.is_blinking) { blink(LED_GREEN, 1); } return; } 
+    if (WiFi.status() != WL_CONNECTED) {if (!config.is_blinking) { blink(LED_GREEN, 1); config.blink_time = 500; } return; } 
 
     // Gestión de MQTT
     if (!client.connected()) {
+
+        // Section to control blinking led when mqtt server disconnects
+        if (!config.is_blinking) blink(LED_GREEN, 1);
+        config.blink_time = 1000;
 
         // This lines below manage a 5 second delay 
         // to reattempt the connection to the MQTT server
