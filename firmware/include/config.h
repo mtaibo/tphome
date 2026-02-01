@@ -37,6 +37,7 @@ struct Config {
     int pending_led;
 
     // Blinking control
+    int blink_time;
     bool is_blinking;
     int blinking_led;
     int blinking_state;

@@ -30,6 +30,7 @@ void config_default() {
     config.is_waiting = false;
 
     // Blinking config
+    config.blink_time = 500;
     config.blinking_led = -1;
     config.is_blinking = false;
     config.last_blink = 0;

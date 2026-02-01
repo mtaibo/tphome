@@ -31,6 +31,8 @@ void blink(int pin, int control) {
 
 void moveBlind(Direction direction) {
 
+    unsigned long now = millis();
+
     // Check if moving its needed
     if (config.is_moving || direction == STOP || config.is_waiting) {
 
@@ -49,14 +51,14 @@ void moveBlind(Direction direction) {
         config.active_relay = -1;
 
         // Adjust time and config to stop the blind
-        config.stop_time = millis();
+        config.stop_time = now;
 
         config.is_moving = false;
         config.is_waiting = false;
 
         // If the order was just to STOP, finish the action
         if (direction == STOP) {
-            config.stop_led_time = millis();
+            config.stop_led_time = now;
             config.pause_control = true;
             digitalWrite(LED_MID, HIGH); 
             return;
@@ -73,9 +75,10 @@ void moveBlind(Direction direction) {
 
     config.is_waiting = true;
 
-    // Strange trick that AI recommend me to try
-    if (millis() - config.stop_time > config.motor_safe_time) {
-        config.stop_time = millis() - config.motor_safe_time;
+    // Control the stop_time to avoid the motor_safe_time when
+    // the blind has not been moving for that time before 
+    if (now - config.stop_time > config.motor_safe_time) {
+        config.stop_time = now - config.motor_safe_time;
     }
 }
 
@@ -109,7 +112,8 @@ void updateActions() {
     }
 
     // Code to control blinking
-    if (config.is_blinking && millis() - config.last_blink >= 500) blink(config.blinking_led, 1);
+    if (config.is_blinking && millis() - config.last_blink >= config.blink_time) 
+        blink(config.blinking_led, 1);
 }
 
 void handleButtonAction(int pin, unsigned long duration) {
