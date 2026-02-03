@@ -22,6 +22,7 @@ void setup() {
 
     // Loop to turn every output pin to output mode
     // TODO: Turn this output pin configuration into an external pin.begin()
+    int output_pins[] = {LED_TOP, LED_MID, LED_BOTTOM, LED_GREEN, RELAY_UP, RELAY_DOWN};
     for (int i=0; i<6; i++) {
         pinMode(output_pins[i], OUTPUT);
         digitalWrite(output_pins[i], LOW);
@@ -44,5 +45,5 @@ void loop() {
 
     // Update every action that the chip is
     // doing with relays and leds
-    updateActions();
+    update_actions();
 }
