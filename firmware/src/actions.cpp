@@ -29,7 +29,7 @@ void blink(int pin, int control) {
     }
 }
 
-void moveBlind(Direction direction) {
+void move_blind(Direction direction) {
 
     unsigned long now = millis();
 
@@ -82,7 +82,7 @@ void moveBlind(Direction direction) {
     }
 }
 
-void updateActions() {
+void update_actions() {
 
     unsigned long time_running = millis() - config.stop_time;
 
@@ -103,7 +103,9 @@ void updateActions() {
     }
 
     // Control common moving with stop_time
-    else if (config.is_moving && (time_running >= config.current_limit)) moveBlind(STOP);
+    else if (config.is_moving && (time_running >= config.current_limit)) {
+        move_blind(STOP); 
+    } 
 
     // Code to control pause button
     else if (config.pause_control && ((time_running >= config.mid_led_time) || config.is_moving)) {
@@ -116,22 +118,22 @@ void updateActions() {
         blink(config.blinking_led, 1);
 }
 
-void handleButtonAction(int pin, unsigned long duration) {
+void handle_button_action(int pin, unsigned long duration) {
 
     if (pin == BTN_TOP) {
-        if (duration < config.short_pulse) moveBlind(UP);
+        if (duration < config.short_pulse) move_blind(UP);
         else if (duration > config.short_pulse && duration < config.long_pulse) ;
         else if (duration > config.long_pulse) ;
     } 
     
     else if (pin == BTN_MID) {
-        if (duration < config.short_pulse) moveBlind(STOP);
+        if (duration < config.short_pulse) move_blind(STOP);
         else if (duration > config.short_pulse && duration < config.long_pulse) ;
         else if (duration > config.long_pulse) ;
     } 
     
     else if (pin == BTN_BOTTOM) {
-        if (duration < config.short_pulse) moveBlind(DOWN); 
+        if (duration < config.short_pulse) move_blind(DOWN); 
         else if (duration > config.short_pulse && duration < config.long_pulse) ;
         else if (duration > config.long_pulse) ;
     }

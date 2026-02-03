@@ -57,7 +57,7 @@ unsigned long Button::get_duration() {
 // Main button function to handle actions depending on the pulse duration
 void Button::check() {
     unsigned long duration = get_duration();
-    if (duration > 50) handleButtonAction(_pin, duration);
+    if (duration > 50) handle_button_action(_pin, duration);
 }
 
 Button buttonTop(BTN_TOP);
