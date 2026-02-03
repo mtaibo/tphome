@@ -1,3 +1,4 @@
+#include <network.h>
 #include <actions.h>
 #include <config.h>
 #include <pins.h>

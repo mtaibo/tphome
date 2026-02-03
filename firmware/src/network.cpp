@@ -10,19 +10,29 @@ PubSubClient client(espClient);
 
 void callback(char* topic, byte* payload, unsigned int length) {
 
-    // Get both message and topic on string type variables
-    String message = "";
-    String strTopic = String(topic);
+    if (!strcmp(topic, config.set_topic)) { 
 
-    // Loop that gets the callback message from its bytes and length
-    for (unsigned int i = 0; i < length; i++) message += (char)payload[i];
-
-    // Topic managment
-    if (strTopic == "tphome/blinds/cmd") {
-        if (message == "UP")    handleButtonAction(BTN_TOP, 200); 
-        else if (message == "STOP") handleButtonAction(BTN_MID, 200);
-        else if (message == "DOWN") handleButtonAction(BTN_BOTTOM, 200);
+        if (length == 2 && !memcmp(payload, "UP", 2))    handle_button_action(BTN_TOP, 200); 
+        else if(length == 4) {
+            if (!memcmp(payload, "STOP", 4)) handle_button_action(BTN_MID, 200);
+            else if (!memcmp(payload, "DOWN", 4)) handle_button_action(BTN_BOTTOM, 200);
+        }
     } 
+
+    else if (!strcmp(topic, config.admin_topic)) {
+        return;
+    }
+}
+
+void topic_setup() {
+
+    // tphome/blinds/lounge/big-blind/set
+    // tphome/blinds/lounge/big-blind/state
+    // tphome/admin/DEVICE_ID
+
+    snprintf(config.set_topic, sizeof(config.set_topic), "tphome/blinds/%s/%s/set", config.room, config.name);
+    snprintf(config.state_topic, sizeof(config.state_topic), "tphome/blinds/%s/%s/state", config.room, config.name);
+    snprintf(config.admin_topic, sizeof(config.admin_topic), "tphome/admin/%s", config.device_id);
 }
 
 void network_setup() {
@@ -36,15 +46,22 @@ void network_setup() {
     client.setCallback(callback);
 
     // Topic setup
-    
+    topic_setup();
 }
 
 // Function to connect to the MQTT server with its credentials
 // and also to subscribe to the corresponding topic
 bool mqtt_reconnect() {
+
     if (client.connect(config.device_id, config.mqtt_user, config.mqtt_pass)) {
-        client.subscribe("tphome/blinds/cmd"); blink(LED_GREEN, 0); return true;}
-    return false;
+        
+        client.subscribe(config.set_topic); 
+        client.subscribe(config.admin_topic);
+        client.publish(config.state_topic, "CONNECTED", true);
+        
+        blink(LED_GREEN, 0); return true;
+
+    } return false;
 }
 
 void network_check() {

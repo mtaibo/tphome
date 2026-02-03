@@ -13,15 +13,18 @@ struct Config {
     char wifi_password[64];
 
     // MQTT configuration
-    char mqtt_server[40];
-    char mqtt_user[40];
-    char mqtt_pass[40];
+    char mqtt_server[30];
+    char mqtt_user[30];
+    char mqtt_pass[30];
   
     // Topic configuration
     char type[20];
     char room[20];
-
     char name[30];
+
+    char set_topic[96];
+    char state_topic[96];
+    char admin_topic[96];
   
     // Blind configuration
     unsigned long up_time;
