@@ -1,10 +1,8 @@
-#include <actions.h>
-#include <network.h>
-#include <buttons.h>
-#include <config.h>
-#include <pins.h>
-
-int output_pins[] = {LED_TOP, LED_MID, LED_BOTTOM, LED_GREEN, RELAY_UP, RELAY_DOWN};
+#include <actions.h> // update_actions();
+#include <network.h> // network_setup(); network_check();
+#include <buttons.h> // buttonTop/Mid/Bottom.setup()/.check();
+#include <config.h> // config_setup();
+#include <pins.h> // temporary
 
 void setup() {
 
