@@ -47,6 +47,9 @@ void move_blind(Direction direction) {
         digitalWrite(LED_TOP, LOW);
         digitalWrite(LED_BOTTOM, LOW);
 
+        // Message published to the state topic when relays stop
+        client.publish(config.state_topic, "STOP");
+
         // Change active relay and active leds to -1
         config.active_led = -1;
         config.active_relay = -1;
@@ -108,17 +111,15 @@ void update_actions() {
         config.active_led = config.pending_led;
         config.active_relay = config.pending_relay;
 
-        digitalWrite(config.active_led, HIGH);
-        digitalWrite(config.active_relay, HIGH);
+        // Message published to the state topic when going up or down
+        if (config.active_relay == RELAY_UP) client.publish(config.state_topic, "UP");
+        else if (config.active_relay == RELAY_DOWN) client.publish(config.state_topic, "DOWN");
         
         // Configuration of the variables for the update actions function
         config.is_moving = true;
         config.is_waiting = false;
         config.stop_time = millis(); 
         config.current_limit = (config.active_relay == RELAY_UP) ? config.up_time : config.down_time;
-        
-        config.is_moving = true;
-        config.is_waiting = false;
     }
 
     // Control common moving with stop_time
