@@ -35,6 +35,9 @@ bool manage_json(int mode) {
     configFile.close(); // Close the file that was opened by LittleFS to free memory
     if (error) return false; // If json is corrupted, return false after closing the configFile
 
+    // TODO: Implement the reading interaction and saving its values con config struct
+    // TODO: Implement mode selector from int mode input
+
     return true;
 }
 
