@@ -3,6 +3,9 @@
 
 #include <Arduino.h>
 
+#define DEFAULT_UP_TIME 40000
+#define DEFAULT_DOWN_TIME 40000
+
 struct Config {
   
     // Device ID
@@ -32,7 +35,7 @@ struct Config {
     // Blind configuration
     unsigned long up_time;
     unsigned long down_time;
-    float current_position; 
+    unsigned int current_position; 
 
     // Execution data
     bool is_moving;
@@ -67,6 +70,9 @@ struct Config {
 };
 
 extern Config config; 
+
+void pin_setup();
+bool manage_json(int mode); // 0 to load, 1 to save
 
 void config_setup();
 void config_default();
