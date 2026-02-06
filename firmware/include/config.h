@@ -71,10 +71,15 @@ struct Config {
 
 extern Config config; 
 
-void pin_setup();
-bool manage_json(int mode); // 0 to load, 1 to save
+// Config file managment
+void load_config();
+void save_config();
 
-void config_setup();
+// Set default config 
 void config_default();
+
+// Setup functions
+void pin_setup();
+void config_setup();
 
 #endif
