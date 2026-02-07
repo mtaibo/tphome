@@ -30,6 +30,15 @@ void blink(int pin, int control) {
     }
 }
 
+void set_position(int next_position) {
+
+    if (next_position == config.current_position) return;
+    config.next_position =  next_position;
+    
+    if (next_position > config.current_position && config.active_relay != RELAY_UP) move_blind(UP);
+    else if (next_position < config.current_position && config.active_relay != RELAY_DOWN) move_blind(DOWN);
+}
+
 void move_blind(Direction direction) {
 
     unsigned long now = millis();
@@ -70,10 +79,10 @@ void move_blind(Direction direction) {
     } 
         
     // Check if blind is already at its lowest or highest position
-    if (config.current_position <= 0.0 && direction == DOWN) return;
-    if (config.current_position >= 100.0 && direction == UP) return;
+    if (config.current_position <= 0 && direction == DOWN) return;
+    if (config.current_position >= 100 && direction == UP) return;
         
-    // Set the next led and relay to be turned on
+    // Set the next led and relay to pending, to be turned on the next cycle
     config.pending_led = (direction == UP) ? LED_TOP : LED_BOTTOM;
     config.pending_relay = (direction == UP) ? RELAY_UP : RELAY_DOWN;
 
@@ -90,7 +99,11 @@ void update_actions() {
 
     unsigned long time_running = millis() - config.stop_time;
 
-    // Control waiting and pending status for relays
+    // Control the is_waiting state, when any relay or led is waiting
+    // to be active, this segment turn the other relay and led down to
+    // turn the pending ones to the HIGH state and also publish the new 
+    // state to the MQTT server. Also modifies execution data to the 
+    // code segment that stops this relay by position or time
     if (config.is_waiting && (time_running >= config.motor_safe_time)) {
 
         // First of all, before setting any relay to HIGH, turn the other 
@@ -103,29 +116,46 @@ void update_actions() {
             digitalWrite(RELAY_UP, LOW);
         }
 
-        // Turn the pending led and relay to HIGH
+        // Turn pending led and relay to HIGH and 
+        // set them as the active ones
         digitalWrite(config.pending_led, HIGH);
         digitalWrite(config.pending_relay, HIGH);
-        
-        // Configure the active led and relay to the active ones 
         config.active_led = config.pending_led;
         config.active_relay = config.pending_relay;
 
-        // Message published to the state topic when going up or down
+        // Publish message to the state topic when going up or down
         if (config.active_relay == RELAY_UP) client.publish(config.state_topic, "UP");
         else if (config.active_relay == RELAY_DOWN) client.publish(config.state_topic, "DOWN");
         
-        // Configuration of the variables for the update actions function
+        // Configure the variables for the update actions function
         config.is_moving = true;
         config.is_waiting = false;
         config.stop_time = millis(); 
         config.current_limit = (config.active_relay == RELAY_UP) ? config.up_time : config.down_time;
     }
 
-    // Control common moving with stop_time
-    else if (config.is_moving && (time_running >= config.current_limit)) {
-        move_blind(STOP); 
-    } 
+    // Control the is_moving state, when the blind is moving, this segment
+    // of code will 
+    if (config.is_moving) {
+        unsigned long delta = millis() - last_cycle_time; 
+        float step = (delta * 100.0) / (config.active_relay == RELAY_UP ? config.up_time : config.down_time);
+        
+        if (config.active_relay == RELAY_UP) config.current_position += step;
+        else config.current_position -= step;
+
+        // This is just a couple lines to prevent the position to go above 100 or below 0
+        if (config.current_position > 100) config.current_position = 100;
+        if (config.current_position < 0) config.current_position = 0;
+
+        // If we are moving, and we get to the final position that this movement was trying to reach
+        // just stop the movement with the move_blind(STOP) function
+        if ((config.active_relay == RELAY_UP && config.current_position >= config.next_position) ||
+            (config.active_relay == RELAY_DOWN && config.current_position <= config.next_position)) move_blind(STOP);
+
+        // If the time that the relay has been running is greater than the up_time 
+        // or the down_time, therefore, the current_limit, the blind stops
+        else if (time_running >= config.current_limit) move_blind(STOP); 
+    }
 
     // Code to control pause button
     else if (config.pause_control && ((time_running >= config.mid_led_time) || config.is_moving)) {
@@ -141,7 +171,7 @@ void update_actions() {
 void handle_button_action(int pin, unsigned long duration) {
 
     if (pin == BTN_TOP) {
-        if (duration < config.short_pulse) move_blind(UP);
+        if (duration < config.short_pulse) set_position(100);
         else if (duration > config.short_pulse && duration < config.long_pulse) ;
         else if (duration > config.long_pulse) ;
     } 
@@ -153,7 +183,10 @@ void handle_button_action(int pin, unsigned long duration) {
     } 
     
     else if (pin == BTN_BOTTOM) {
-        if (duration < config.short_pulse) move_blind(DOWN); 
+        if (duration < config.short_pulse) {
+            if (config.current_position == config.down_position) set_position(0);
+            else set_position(config.down_position); 
+        }
         else if (duration > config.short_pulse && duration < config.long_pulse) ;
         else if (duration > config.long_pulse) ;
     }
