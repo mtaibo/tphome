@@ -10,11 +10,11 @@ struct Config {
   
     // WIFI configuration
     char wifi_ssid[32];
-    char wifi_password[64];
+    char wifi_pass[64];
 
     // MQTT configuration
     char mqtt_server[32];
-    int mqtt_server_port;
+    unsigned int mqtt_port;
 
     char mqtt_user[32];
     char mqtt_pass[32];
@@ -32,24 +32,26 @@ struct Config {
     // Blind configuration
     unsigned long up_time;
     unsigned long down_time;
+    
+    unsigned int down_position;
     unsigned int current_position; 
 
     // Execution data
     bool is_moving;
     bool is_waiting;
 
-    bool pause_control;
+    unsigned int next_position;
 
-    unsigned long stop_time; 
-    unsigned long stop_led_time;
-
-    unsigned long current_limit;
-
-    // Information about running relay and led
     int active_relay;  
     int active_led;          
     int pending_relay;
     int pending_led;
+
+    // Time execution data
+    bool pause_control;
+    unsigned long stop_time; 
+    unsigned long stop_led_time;
+    unsigned long current_limit;
 
     // Blinking control
     bool is_blinking;
@@ -72,8 +74,7 @@ extern Config config;
 void load_config();
 void save_config();
 
-// Set default config 
-void config_default();
+void reset_memory();
 
 // Setup functions
 void pin_setup();

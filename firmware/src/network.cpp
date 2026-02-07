@@ -32,26 +32,24 @@ void callback(char* topic, byte* payload, unsigned int length) {
         
         // TODO: Possible commands on admin topic are pending to be created
 
+        // Command to get blind id but useful as a ping/pong command
         if (length == 6 && !memcmp(payload, "GET_ID", 6)) {
             client.publish(config.admin_state_topic, config.device_id);
         }
 
-        // 
+        // Settings configuration commands
         else if (length == 10 && !memcmp(payload, "GET_CONFIG", 10)) {
-            client.publish(config.admin_state_topic, "DICT");
+
         } else if (length >= 50 && !memcmp(payload, "SET_CONFIG", 10)) {
 
-        } else if (length == 11 && !memcmp(payload, "SAVE_CONFIG", 11)) {
+        } else if (length == 11 && !memcmp(payload, "SAVE_CONFIG", 11)) save_config();
 
-        } else if (length == 14 && !memcmp(payload, "DEFAULT_CONFIG", 14)) {
-            config_default(); save_config();
-            client.publish(config.admin_state_topic, "default config restored");
-        }
+        // Restart the chip to reload its setup with previous configs and loop
+        else if (length == 6 && !memcmp(payload, "REBOOT", 6)) ESP.restart();
 
-        // Restart the chip to reload its setup and loop
-        else if (length == 6 && !memcmp(payload, "REBOOT", 6)) {
-
-        }
+        // Restart the chip to reload its default values, setup and loop
+        else if (length == 12 && !memcmp(payload, "RESET_MEMORY", 12)) {
+            reset_memory(); client.publish(config.admin_state_topic, "default config restored");}
 
         // Position reset messages to prevent the blind to get stuck at any wrong pos
         else if (length == 13 && !memcmp(payload, "RESET_POS_100", 13)) config.current_position = 100;
@@ -75,10 +73,10 @@ void network_setup() {
 
     // Wi-Fi configuration
     WiFi.mode(WIFI_STA);
-    WiFi.begin(config.wifi_ssid, config.wifi_password);
+    WiFi.begin(config.wifi_ssid, config.wifi_pass);
     
     // MQTT server configuration
-    client.setServer(config.mqtt_server, config.mqtt_server_port);
+    client.setServer(config.mqtt_server, config.mqtt_port);
     client.setCallback(callback);
 
     // Topic setup
@@ -107,14 +105,13 @@ bool mqtt_reconnect() {
 void network_check() {
 
     // This line activates the green_led while the wifi is not connected
-    if (WiFi.status() != WL_CONNECTED) {if (!config.is_blinking) { blink(LED_GREEN, 1); config.blink_time = 10000; } return; } 
+    if (WiFi.status() != WL_CONNECTED) {if (!config.is_blinking) blink(LED_GREEN, 1); return; } 
 
     // Gestión de MQTT
     if (!client.connected()) {
 
         // Section to control blinking led when mqtt server disconnects
         if (!config.is_blinking) blink(LED_GREEN, 1);
-        config.blink_time = 500;
 
         // This lines below manage a 4 second delay 
         // to reattempt the connection to the MQTT server
