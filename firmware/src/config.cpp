@@ -15,6 +15,8 @@ void load_config() {
     config.is_moving = false;
     config.is_waiting = false;
 
+    config.next_position = 50;
+
     config.active_relay = -1;
     config.active_led = -1;
     config.pending_relay = -1;
@@ -54,7 +56,7 @@ void load_config() {
 
     // MQTT
     if (prefs.getString("ip", config.mqtt_server, sizeof(config.mqtt_server)) == 0) strcpy(config.mqtt_server, MQTT_SERVER); 
-    config.mqtt_server_port = prefs.getUInt("port", MQTT_SERVER_PORT);
+    config.mqtt_port = prefs.getUInt("port", MQTT_PORT);
     
     if (prefs.getString("user", config.mqtt_user, sizeof(config.mqtt_user)) == 0) strcpy(config.mqtt_user, MQTT_USER); 
     if (prefs.getString("mqtt_pass", config.mqtt_pass, sizeof(config.mqtt_pass)) == 0) strcpy(config.mqtt_pass, MQTT_PASS); 
@@ -85,7 +87,7 @@ void save_config() {
 
     // MQTT 
     prefs.putString("ip", config.mqtt_server);
-    prefs.putUInt("port", config.mqtt_server_port);
+    prefs.putUInt("port", config.mqtt_port);
     prefs.putString("user", config.mqtt_user);
     prefs.putString("mqtt_pass", config.mqtt_pass);
 
