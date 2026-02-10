@@ -107,7 +107,8 @@ void update_actions() {
     static bool limit_reached = false;
     static unsigned long limit_reached_start_time = 0;
 
-    unsigned long time_running = millis() - config.stop_time;
+    unsigned long now = millis();
+    unsigned long time_running = now - config.stop_time;
 
     // Control the is_waiting state, when any relay or led is waiting
     // to be active, this segment turn the other relay and led down to
@@ -136,7 +137,7 @@ void update_actions() {
         // Publish message to the state topic when going up or down
         if (config.active_relay == RELAY_UP) client.publish(config.state_topic, "UP");
         else if (config.active_relay == RELAY_DOWN) client.publish(config.state_topic, "DOWN");
-        
+
         // Configure the variables for the update actions function
         config.is_moving = true;
         config.is_waiting = false;
@@ -144,9 +145,9 @@ void update_actions() {
         limit_reached = false; 
         limit_reached_start_time = 0;
 
-        config.stop_time = millis(); 
+        config.stop_time = now; 
         config.current_time_limit = (config.active_relay == RELAY_UP) ? config.up_time : config.down_time;
-        config.last_cycle_time = millis();
+        config.last_cycle_time = now;
     }
 
     // Control the is_moving state, when the blind is moving, 
@@ -156,8 +157,8 @@ void update_actions() {
 
         // Calculate the time difference and update the 
         // last_cycle_time for the next delta calculation
-        unsigned long delta = millis() - config.last_cycle_time; 
-        config.last_cycle_time = millis();
+        unsigned long delta = now - config.last_cycle_time; 
+        config.last_cycle_time = now;
 
         // Calculate the step depending on the current_time_limit and
         // add that step or substract that step depending on that limit
@@ -180,13 +181,14 @@ void update_actions() {
         // from the current_time_limit to prevent the blind from getting at an
         // intermediate position when trying to reach limit
         else {
-            if (!limit_reached) if (config.current_position == 100.0 || config.current_position == 0.0) limit_reached=true;
-            else if (limit_reached_start_time == 0) limit_reached_start_time = millis();
-            else if (millis() - limit_reached_start_time >= 3000) {
-                limit_reached = false;
-                limit_reached_start_time=0;
-                move_blind(STOP);
-            }
+            if ((config.current_position >= 100.0 && config.active_relay == RELAY_UP) || 
+                (config.current_position <= 0.0 && config.active_relay == RELAY_DOWN)) { 
+                if (limit_reached_start_time == 0) limit_reached_start_time = now;
+                if (now - limit_reached_start_time >= 3000) {
+                    limit_reached_start_time = 0;
+                    move_blind(STOP);
+                }
+            } else limit_reached_start_time = 0;
         }
 
         // If the time that the relay has been running is greater than the up_time 
