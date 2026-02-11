@@ -103,8 +103,7 @@ void move_blind(Direction direction) {
 
 void update_actions() {
 
-    // Variables to calculate time limit exceed
-    static bool limit_reached = false;
+    // Variable to calculate time limit exceed
     static unsigned long limit_reached_start_time = 0;
 
     unsigned long now = millis();
@@ -142,7 +141,6 @@ void update_actions() {
         config.is_moving = true;
         config.is_waiting = false;
 
-        limit_reached = false; 
         limit_reached_start_time = 0;
 
         config.stop_time = now; 
@@ -173,27 +171,22 @@ void update_actions() {
         // just stop the movement with the move_blind(STOP) function
         if (config.next_position < 100.0 && config.next_position > 0.0) {
             if ((config.active_relay == RELAY_UP && config.current_position >= config.next_position) ||
-                (config.active_relay == RELAY_DOWN && config.current_position <= config.next_position)) {
-                    limit_reached=false; move_blind(STOP);}
-        }
+                (config.active_relay == RELAY_DOWN && config.current_position <= config.next_position)) move_blind(STOP);}
 
         // When next_position is 100.0 or 0.0, calculate an exceed of 2 seconds 
         // from the current_time_limit to prevent the blind from getting at an
         // intermediate position when trying to reach limit
-        else {
-            if ((config.current_position >= 100.0 && config.active_relay == RELAY_UP) || 
-                (config.current_position <= 0.0 && config.active_relay == RELAY_DOWN)) { 
-                if (limit_reached_start_time == 0) limit_reached_start_time = now;
-                if (now - limit_reached_start_time >= 3000) {
-                    limit_reached_start_time = 0;
-                    move_blind(STOP);
-                }
-            } else limit_reached_start_time = 0;
-        }
+        else if ((config.current_position >= 100.0 && config.next_position == 100.0) || 
+            (config.current_position <= 0.0 && config.next_position == 0.0)) { 
+            if (limit_reached_start_time == 0) limit_reached_start_time = now;
+            if (now - limit_reached_start_time >= 3000) {
+                limit_reached_start_time = 0;
+                move_blind(STOP);}
+        } else limit_reached_start_time = 0;
 
         // If the time that the relay has been running is greater than the up_time 
         // or the down_time, therefore, the current_limit, the blind stops
-        if (time_running >= config.current_time_limit+5000) {limit_reached = false; move_blind(STOP);}
+        if (time_running >= config.current_time_limit+5000) move_blind(STOP);
     }
 
     // Code to control pause button
@@ -222,11 +215,11 @@ void handle_button_action(int pin, unsigned long duration) {
     } 
     
     else if (pin == BTN_BOTTOM) {
-        if (duration < config.short_pulse) {
-            if (config.current_position > config.down_position) set_position(config.down_position);
-            else if (config.current_position <= config.down_position) set_position(0);
-        }
-        else if (duration > config.short_pulse && duration < config.long_pulse) ;
-        else if (duration > config.long_pulse) network_setup();
+      if (duration < config.short_pulse) {
+          if (config.current_position > config.down_position) set_position(config.down_position);
+          else if (config.current_position <= config.down_position) set_position(0);
+      }
+      else if (duration > config.short_pulse && duration < config.long_pulse) ;
+      else if (duration > config.long_pulse) network_setup();
     }
 }
