@@ -10,13 +10,13 @@ void blink(int pin, int control) {
         config.is_blinking = false;
         config.blinking_led = -1;
         digitalWrite(pin, LOW);
-        return; 
+        return;
     }
 
     // Control blinking, for the first time and the following times
     if (control == 1) {
 
-        // If its the first blink, setup the config variables, 
+        // If its the first blink, setup the config variables,
         // otherwise, change blinking_state
         if (!config.is_blinking) {
             config.is_blinking = true;
@@ -36,7 +36,7 @@ void set_position(float next_position) {
 
     if (next_position == config.current_position) return;
     config.next_position =  next_position;
-    
+
     if (next_position > config.current_position && config.active_relay != RELAY_UP) move_blind(UP);
     else if (next_position < config.current_position && config.active_relay != RELAY_DOWN) move_blind(DOWN);
 }
@@ -51,7 +51,7 @@ void move_blind(Direction direction) {
         // Check if blind is already moving on same direction
         if (config.active_relay == RELAY_UP && direction == UP) return;
         if (config.active_relay == RELAY_DOWN && direction == DOWN) return;
-        
+
         // Stop every led and relay
         digitalWrite(RELAY_UP, LOW);
         digitalWrite(RELAY_DOWN, LOW);
@@ -82,12 +82,12 @@ void move_blind(Direction direction) {
             digitalWrite(LED_MID, HIGH); 
             return;
         }
-    } 
-        
+    }
+
     // Check if blind is already at its lowest or highest position
     if (config.current_position <= 0.0 && direction == DOWN) return;
     if (config.current_position >= 100.0 && direction == UP) return;
-        
+
     // Set the next led and relay to pending, to be turned on the next cycle
     config.pending_led = (direction == UP) ? LED_TOP : LED_BOTTOM;
     config.pending_relay = (direction == UP) ? RELAY_UP : RELAY_DOWN;
@@ -126,7 +126,10 @@ void update_actions() {
             digitalWrite(RELAY_UP, LOW);
         }
 
-        // Turn pending led and relay to HIGH and 
+        // Turn mid button led to LOW before turning any other led to HIGH
+        digitalWrite(LED_MID, LOW);
+
+        // Turn pending led and relay to HIGH and
         // set them as the active ones
         digitalWrite(config.pending_led, HIGH);
         digitalWrite(config.pending_relay, HIGH);

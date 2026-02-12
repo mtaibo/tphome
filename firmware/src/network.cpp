@@ -1,5 +1,6 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <WiFiManager.h>
 
 #include <actions.h>
 #include <config.h>
@@ -10,7 +11,8 @@ PubSubClient client(espClient);
 
 void callback(char* topic, byte* payload, unsigned int length) {
 
-    // Common messages received on the chip to set main actions
+    // Messages received on the set_topic to habndle basic
+    // actions, like going up, down, stop and set a position
     if (!strcmp(topic, config.set_topic)) { 
 
         // Orders to go UP, DOWN or to STOP
@@ -21,23 +23,32 @@ void callback(char* topic, byte* payload, unsigned int length) {
         }
 
         // Order to set the position of the blind to a determined position
-        if (length >= 4 && !memcmp(payload, "SET:", 4)) {
-            String msg = "";
-            for (int i = 0; i < length; i++) msg += (char)payload[i];
-            set_position(msg.substring(4).toFloat());
-        }
+        if (length >= 5 && !memcmp(payload, "SET:", 4)) set_position(atof((char*)&payload[4]));
+
+        // Order to get the current position of the blind
+        if (length == 7 && !memcmp(payload, "GET_POS", 7)) client.publish(config.state_topic, config.current_position);
     } 
 
     // Messages received on the chip from admin to change configuration
     // or to publish configuration elements from the chip
     else if (!strcmp(topic, config.admin_set_topic)) {
-        
+
         // Command to get blind id but useful as a ping/pong command
         if (length == 6 && !memcmp(payload, "GET_ID", 6)) {
             client.publish(config.admin_state_topic, config.device_id);
         }
 
-        // Settings configuration commands
+        // Commands to get the current topics 
+        if (length == 13 && !memcmp(payload, "GET_SET_TOPIC", 13)) {
+          client.publish(config.admin_state_topic, config.set_topic);}
+        if (length == 15 && !memcmp(payload, "GET_STATE_TOPIC", 15)) {
+          client.publish(config.admin_state_topic, config.state_topic);}
+        if (length == 19 && !memcmp(payload, "GET_ADMIN_SET_TOPIC", 19)) {
+          client.publish(config.admin_state_topic, config.admin_set_topic);}
+        if (length == 21 && !memcmp(payload, "GET_ADMIN_STATE_TOPIC", 21)) {
+          client.publish(config.admin_state_topic, config.admin_state_topic);}
+
+       // Settings configuration commands
         else if (length >= 10 && !memcmp(payload, "GET_CONFIG", 10)) {
 
             String msg = "";
@@ -150,7 +161,26 @@ bool mqtt_reconnect() {
 }
 
 void access_point() {
+  WiFiManager wm;
 
+  WiFiManagerParameter mqtt_server_param("server", "MQTT Server IP", config.mqtt_server, 32);
+  WiFiManagerParameter mqtt_user_param("user", "MQTT User", config.mqtt_user, 32);
+  WiFiManagerParameter mqtt_pass_param("pass", "MQTT Password", config.mqtt_pass, 32);
+
+  wm.addParameter(&mqtt_server_param);
+  wm.addParameter(&mqtt_user_param);
+  wm.addParameter(&mqtt_pass_param);
+
+  if (!wm.startConfigPortal(config.device_id)) {
+        delay(3000);
+        ESP.restart();
+  }
+
+  strcpy(config.mqtt_server, mqtt_server_param.getValue());
+  strcpy(config.mqtt_user, mqtt_user_param.getValue());
+  strcpy(config.mqtt_pass, mqtt_pass_param.getValue());
+
+  save_config();
 }
 
 void network_check() {
