@@ -36,7 +36,7 @@ void load_config() {
     config.last_blink = 0;
 
     // Preferences
-    config.mid_led_time = 1000;
+    config.mid_led_time = 500;
     config.motor_safe_time = 1000;
 
     config.short_pulse = 3000;
