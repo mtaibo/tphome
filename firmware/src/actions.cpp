@@ -190,7 +190,7 @@ void update_actions() {
     }
 
     // Code to control pause button
-    else if (config.pause_control && ((time_running >= config.mid_led_time) || config.is_moving)) {
+    if (config.pause_control && ((time_running >= config.mid_led_time) || config.is_moving)) {
         digitalWrite(LED_MID, LOW);
         config.pause_control = false;
     }
