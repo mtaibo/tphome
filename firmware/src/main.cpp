@@ -21,4 +21,6 @@ void loop() {
     buttonTop.check();
     buttonMid.check();
     buttonBottom.check();
+
+    delay(10);
 }
