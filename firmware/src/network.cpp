@@ -9,6 +9,40 @@
 WiFiClient espClient;
 PubSubClient client(espClient);
 
+void access_point() {
+
+  // Disconnect from WiFi to launch a WiFi signal as an access point
+  client.disconnect(); WiFi.disconnect(true); WiFi.mode(WIFI_AP);
+
+  // Make the connection led blink as a signal of access point state
+  blink(LED_GREEN, 1);
+
+  WiFiManager wm; // Create a WiFiManager object
+
+  // Set the mqtt server parameters that can change via access point
+  WiFiManagerParameter mqtt_server_param("server", "MQTT Server IP", config.mqtt_server, 32);
+  WiFiManagerParameter mqtt_user_param("user", "MQTT User", config.mqtt_user, 32);
+  WiFiManagerParameter mqtt_pass_param("pass", "MQTT Password", config.mqtt_pass, 32);
+
+  wm.addParameter(&mqtt_server_param);
+  wm.addParameter(&mqtt_user_param);
+  wm.addParameter(&mqtt_pass_param);
+
+  // Execute wm.startConfigPortal with an if to prevent failures
+  // the signal from this command will remain until it is approved 
+  // on its WiFi signal access point web
+  if (!wm.startConfigPortal(config.device_id)) reboot();
+
+  // If ConfigPortal was successful, the new parameters will be
+  // copied to the new configuration and then saved to the chip
+  strcpy(config.mqtt_server, mqtt_server_param.getValue());
+  strcpy(config.mqtt_user, mqtt_user_param.getValue());
+  strcpy(config.mqtt_pass, mqtt_pass_param.getValue());
+
+  blink(LED_GREEN, 0);
+  save_config();
+}
+
 void callback(char* topic, byte* payload, unsigned int length) {
 
     // Messages received on the set_topic to habndle basic
@@ -178,40 +212,6 @@ bool mqtt_reconnect() {
         blink(LED_GREEN, 0); return true;
 
     } return false;
-}
-
-void access_point() {
-
-  // Disconnect from WiFi to launch a WiFi signal as an access point
-  WiFi.stop(); client.disconnect();
-
-  // Make the connection led blink as a signal of access point state
-  blink(LED_GREEN, 1);
-
-  WiFiManager wm; // Create a WiFiManager object
-
-  // Set the mqtt server parameters that can change via access point
-  WiFiManagerParameter mqtt_server_param("server", "MQTT Server IP", config.mqtt_server, 32);
-  WiFiManagerParameter mqtt_user_param("user", "MQTT User", config.mqtt_user, 32);
-  WiFiManagerParameter mqtt_pass_param("pass", "MQTT Password", config.mqtt_pass, 32);
-
-  wm.addParameter(&mqtt_server_param);
-  wm.addParameter(&mqtt_user_param);
-  wm.addParameter(&mqtt_pass_param);
-
-  // Execute wm.startConfigPortal with an if to prevent failures
-  // the signal from this command will remain until it is approved 
-  // on its WiFi signal access point web
-  if (!wm.startConfigPortal(config.device_id)) reboot();
-
-  // If ConfigPortal was successful, the new parameters will be
-  // copied to the new configuration and then saved to the chip
-  strcpy(config.mqtt_server, mqtt_server_param.getValue());
-  strcpy(config.mqtt_user, mqtt_user_param.getValue());
-  strcpy(config.mqtt_pass, mqtt_pass_param.getValue());
-
-  blind(LED_GREEN, 0);
-  save_config();
 }
 
 void network_check() {
