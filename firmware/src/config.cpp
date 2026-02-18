@@ -7,6 +7,23 @@
 Config config;
 Preferences prefs;
 
+void reboot() {
+
+    // Make the main leds blink to make user aware of a reboot
+    for (unsigned int i = 0; i < 3; i++) {
+      digitalWrite(LED_TOP, HIGH);
+      digitalWrite(LED_MID, HIGH);
+      digitalWrite(LED_BOTTOM, HIGH);
+      delay(1000);
+      digitalWrite(LED_TOP, LOW);
+      digitalWrite(LED_MID, LOW);
+      digitalWrite(LED_BOTTOM, LOW);
+      delay(1000);
+    }
+
+    ESP.restart();
+}
+
 void load_config() {
 
     // * Set configuration
@@ -117,23 +134,6 @@ void save_config() {
 
     prefs.end();
     reboot();
-}
-
-void reboot() {
-
-    // Make the main leds blink to make user aware of a reboot
-    for (unsigned int i = 0; i < 3; i++) {
-      digitalWrite(LED_TOP, HIGH);
-      digitalWrite(LED_MID, HIGH);
-      digitalWrite(LED_BOTTOM, HIGH);
-      delay(1000);
-      digitalWrite(LED_TOP, LOW);
-      digitalWrite(LED_MID, LOW);
-      digitalWrite(LED_BOTTOM, LOW);
-      delay(1000);
-    }
-
-    ESP.restart();
 }
 
 void reset_memory() {

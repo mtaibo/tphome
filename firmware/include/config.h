@@ -76,6 +76,7 @@ extern Config config;
 void load_config();
 void save_config();
 
+void reboot();
 void reset_memory();
 
 // Setup functions
