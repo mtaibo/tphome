@@ -1,5 +1,18 @@
 
-CHIP: TYWE3S
+## TYWE3S
+
+This table below represents every pin that can be used on chip TYWE3S to interact with buttons, leds and relays. It also includes transmitting and receiving pins which can't be pinned to see the serial monitor.
+
+
+
+
+| PINs | 0 | 1 | 2 | 3 | 5 | 12 | 13 | 14 | 15 | 16 |
+|-------|---|---|---|---|---|-----|----|-----|----|-----|
+|LEDs|Green||Low|||||Mid||Top|
+|Buttons||||Mid|Low|Top|
+|Relays|||||||L1||L3|
+|TX/RX||X||X|||||||||
+
 
 PIN LIST:
 
