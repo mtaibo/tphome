@@ -1,55 +1,73 @@
-# TYWE3S
+# TYWE3S Controller Reference
 
-## PIN Distribution
+This documentation details the pinout configuration and logic for the **TYWE3S** chip when used for blind motor control, including LED indicators, button behaviors, and relay assignments.
 
-This table below represents every pin that can be used on chip TYWE3S to interact with buttons, leds and relays. It also includes transmitting and receiving pins which can't be active if you want to see the serial monitor.
+## Pin Distribution
 
-| PINs   | 0   | 1  | 2 | 3 | 5 | 12  | 13 | 14  | 15 | 16  |
-|:-------|-----|----|---|---|---|-----|----|-----|----|-----|
-|LEDs    |Green|    |Low|   |   |     |    |Mid  |    |Top  |
-|Buttons |     |    |   |Mid|Low|Top  |    |     |    |     |
-|Relays  |     |    |   |   |   |     |L1  |     |L3  |     |
-|TX/RX   |     |X   |   |X  |   |     |    |     |    |     |
+The following table maps the available pins to their respective functions. 
+
+> **Note:** Pins 1 and 3 are reserved for Serial Communication (TX/RX). Avoid using them for other tasks if you need to use the Serial Monitor.
+
+| Function | 0 | 1 | 2 | 3 | 5 | 12 | 13 | 14 | 15 | 16 |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **LEDs** | Green | | Low | | | | | Mid | | Top |
+| **Buttons**| | | | Mid | Low | Top | | | | |
+| **Relays** | | | | | | | L1 | | L3 | |
+| **TX/RX** | | **X** | | **X** | | | | | | |
+
+---
+
+## Component Logic
 
 ### LEDs
+* **Green LED (Pin 0):** Simple state indicator.
+    * `HIGH`: LED On (Green).
+    * `LOW`: LED Off.
+* **Status LEDs (Mid/Top/Low):** These are dual-color LEDs.
+    * `HIGH`: Red.
+    * `LOW`: Blue.
 
-* **Green LED:** This LED just turns green or off, it doesn't have a secondary color when it's toggled off. To turn this LED green, position is HIGH, to turned it off, position is LOW.
+### Buttons (Active Low)
+All buttons follow standard pull-up logic:
+* **Pressed:** `LOW` (0).
+* **Released:** `HIGH` (1).
 
-* **Other LED:** The other three LEDs on the chip has two colors. When position is set to HIGH, this LED will bright in RED, otherwise, it will bright in BLUE.
+### Relays (Blind Motor Control)
+Relays control the current flow to the motor.
+* `HIGH`: Relay Active (Current ON).
+* `LOW`: Relay Inactive (Current OFF).
+* **Assignments:** Pin 13 is mapped to **L1** and Pin 15 to **L3**.
 
-### Buttons
+### Special Purpose Pins
+* **TX/RX (Pins 1 & 3):** Reserved for Serial communication. For reliable data transmission, ensure these pins are not held in a specific state by external hardware during flashing or debugging.
+* **Flash Memory (Pins 6-11):** These pins are dedicated to the internal flash memory. **Do not** attempt to use them for GPIO tasks, as this will cause the chip to crash.
 
-* **Position:** Every button has two positions, pressed and released. The pressed position corresponds to LOW, which is also 0. Otherwise, the released position correpsonds to HIGH, which is 1.
+---
 
-### Relays
+## Input Actions
 
-* When position is set to HIGH, relay will be giving current to the blind motor, so when position is set to LOW, the relay will not be giving current. By default, the pin 13 will be assigned to L1 relay, and pin 15 to L3 relay.
+Button behavior is determined by the duration of the press.
 
-### Other pins
+### **Top Button**
+* **Short Press:** `blind_up`
+* **Medium Press:** *(Unassigned)*
+* **Long Press:** `access_point` (Enter AP Mode)
 
-* **Transmiting and receiving pins:** This pins corresponds to 1 and 3. This pins are reserved to the serial monitor and they have to be on LOW state, which means no current is going through them, to transmit or receive information.
+### **Middle Button**
+* **Short Press:** `blind_stop`
+* **Medium Press:** `save_config`
+* **Long Press:** `reset_memory` (Factory Reset)
 
-* **Flash memory pins:** This pins, from 6 to 11, are reserved to the interaction with flash memory of the chip. They can't be turned on or off manually via code. 
+### **Bottom Button**
+* **Short Press:** `blind_down`
+* **Medium Press:** *(Unassigned)*
+* **Long Press:** `network_setup()`
 
-## ACTIONS
+---
 
-This section is refered to how the buttons interact with the chip depending on the duration of the pulse that the user give at each moment.
+## MQTT Commands
 
-Each button will have three phases, the short pulse, the medium pulse and the long pulse. Each kind of pulse will make a different action that will be defined below here:
-
-  TOP_BUTTON:
-    - short_pulse: blind_up
-    - medium_pulse: 
-    - long_pulse: access_point
-
-  MEDIUM_BUTTON:
-    - short_pulse: blind_stop
-    - medium_pulse: save_config
-    - long_pulse: reset_memory
-  
-  BOTTOM_BUTTON:
-    - short_pulse: blind_down
-    - medium_pulse: 
-    - long_pulse: network_setup()
-
-## MQTT COMMANDS
+| Topic | Payload | Action |
+| :--- | :--- | :--- |
+| `device/blinds/set` | `UP`, `DOWN`, `STOP` | Controls the motor state |
+| `device/blinds/status` | `string` | Reports curren
