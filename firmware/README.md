@@ -1,5 +1,5 @@
 
-## TYWE3S
+## TYWE3S PIN DISTRIBUTION
 
 This table below represents every pin that can be used on chip TYWE3S to interact with buttons, leds and relays. It also includes transmitting and receiving pins which can't be active if you want to see the serial monitor.
 
