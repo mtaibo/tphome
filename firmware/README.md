@@ -1,91 +1,28 @@
 
 ## TYWE3S
 
-This table below represents every pin that can be used on chip TYWE3S to interact with buttons, leds and relays. It also includes transmitting and receiving pins which can't be pinned to see the serial monitor.
+This table below represents every pin that can be used on chip TYWE3S to interact with buttons, leds and relays. It also includes transmitting and receiving pins which can't be active if you want to see the serial monitor.
 
+| PINs   | 0   | 1  | 2 | 3 | 5 | 12  | 13 | 14  | 15 | 16  |
+|:-------|-----|----|---|---|---|-----|----|-----|----|-----|
+|LEDs    |Green|    |Low|   |   |     |    |Mid  |    |Top  |
+|Buttons |     |    |   |Mid|Low|Top  |    |     |    |     |
+|Relays  |     |    |   |   |   |     |L1  |     |L3  |     |
+|TX/RX   |     |X   |   |X  |   |     |    |     |    |     |
 
+### LED
 
+* **Green LED:** This LED just turns green or off, it doesn't have a secondary color when it's toggled off. To turn this LED green, position is HIGH, to turned it off, position is LOW.
 
-| PINs | 0 | 1 | 2 | 3 | 5 | 12 | 13 | 14 | 15 | 16 |
-|-------|---|---|---|---|---|-----|----|-----|----|-----|
-|LEDs|Green||Low|||||Mid||Top|
-|Buttons||||Mid|Low|Top|
-|Relays|||||||L1||L3|
-|TX/RX||X||X|||||||||
+* **Other LED:** The other three LEDs on the chip has two colors. When position is set to HIGH, this LED will bright in RED, otherwise, it will bright in BLUE.
 
+### BUTTON
 
-PIN LIST:
+* **Position:** Every button has two positions, pressed and released. The pressed position corresponds to LOW, which is also 0. Otherwise, the released position correpsonds to HIGH, which is 1.
 
-    LEDS:
+### RELAY
 
-      PIN 0:
-        - Position: Upper Small Led
-        - High: Green ON
-        - Low: Green OFF
+* When position is set to HIGH, relay will be giving current to the blind motor, so when position is set to LOW, the relay will not be giving current.
 
-      PIN 2:
-        - Position: Lower Led
-        - High: Red Light
-        - Low: Blue Light
+### OTHER
 
-      PIN 14:
-        - Position: Medium Led
-        - High: Red Light
-        - Low: Blue Light
-
-      PIN 16:
-        - Position: Upper Big Led
-        - High: Red Light
-        - Low: Blue Light
-
-    BUTTONS:
-
-      PIN 3:
-        - Position: Mid Button
-        - 1: Not pressed
-        - 0: Pressed
-
-      PIN 5:
-        - Position: Lower Button
-        - 1: Not pressed
-        - 0: Pressed
-  
-      PIN 12:
-        - Position: Upper Button
-        - 1: Not pressed
-        - 0: Pressed
-
-    RELAYS:
-
-      PIN 13: L1 
-        - By default, it makes the blind close/go down
-      PIN 15: L3 
-        - By default, it makes the blind open/go up
-
-    EXTRA:
-      - PIN 1, 3: Transmiting and Receiving Pins
-      - PIN 6-11: Probably Flash Memory Pins
-      - PIN 4: Unkown
-
-
-
-ACTIONS:
-
-  Each button will have three phases, the short pulse, the medium pulse and
-  the long pulse. Each kind of pulse will make a different action that will
-  be defined below here:
-
-  TOP_BUTTON:
-    - short_pulse: blind_up
-    - medium_pulse: 
-    - long_pulse: access_point
-
-  MEDIUM_BUTTON:
-    - short_pulse: blind_stop
-    - medium_pulse: save_config
-    - long_pulse: reset_memory
-  
-  BOTTOM_BUTTON:
-    - short_pulse: blind_down
-    - medium_pulse: 
-    - long_pulse: network_setup()
