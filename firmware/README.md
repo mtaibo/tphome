@@ -17,6 +17,8 @@ The following table maps the available pins to their respective functions.
 
 ---
 
+Prueba
+
 ## Component Logic
 
 ### LEDs
