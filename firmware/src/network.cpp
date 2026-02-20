@@ -11,20 +11,24 @@ PubSubClient client(espClient);
 
 void access_point() {
 
-  // Disconnect from WiFi to launch a WiFi signal as an access point
+  // Disconnect from current WiFi to launch a WiFi signal as an access point
   client.disconnect(); WiFi.disconnect(true); WiFi.mode(WIFI_AP);
 
-  // Make the connection led blink as a signal of access point state
-  blink(LED_GREEN, 1);
-
+  blink(LED_GREEN, 1);// Make the network led blink as a signal of the access point state
   WiFiManager wm; // Create a WiFiManager object
+
+  // Convert the mqtt_port to char to show it on the WifiManager web
+  char port_buffer[6];
+  sprintf(port_buffer, "%u", config.mqtt_port);
 
   // Set the mqtt server parameters that can change via access point
   WiFiManagerParameter mqtt_server_param("server", "MQTT Server IP", config.mqtt_server, 32);
+  WiFiManagerParameter mqtt_port_param("port", "MQTT Port", port_buffer, 6);
   WiFiManagerParameter mqtt_user_param("user", "MQTT User", config.mqtt_user, 32);
   WiFiManagerParameter mqtt_pass_param("pass", "MQTT Password", config.mqtt_pass, 32);
 
   wm.addParameter(&mqtt_server_param);
+  wm.addParameter(&mqtt_port_param);
   wm.addParameter(&mqtt_user_param);
   wm.addParameter(&mqtt_pass_param);
 
@@ -39,6 +43,7 @@ void access_point() {
   // If ConfigPortal was successful, the new parameters will be
   // copied to the new configuration and then saved to the chip
   strncpy(config.mqtt_server, mqtt_server_param.getValue(), sizeof(config.mqtt_server) - 1);
+  config.mqtt_port = (unsigned int) strtoul(mqtt_port_param.getValue(), NULL, 10);
   strncpy(config.mqtt_user, mqtt_user_param.getValue(), sizeof(config.mqtt_user) - 1);
   strncpy(config.mqtt_pass, mqtt_pass_param.getValue(), sizeof(config.mqtt_pass) - 1);
 

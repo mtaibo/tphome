@@ -4,10 +4,10 @@
 #include <Arduino.h>
 
 struct Config {
-  
+
     // Device ID
     char device_id[16];
-  
+
     // WIFI configuration
     char wifi_ssid[32];
     char wifi_pass[64];
@@ -28,11 +28,11 @@ struct Config {
     char state_topic[128];
     char admin_set_topic[64];
     char admin_state_topic[64];
-  
+
     // Blind configuration
     unsigned long up_time;
     unsigned long down_time;
-    
+
     float down_position;
     float current_position; 
 
@@ -43,14 +43,14 @@ struct Config {
 
     float next_position;
 
-    int active_relay;  
-    int active_led;          
+    int active_relay;
+    int active_led;
     int pending_relay;
     int pending_led;
 
     // Time execution data
     bool pause_control;
-    unsigned long stop_time; 
+    unsigned long stop_time;
     unsigned long stop_led_time;
     unsigned long current_time_limit;
     unsigned long last_cycle_time;
@@ -61,7 +61,7 @@ struct Config {
     int blinking_state;
     unsigned long blink_time;
     unsigned long last_blink;
-  
+
     // Preferences
     unsigned long mid_led_time;
     unsigned long motor_safe_time;
@@ -70,7 +70,7 @@ struct Config {
     unsigned long long_pulse;
 };
 
-extern Config config; 
+extern Config config;
 
 // Config file managment
 void load_config();
