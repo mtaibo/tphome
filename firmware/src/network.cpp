@@ -171,7 +171,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
         else if (length == 12 && !memcmp(payload, "NEW_FIRMWARE", 12)) {
           digitalWrite(CONFIG_LED, LOW);
           WiFiClient firmware_client;
-          t_httpUpdate_return ret = ESPhttpUpdate.update(firmware_client, "http://192.168.1.160:8080/firmware.bin");
+          t_httpUpdate_return ret = ESPhttpUpdate.update(firmware_client, "http://192.168.1.160:8088/firmware.bin");
           reboot();
         }
 
