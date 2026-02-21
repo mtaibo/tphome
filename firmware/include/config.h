@@ -34,7 +34,7 @@ struct Config {
     unsigned long down_time;
 
     float down_position;
-    float current_position; 
+    float current_position;
 
     // Execution data
     bool is_moving;
