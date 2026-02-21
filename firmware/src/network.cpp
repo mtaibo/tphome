@@ -1,6 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <WiFiManager.h>
+#include <ESP8266httpUpdate.h>
 
 #include <actions.h>
 #include <config.h>
@@ -166,6 +167,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
             }
 
         } else if (length == 11 && !memcmp(payload, "SAVE_CONFIG", 11)) save_config();
+
+        else if (length == 12 && !memcmp(payload, "NEW_FIRMWARE", 12)) {
+          digitalWrite(CONFIG_LED, LOW);
+          WiFiClient firmware_client;
+          t_httpUpdate_return ret = ESPhttpUpdate.update(firmware_client, "http://192.168.1.160:8080/firmware.bin");
+          reboot();
+        }
 
         // Restart the chip to reload its setup with previous configs and loop
         else if (length == 6 && !memcmp(payload, "REBOOT", 6)) reboot();
