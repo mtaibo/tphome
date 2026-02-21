@@ -32,11 +32,11 @@ The **TYWE3S** is a low-power 32-bit CPU commonly found in Tuya devices. This do
 
 **Quick Navigation:**
 
-[📍 Pin Distribution](#pin-distribution) | [⚙️ Component Logic](#component-logic) | [🖱️ Input Actions](#input-actions) | [📡 MQTT Interface](#mqtt-commands)
+[📍 Pin Distribution](#-pin-distribution) | [⚙️ Hardware Logic](#-hardware-logic) | [🖱️ Input Actions](#-input-actions) | [📡 MQTT Interface](#-mqtt-interface)
 
 --- 
 
-### Pin Distribution
+### 📍 Pin Distribution
 
 The following table maps the available pins for the **Matismo** blind configuration:
 
@@ -52,7 +52,7 @@ The following table maps the available pins for the **Matismo** blind configurat
 
 ---
 
-### Component Logic
+### ⚙️ Hardware Logic
 
 #### 💡 LEDs
 * **Green LED (Pin 0):** Simple state indicator.
@@ -75,7 +75,7 @@ Relays control the current flow to the motor.
 
 ---
 
-### Input Actions
+### 🖱️ Input Actions
 
 Button behavior is determined by the duration of the press.
 
@@ -87,27 +87,60 @@ Button behavior is determined by the duration of the press.
 
 ---
 
-### MQTT Commands
 
-Control and monitor the device using the following topics:
 
-| Topic | Payload | Action |
+
+### 📡 MQTT Interface
+
+The project follows a standardized **Topic** architecture to ensure consistency across all devices. Each device subscribes to a command path and broadcasts its status through a telemetry path. All this communications goes through two different channels.
+
+#### 1. Communication Channels | Topic structure
+This structure manages two paths to separate high-level actions from low-level system maintenance:
+
+| Channel | Path Pattern | 
+| :--- | :--- | 
+| **Main (Operational)** | `tphome/[device_type]/[room]/[device_name]/...` | 
+| **Admin (System maintence)** | `tphome/admin/[device_id]/...` | 
+
+* **Commands (`/set`):** The device listens for incoming instructions on this suffix.
+* **Telemetry (`/state`):** The device publishes real-time feedback, confirmations, or diagnostic data on this suffix.
+
+#### 2. Action & Payload Reference
+The following payloads are valid when sent to a **`/set`** topic. The device will acknowledge actions by publishing the result to the corresponding **`/state`** topic.
+
+**A. Operational Commands (Main Channel)**
+| Command | Action | State Response (Example) |
 | :--- | :--- | :--- |
-| `device/blinds/set` | `UP`, `DOWN`, `STOP` | Controls the motor state |
-| `device/blinds/status` | `string` | Reports current state |
+| `UP` | Triggers the ascent relay. | `MOVING`, `OPEN`, `100` |
+| `DOWN` | Triggers the descent relay. | `MOVING`, `CLOSED`, `0` |
+| `STOP` | Halts motor and saves current position. | `STOPPED`, `[0-100]` |
+| `SET:60` | Moves to a specific calculated percentage. | `MOVING` → `[Position]` |
+
+**B. System Commands (Admin Channel)**
+| Command | Action | State Response (Example) |
+| :--- | :--- | :--- |
+| `REBOOT` | Performs a soft reset of the MCU. | `SYSTEM_RESTARTING` |
+| `SAVE_CONFIG` | Commits current parameters to NVS memory. | `CONFIG_SAVED` |
+| `FACTORY_RESET` | Wipes all stored memory and reboots. | `MEMORY_CLEARED` |
+| `GET_STATUS` | Requests a full telemetry diagnostic. | `V:[ver] IP:[ip] RSSI:[db]` |
+
+---
+
+### ⚙️ Logic & Safety Implementation
+* **Time-Based Positioning:** The *Positioning Engine* calculates real-time displacement based on independent ascent/descent calibration.
+* **Directional Delay:** A safety guard-time is enforced when switching between `UP` and `DOWN` to prevent motor stress and back-EMF.
+* **NVS Persistence:** Current position and critical configurations are stored in **Non-Volatile Storage (NVS)**, ensuring the device resumes its correct state after a power cycle.
+* **Asynchronous Execution:** MQTT polling and hardware control are handled via non-blocking logic to ensure system responsiveness during motor operation.
 
 [↑ Back to Top](#-tphome-switches)
+
 
 ---
 
 # 🔧 Matismo WIP100 | CB3S (BK7231N)
 *(Development in progress...)*
 
-[↑ Back to Top](#-tphome-switches)
-
 ---
 
 # 🔧 BSeed Melody M1 | T34 (BK7231N)
 *(Development in progress...)*
-
-[↑ Back to Top](#-tphome-switches)
