@@ -214,7 +214,7 @@ void handle_button_action(int pin, unsigned long duration) {
           if (config.current_position < config.down_position) set_position(config.down_position);
           else if (config.current_position >= config.down_position) set_position(100);
         }
-        else if (duration > config.long_pulse) access_point();
+        else if (duration > config.long_pulse);
     } 
     
     else if (pin == BTN_MID) {
