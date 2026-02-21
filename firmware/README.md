@@ -94,18 +94,18 @@ Control and monitor the device using the following topics:
 | `device/blinds/set` | `UP`, `DOWN`, `STOP` | Controls the motor state |
 | `device/blinds/status` | `string` | Reports current state |
 
-[↑ Back to Top](#tphome-switches)
+[↑ Back to Top](#-tphome-switches)
 
 ---
 
 ## 🔧 Realtek RTL Series
 *(Documentation in progress...)*
 
-[↑ Back to Top](#tphome-switches)
+[↑ Back to Top](#-tphome-switches)
 
 ---
 
 ## 🔧 ESP32 WROOM
 *(Documentation in progress...)*
 
-[↑ Back to Top](#tphome-switches)
+[↑ Back to Top](#-tphome-switches)
