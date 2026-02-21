@@ -69,7 +69,7 @@ All buttons follow standard pull-up logic:
 Relays control the current flow to the motor.
 * `HIGH`: Relay Active (Current ON).
 * `LOW`: Relay Inactive (Current OFF).
-* **Assignments:** Pin 13 is mapped to **L1** and Pin 15 to **L3**.
+* **Assignments:** Pin 13 is mapped to **L1** (`RELAY_UP` by default) and Pin 15 to **L3** (`RELAY_DOWN` by default).
 
 ---
 
