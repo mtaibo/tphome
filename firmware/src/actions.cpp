@@ -79,6 +79,9 @@ void move_blind(Direction direction) {
             if (config.current_position >= 100.0) config.current_position = 100.0;
             else if (config.current_position <= 0.0) config.current_position = 0.0;
 
+            // Round the current position
+            config.current_position = (float)(int)(config.current_position + 0.5f);
+
             digitalWrite(LED_MID, HIGH); 
             return;
         }
