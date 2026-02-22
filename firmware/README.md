@@ -55,7 +55,7 @@ The following table maps the available pins for the **Matismo** blind configurat
 ### ⚙️ Hardware Logic
 
 #### 💡 LEDs
-* **Green LED (Pin 0):** Simple state indicator.
+* **Green LED (Pin 0):** Simple network state indicator.
     * `HIGH`: LED On (Green).
     * `LOW`: LED Off.
 * **Status LEDs (Mid/Top/Low):** These are dual-color LEDs.
@@ -100,7 +100,7 @@ This structure manages two paths to separate high-level actions from low-level s
 | Channel | Path Pattern | 
 | :--- | :--- | 
 | **Main (Operational)** | `tphome/[device_type]/[room]/[device_name]/...` | 
-| **Admin (System maintence)** | `tphome/admin/[device_id]/...` | 
+| **Admin (System maintenance)** | `tphome/admin/[device_id]/...` | 
 
 * **Commands (`/set`):** The device listens for incoming instructions on this suffix.
 * **Telemetry (`/state`):** The device publishes real-time feedback, confirmations, or diagnostic data on this suffix.
