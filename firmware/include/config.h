@@ -15,11 +15,11 @@ struct Config {
 
     // MQTT configuration
     char mqtt_server[32];
-    unsigned int mqtt_port;
+    uint8_t mqtt_port;
 
     char mqtt_user[32];
     char mqtt_pass[32];
-  
+
     // Topic configuration
     char type[32];
     char room[32];
@@ -44,10 +44,10 @@ struct Config {
 
     float next_position;
 
-    int active_relay;
-    int active_led;
-    int pending_relay;
-    int pending_led;
+    uint8_t active_relay;
+    uint8_t active_led;
+    uint8_t pending_relay;
+    uint8_t pending_led;
 
     // Time execution data
     bool pause_control;
@@ -58,7 +58,7 @@ struct Config {
 
     // Blinking control
     bool is_blinking;
-    int blinking_led;
+    uint8_t blinking_led;
     int blinking_state;
     unsigned long blink_time;
     unsigned long last_blink;
