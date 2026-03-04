@@ -1,12 +1,12 @@
 #ifndef HARDWARE_H
 #define HARDWARE_H
 
-#include "pinout.h"
 #include "defaults.h"
-#include "driver_input.h"
-#include "driver_output.h"
+#include "hardware/esp8266/pinout.h"
+#include "hardware/esp8266/driver_input.h"
+#include "hardware/esp8266/driver_output.h"
 
-namespace Hardware {
+namespace Hardware { // Hardware for ESP8266
 
     // --- BUTTONS ---
     static constexpr uint16_t MAX_TIME = DEF_LONG_PULSE;
@@ -29,6 +29,16 @@ namespace Hardware {
     // --- LIGHT CONTROL ---
     static inline void enableLight() {LedConfig::setup(); LedConfig::on();}
     static inline void disableLight() {LedConfig::off();}
+
+    // --- LED CONTROL ---
+    static void setState(uint8_t pin, bool state) {
+        switch (pin) {
+            case LED_GREEN: state ? LedGreen::on : LedGreen::off;
+            case LED_BTM: state ? LedBtm::on : LedBtm::off;
+            case LED_MID: state ? LedMid::on : LedMid::off;
+            case LED_TOP: state ? LedTop::on : LedTop::off;
+        }
+    }
 
     // --- GLOBAL SETUP ---
     static void setup() {
