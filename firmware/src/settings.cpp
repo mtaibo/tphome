@@ -69,10 +69,9 @@ namespace Settings {
 
         storage.end();
 
-        // Check if every block on memory exists and corresponds to its real memory
-        // size
+        // Check if every block on memory exists and corresponds to its real memory size
         if (r1 != sizeof(Config) || r2 != sizeof(Prefs) || r3 != sizeof(State)) {
-            defaults(); save();
+            Defaults::apply(); save();
         }
     }
 

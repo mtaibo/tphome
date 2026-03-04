@@ -2,60 +2,71 @@
 #define DEFAULTS_H
 
 #include <stdint.h>
+#include <string.h>
 
-/* Char size definitions */
+#include "settings.h"
+
+/* ---  Network  ---- */
+#include "credentials.h"
+
+/* --- Config Sizes --- */
 #define IDENTITY_SIZE 16
 #define WIFI_SIZE     32
 #define MQTT_SIZE     24
 
-#define NO_PIN 255 // Max value on 8 bits
+#define NO_PIN        255
 
+namespace Defaults {
 
-// ------- WiFi / MQTT Credentials  ---------
+    /* --- Identification --- */
+    static constexpr char ID []   = "B364859";
+    static constexpr char ROOM [] = "bedroom";
+    static constexpr char NAME [] = "blind";
 
-#include "credentials.h"
+    /* --- Timings & Preferences --- */
+    static constexpr uint16_t SHORT_PULSE      = 100;  // 1.00s
+    static constexpr uint16_t LONG_PULSE       = 500;  // 5.00s
+    static constexpr uint16_t UP_TIME          = 4000; // 40.00s
+    static constexpr uint16_t DOWN_TIME        = 4000; // 40.00s
+    static constexpr uint16_t DOWN_POSITION    = 2000; // 20.00%
+    static constexpr uint16_t MOTOR_SAFE_TIME  = 100;  // 1.00s
 
-// ---------     Identification     ---------
+    /* --- Initial State --- */
+    static constexpr uint16_t START_POSITION   = 5000; // 50.00%
 
-static constexpr char DEF_DEVICE_ID[IDENTITY_SIZE] = "B364859";
-static constexpr char DEF_ROOM[IDENTITY_SIZE]      = "bedroom";
-static constexpr char DEF_NAME[IDENTITY_SIZE]      = "blind";
+    /* Function to apply defaults settings to current settings */
+    inline void apply() {
 
-// ---------     Preferences        ---------
+        auto& c = Settings::config;
+        auto& p = Settings::prefs;
+        auto& s = Settings::state;
 
-/* Buttons */
-static constexpr uint16_t DEF_SHORT_PULSE     = 100; //  1.00 seconds
-static constexpr uint16_t DEF_LONG_PULSE      = 500; //  5.00 seconds
+        /* --- Identification --- */
+        strlcpy(c.device_id, ID, IDENTITY_SIZE);
+        strlcpy(c.room, ROOM, IDENTITY_SIZE);
+        strlcpy(c.name, NAME, IDENTITY_SIZE);
 
-/* Blinds */
-static constexpr uint16_t DEF_UP_TIME         = 4000; // 40.00 seconds
-static constexpr uint16_t DEF_DOWN_TIME       = 4000; // 40.00 seconds
-static constexpr uint16_t DEF_DOWN_POSITION   = 2000; // 20%              -   This value is used to partially close the blind to a memorised position
+        /* ---  Network  ---- */
+        strlcpy(c.wifi_ssid, WIFI_SSID, WIFI_SIZE);
+        strlcpy(c.wifi_pass, WIFI_PASS, WIFI_SIZE);
+        strlcpy(c.mqtt_ip, MQTT_IP, MQTT_SIZE);
+        strlcpy(c.mqtt_user, MQTT_USER, MQTT_SIZE);
+        strlcpy(c.mqtt_pass, MQTT_PASS, MQTT_SIZE);
+        c.mqtt_port = MQTT_PORT;
 
-static constexpr uint16_t DEF_STOP_LED_TIME   = 50; //  0.50 seconds    -   This is a timer for the mid led (stop led) to turn it off after clicking on it
-static constexpr uint16_t DEF_MOTOR_SAFE_TIME = 100; //  1.00 seconds    -   This value is a safe time to prevent overheating the motor by changing direction really fast
+        /* --- Timings & Preferences --- */
+        #if defined(DEVICE_TYPE_BLIND)
+            p.up_time = UP_TIME;
+            p.down_time = DOWN_TIME;
+            p.motor_safe_time = MOTOR_SAFE_TIME;
+            p.short_pulse = SHORT_PULSE;
+            p.long_pulse = LONG_PULSE;
 
-/* Lights */
+            s.current_position = START_POSITION;
+            s.next_position = START_POSITION;
+            s.is_moving = false;
+        #endif
+    }
+}
 
-// ---------       States           ---------
-
-/* Blinds */
-static constexpr uint16_t DEF_CURRENT_POSITION = 5000; // 50%  -  Initialize blind position at 50% to allow user to move blind up and down to begin calibration
-static constexpr uint16_t DEF_NEXT_POSITION = 5000; // 50%
-
-static constexpr uint8_t DEF_ACTIVE_RELAY = NO_PIN;
-static constexpr uint8_t DEF_ACTIVE_LED = NO_PIN;
-
-static constexpr uint8_t DEF_PENDING_RELAY = NO_PIN;
-static constexpr uint8_t DEF_PENDING_LED = NO_PIN;
-
-static constexpr bool DEF_IS_MOVING = false;
-static constexpr bool DEF_IS_WAITING = false;
-static constexpr bool DEF_IS_BLINKING = false;
-static constexpr bool DEF_PAUSE_CONTROL = false;
-
-/* Lights */
-
-void defaults();
-
-#endif // DEFAULTS_H
+#endif
