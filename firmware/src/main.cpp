@@ -1,6 +1,12 @@
 #include "settings.h"
 #include "actions.h"
 
+#if defined(DEVICE_TYPE_BLIND)
+    #include "blinds.h"
+#elif defined(DEVICE_TYPE_LIGH)
+    #include "lights.h"
+#endif
+
 void setup() {
     Settings::setup();
     Hardware::setup();
@@ -8,10 +14,17 @@ void setup() {
 
 void loop() {
 
+    /* Check inputs */
     Actions::check();
 
+    /* Update interface */
     Leds::update();
-    Relays:: update();
     Buttons::update();
-    Position::update();
+
+    /*  */
+    #if defined(DEVICE_TYPE_BLIND)
+        Blinds::update();
+    #elif defined(DEVICE_TYPE_LIGH)
+        Lights::update();
+    #endif
 }
