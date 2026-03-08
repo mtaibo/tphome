@@ -4,12 +4,22 @@
 #include <stdint.h> // Module for uint8_t and uint16_t
 #include "defaults.h"
 
-/* Module that defines which settings should include,
- * the blinds one or the lights one. */
 #if defined(DEVICE_TYPE_BLIND)
-    #include "settings_blind.h"
+
+    struct __attribute__((__packed__)) Prefs {
+        uint16_t upTime;
+        uint16_t downTime;
+        uint16_t downPosition;
+        bool invertedRelays;
+    };
+
+    struct __attribute__((__packed__)) State {
+        uint16_t currentPosition;
+    };
+
 #elif defined(DEVICE_TYPE_LIGHT)
-    #include "settings_light.h"
+    struct __attribute__((__packed__)) Prefs {};
+    struct __attribute__((__packed__)) State {};
 #endif
 
 
@@ -18,19 +28,19 @@ namespace Settings {
     struct __attribute__((__packed__)) Config {
 
         // Identity
-        char device_id[IDENTITY_SIZE];
+        char deviceID[IDENTITY_SIZE];
         char room[IDENTITY_SIZE];
         char name[IDENTITY_SIZE];
 
         // WiFi
-        char wifi_ssid[WIFI_SIZE];
-        char wifi_pass[WIFI_SIZE];
+        char wifiSSID[WIFI_SIZE];
+        char wifiPass[WIFI_SIZE];
 
         // MQTT
-        char mqtt_ip[MQTT_SIZE];
-        char mqtt_user[MQTT_SIZE];
-        char mqtt_pass[MQTT_SIZE];
-        uint16_t mqtt_port;
+        char mqttIP[MQTT_SIZE];
+        char mqttUser[MQTT_SIZE];
+        char mqttPass[MQTT_SIZE];
+        uint16_t mqttPort;
     };
 
     extern Config config;
