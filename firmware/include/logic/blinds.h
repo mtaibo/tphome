@@ -15,6 +15,20 @@
 
 namespace Blinds {
 
+    enum State { IDLE, WAITING, MOVING, STOPPING };
+    enum Direction { NONE, UP, DOWN };
+        
+    struct Motor {
+        State state = IDLE;
+        Direction direction = NONE;
+        uint32_t startTime = 0;
+        uint32_t lastTime = 0;
+        uint16_t nextPosition = Settings::state.currentPosition;
+    };
+        
+    static Motor _motor;
+
+
     namespace Relays {
 
         inline void up() {
@@ -32,28 +46,23 @@ namespace Blinds {
         }
 
         inline void stop() {
+
             Hardware::RelayUp::off();
             Hardware::RelayDown::off();
+
             Leds::set(LED_TOP, Leds::OFF);
             Leds::set(LED_BTM, Leds::OFF);
-            Leds::set(LED_MID, Leds::ON, Leds::MEDIUM, 0, 50);
+
+            if (_motor.state == MOVING) Leds::set(LED_MID, Leds::ON, Leds::MEDIUM, 0, 50);
+            else Leds::set(LED_MID, Leds::OFF);
+
+            /* Save settings if there is not more movement */
+            if (_motor.state == IDLE) Settings::saveState();
         }
     }
 
-    namespace Position {
 
-        enum State { IDLE, WAITING, MOVING, STOPPING };
-        enum Direction { NONE, UP, DOWN };
-        
-        struct Motor {
-            State state = IDLE;
-            Direction direction = NONE;
-            uint32_t startTime = 0;
-            uint32_t lastTime = 0;
-            uint16_t nextPosition = Settings::state.currentPosition;
-        };
-        
-        static Motor _motor;
+    namespace Position {
 
         inline void update() {
             
@@ -65,10 +74,7 @@ namespace Blinds {
 
                 case WAITING: { // Changing between directions while moving needs a motor safe time
 
-                    Hardware::RelayUp::off();
-                    Hardware::RelayDown::off();
-                    Leds::set(LED_TOP, Leds::OFF);
-                    Leds::set(LED_BTM, Leds::OFF);
+                    Relays::stop();
 
                     /* Start the timers if it is first waiting period */
                     if (_motor.startTime == 0) {
