@@ -26,15 +26,14 @@ namespace Wifi {
         /* Prevent the chip from reconnecting on its own */
         WiFi.setAutoConnect(false);
         WiFi.setAutoReconnect(false);
-
-        WiFi.setSleepMode(WIFI_NONE_SLEEP); // Prevent the chip from random sleeping
-        WiFi.setOutputPower(20.5); // Range: 0.0 - 20.5
-
         WiFi.persistent(false); // Prevent the chip from saving wifi credentials on flash memory
 
-        WiFi.hostname(c.deviceID); // Show the deviceID as name on router
+        WiFi.setSleepMode(WIFI_MODEM_SLEEP);
+        WiFi.setOutputPower(18.5); // Range: 0.0 - 20.5
 
         WiFi.mode(WIFI_STA); // WiFi Station mode, just connects to the router
+
+        WiFi.hostname(c.deviceID); // Show the deviceID as name on router
         WiFi.begin(c.wifiSSID, c.wifiPass);
 
         /* First connection attempt */
