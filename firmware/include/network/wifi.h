@@ -1,10 +1,14 @@
 #ifndef WIFI_H
 #define WIFI_H
 
-#include <ESP8266WiFi.h>
-
 #include "settings.h"
 #include "leds.h"
+
+#if defined(DEVICE_HARDWARE_ESP8266)
+    #include "hardware/esp8266/driver_wifi.h"
+#elif defined(DEVICE_HARDWARE_BK7231N)
+    #include "hardware/bk7231n/driver_wifi.h"
+#endif
 
 #define ATTEMPT_INTERVAL 5000
 
@@ -26,20 +30,11 @@ namespace Wifi {
 
     void setup() {
 
-        /* Prevent the chip from reconnecting on its own */
-        WiFi.setAutoConnect(false);
-        WiFi.setAutoReconnect(false);
-        WiFi.persistent(false); // Prevent the chip from saving wifi credentials on flash memory
-
-        WiFi.setSleepMode(WIFI_MODEM_SLEEP);
-        WiFi.setOutputPower(18.5); // Range: 0.0 - 20.5
-
-        WiFi.mode(WIFI_STA); // WiFi Station mode, just connects to the router
-
-        WiFi.hostname(Settings::config.deviceID); // Show the deviceID as name on router
-        WiFi.begin(Settings::config.wifiSSID, Settings::config.wifiPass);
+        /* Configure the initial settings of the wifi connection */
+        Hardware::Wifi::setup(Settings::config.deviceID);
 
         /* First connection attempt */
+        Hardware::Wifi::begin(Settings::config.wifiSSID, Settings::config.wifiPass);
         Leds::set(Pins::LED_GREEN, Leds::BLINK, Leds::FAST);
         _state.lastTime = millis();
         _state.ledOn = true;
@@ -48,13 +43,13 @@ namespace Wifi {
 
     void reconnect() {
 
-        /* Restart default valures on state connection */
+        /* Restart default values on connection state */
         _state.lastTime = 0;
         _state.attempts = 0;
         _state.isConnected = false;
 
         /* Disconnect and clear last connection attempts */
-        WiFi.disconnect(true);
+        Hardware::Wifi::disconnect();
 
         /* Start reconnection by setting up again */
         setup();
@@ -71,7 +66,7 @@ namespace Wifi {
             if (now - _state.lastTime < 60000) return;
             
             /* Disconnected after being connected, do not reconnect until user ask for it */
-            if (WiFi.status() != WL_CONNECTED) {
+            if (Hardware::Wifi::isConnected()) {
                 _state.isConnected = false;
                 _state.lastTime = now;
                 _state.attempts = 3;
@@ -81,7 +76,7 @@ namespace Wifi {
         }
 
         /* While device is disconnected */
-        if (WiFi.status() != WL_CONNECTED) {
+        if (Hardware::Wifi::isConnected()) {
 
             if (_state.attempts < 3) { // Not more than three attempts allowed on each reconnection
 
@@ -89,7 +84,7 @@ namespace Wifi {
                 if (now - _state.lastTime > ATTEMPT_INTERVAL) {
                     _state.lastTime = now;
                     _state.attempts++;
-                    WiFi.begin(Settings::config.wifiSSID, Settings::config.wifiPass);
+                    Hardware::Wifi::begin(Settings::config.wifiSSID, Settings::config.wifiPass);
                 }
             } else if (_state.ledOn) {Leds::set(Pins::LED_GREEN, Leds::OFF); _state.ledOn = false;}
         } 
