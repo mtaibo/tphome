@@ -8,6 +8,13 @@
 
 namespace Mqtt {
 
+    struct State {
+        uint32_t lastTime = 0;
+        uint8_t attempts = 0;
+        bool isConnected = false;
+        bool ledOn = false;
+    };
+
     struct Topics {
         
         /* Device topics */
@@ -20,6 +27,7 @@ namespace Mqtt {
         char global[Sizes::MQTT]; // Subscribe to global orders on same device type
     };
 
+    static State _state;
     static Topics _topics;
     static WiFiClient _wifiClient;
     static PubSubClient _client(_wifiClient);
@@ -50,11 +58,11 @@ namespace Mqtt {
         snprintf(_topics.admin, Sizes::MQTT, "tp/%.5s/a",  Settings::config.deviceID);
         snprintf(_topics.state, Sizes::MQTT, "tp/%.5s/s",  Settings::config.deviceID);
 
-        /* Create group topics for device type,  */
+        /* Create group topics for device types and room device types commands */
         snprintf(_topics.room,   Sizes::MQTT, "tp/%.3s/c", Settings::config.deviceID);
         snprintf(_topics.global, Sizes::MQTT, "tp/%.1s/c", Settings::config.deviceID);
 
-        /* Setup the mqtt server */
+        /* Setup the mqtt server with its credentials, max buffer and callback function */
         _client.setServer(Settings::config.mqttIP, Settings::config.mqttPort);
         _client.setBufferSize(sizeof(Settings::Prefs) + 64); 
         _client.setCallback(callback);
@@ -71,9 +79,7 @@ namespace Mqtt {
                 _client.subscribe(_topics.cmd);
                 _client.subscribe(_topics.room);
             }
-        } else {
-            _client.loop();
-        }
+        } else _client.loop();
     }
 
     void sendState() {
