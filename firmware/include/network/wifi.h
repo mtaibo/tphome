@@ -66,7 +66,7 @@ namespace Wifi {
             if (now - _state.lastTime < 60000) return;
             
             /* Disconnected after being connected, do not reconnect until user ask for it */
-            if (Hardware::Wifi::isConnected()) {
+            if (!Hardware::Wifi::isConnected()) {
                 _state.isConnected = false;
                 _state.lastTime = now;
                 _state.attempts = 3;
@@ -76,7 +76,7 @@ namespace Wifi {
         }
 
         /* While device is disconnected */
-        if (Hardware::Wifi::isConnected()) {
+        if (!Hardware::Wifi::isConnected()) {
 
             if (_state.attempts < 3) { // Not more than three attempts allowed on each reconnection
 
