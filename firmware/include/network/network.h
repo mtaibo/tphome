@@ -7,6 +7,8 @@
 
 namespace Network {
 
+    static bool _wifiWasConnected = false;
+
     void inline setup() {
         Wifi::setup();
         Mqtt::setup();
@@ -14,7 +16,11 @@ namespace Network {
 
     void inline update() {
         Wifi::update();
-        Mqtt::update();
+        if (Wifi::isConnected()) {
+            if (!_wifiWasConnected) Mqtt::reconnect();
+            _wifiWasConnected = true;
+            Mqtt::update();
+        } else _wifiWasConnected = false;
     }
 }
 
