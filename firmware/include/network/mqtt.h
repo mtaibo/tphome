@@ -2,9 +2,11 @@
 #define MQTT_H
 
 #include <PubSubClient.h>
+
 #include "settings.h"
-#include "wifi.h"
-#include "blinds.h"
+#include "commands.h"
+
+#define ATTEMPT_INTERVAL 5000
 
 namespace Mqtt {
 
@@ -16,7 +18,9 @@ namespace Mqtt {
     };
 
     struct Topics {
-        
+
+        char def[Sizes::MQTT]; // Default non-configured device topic
+
         /* Device topics */
         char cmd[Sizes::MQTT];   // Subscribe to common orders
         char admin[Sizes::MQTT]; // Subscribe to change settings
@@ -27,64 +31,109 @@ namespace Mqtt {
         char global[Sizes::MQTT]; // Subscribe to global orders on same device type
     };
 
+    static Topics topics;
+
     static State _state;
-    static Topics _topics;
     static WiFiClient _wifiClient;
     static PubSubClient _client(_wifiClient);
 
-    void callback(char* topic, byte* payload, unsigned int length) {
-        if (length == 0) return;
-
-        if (length == 1) {
-            uint8_t cmd = payload[0];
-            if (cmd <= 100) Blinds::Position::set(cmd*100);
-            else switch (cmd) {
-                case 0xD0: Blinds::Relays::stop(); break;
-                case 0xD1: Blinds::Position::set(10000); break;
-                case 0xD2: Blinds::Position::set(0); break;
-            }
-        } 
-        
-        else if (length == sizeof(Settings::Prefs)) {
-            memcpy(&Settings::prefs, payload, sizeof(Settings::Prefs));
-            Settings::save();
-        }
-    }
-
     void setup() {
-        
-        /* Create device own topics for commands, administration and reporting state */
-        snprintf(_topics.cmd,   Sizes::MQTT, "tp/%.5s/c",  Settings::config.deviceID);
-        snprintf(_topics.admin, Sizes::MQTT, "tp/%.5s/a",  Settings::config.deviceID);
-        snprintf(_topics.state, Sizes::MQTT, "tp/%.5s/s",  Settings::config.deviceID);
 
-        /* Create group topics for device types and room device types commands */
-        snprintf(_topics.room,   Sizes::MQTT, "tp/%.3s/c", Settings::config.deviceID);
-        snprintf(_topics.global, Sizes::MQTT, "tp/%.1s/c", Settings::config.deviceID);
+        /* When the device is not configured, its device ID is a default ID
+         * and the device has to subscribe to the def topic to get its new ID */
+        if (strlen(Settings::config.deviceID) == 4) {
+            snprintf(topics.def, Sizes::MQTT, "def/%.4s", Settings::config.deviceID);
+        }
+
+        else { // Topics for configured devices
+
+            /* Create device own topics for commands, administration and reporting state */
+            snprintf(topics.cmd,   Sizes::MQTT, "tp/%.5s/c",  Settings::config.deviceID);
+            snprintf(topics.admin, Sizes::MQTT, "tp/%.5s/a",  Settings::config.deviceID);
+            snprintf(topics.state, Sizes::MQTT, "tp/%.5s/s",  Settings::config.deviceID);
+
+            /* Create group topics for device types and room device types commands */
+            snprintf(topics.room,   Sizes::MQTT, "tp/%.3s/c", Settings::config.deviceID);
+            snprintf(topics.global, Sizes::MQTT, "tp/%.1s/c", Settings::config.deviceID);
+        }
 
         /* Setup the mqtt server with its credentials, max buffer and callback function */
         _client.setServer(Settings::config.mqttIP, Settings::config.mqttPort);
         _client.setBufferSize(sizeof(Settings::Prefs) + 64); 
-        _client.setCallback(callback);
+        _client.setCallback(Commands::callback);
+    }
+
+    void reconnect() {
+
+        /* Restart default values on connection state */
+        _state.ledOn = false;
+        _state.lastTime = 0;
+        _state.attempts = 0;
+        _state.isConnected = false;
+
+        /* Start reconnection by setting up again */
+        setup();
     }
 
     void update() {
 
-        /* Only update mqtt server if wifi is connected */
-        if (!Wifi::isConnected()) return;
+        uint32_t now = millis();
 
+        /* While device is connected */
+        if (_state.isConnected) {
+
+            /* Disconnected after being connected, do not reconnect until user ask for it */
+            if (!_client.connected()) {
+                _state.isConnected = false;
+                _state.lastTime = now;
+                _state.attempts = 5;
+            } 
+
+            else _client.loop();
+
+            return;
+        }
+
+        /* While device is disconnected */
         if (!_client.connected()) {
 
-            if (_client.connect(Settings::config.deviceID, Settings::config.mqttUser, Settings::config.mqttPass)) {
-                _client.subscribe(_topics.cmd);
-                _client.subscribe(_topics.room);
-            }
-        } else _client.loop();
-    }
+            /* Set timeout depending on the number of attempts */
+            (_state.attempts > 3) ? _client.setSocketTimeout(2) : _client.setSocketTimeout(1);
 
-    void sendState() {
-        if (!_client.connected()) return;
-        _client.publish(_topics.state, (uint8_t*)&Settings::state, sizeof(Settings::State), true);
+
+            if (_state.attempts < 5) { // Not more than 5 attempts per manual reconnection
+
+                /* Check interval between attempts */
+                if (now - _state.lastTime > ATTEMPT_INTERVAL) {
+
+                    /* First attempt */
+                    if (_state.ledOn == false) {
+                        Leds::set(Pins::LED_GREEN, Leds::BLINK, Leds::SLOW);
+                        _state.ledOn = true;
+                    }
+
+                    _state.lastTime = now;
+                    _state.attempts++;
+                    _client.connect(Settings::config.deviceID, Settings::config.mqttUser, Settings::config.mqttPass);
+                }
+
+            } else if (_state.ledOn) {Leds::set(Pins::LED_GREEN, Leds::OFF); _state.ledOn = false;}
+        } 
+        
+        else { // Client is connected but state.isConnected is false == first connection
+            if (_state.ledOn) {Leds::set(Pins::LED_GREEN, Leds::OFF); _state.ledOn = false;}
+            _state.isConnected = true;
+            _state.attempts = 0;
+            _state.lastTime = now;
+
+            if (strlen(Settings::config.deviceID) == 4) _client.subscribe(topics.def);
+            else {
+                _client.subscribe(topics.cmd);
+                _client.subscribe(topics.admin);
+                _client.subscribe(topics.room);
+                _client.subscribe(topics.global);
+            }
+        }
     }
 }
 
