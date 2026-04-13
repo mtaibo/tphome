@@ -85,31 +85,6 @@ def get_devices(session: Session = Depends(get_session)):
     return [_build_response(d, session) for d in devices]
 
 
-@router.get("/devices/{id}", response_model=DeviceResponse)
-def get_device(id: str, session: Session = Depends(get_session)):
-    device = _get_device(id, session)
-    return _build_response(device, session)
-
-
-@router.put("/devices/{id}")
-def update_device(id: str, data: DeviceUpdate, session: Session = Depends(get_session)):
-    device = _get_device(id, session)
-    device.name = data.name
-    device.zone = data.zone
-    session.add(device)
-    session.commit()
-    session.refresh(device)
-    return _build_response(device, session)
-
-
-@router.delete("/devices/{id}")
-def delete_device(id: str, session: Session = Depends(get_session)):
-    device = _get_device(id, session)
-    session.delete(device)
-    session.commit()
-    return {"deleted": id}
-
-
 @router.get("/devices/pending", response_model=list[str])
 def get_pending(session: Session = Depends(get_session)):
     pending = session.exec(select(PendingDevice)).all()
@@ -152,3 +127,28 @@ def configure_device(data: ConfigureDevice, session: Session = Depends(get_sessi
     session.commit()
 
     return {"configured": new_id}
+
+
+@router.get("/devices/{id}", response_model=DeviceResponse)
+def get_device(id: str, session: Session = Depends(get_session)):
+    device = _get_device(id, session)
+    return _build_response(device, session)
+
+
+@router.put("/devices/{id}")
+def update_device(id: str, data: DeviceUpdate, session: Session = Depends(get_session)):
+    device = _get_device(id, session)
+    device.name = data.name
+    device.zone = data.zone
+    session.add(device)
+    session.commit()
+    session.refresh(device)
+    return _build_response(device, session)
+
+
+@router.delete("/devices/{id}")
+def delete_device(id: str, session: Session = Depends(get_session)):
+    device = _get_device(id, session)
+    session.delete(device)
+    session.commit()
+    return {"deleted": id}
