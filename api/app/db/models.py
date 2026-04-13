@@ -19,6 +19,10 @@ class Device(SQLModel, table=True):
     firmware: Optional[str] = None
 
 
+class PendingDevice(SQLModel, table=True):
+    mac: str = Field(primary_key=True)
+
+
 class Blind(SQLModel, table=True):
     device_id: str = Field(foreign_key="device.id", primary_key=True)
     position: int = 0       # 0-100
