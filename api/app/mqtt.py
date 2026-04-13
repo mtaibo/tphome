@@ -89,7 +89,7 @@ def _update_state(device_id: str, position: int, motor_state: int):
         device.online = True
         device.last_seen = datetime.now()
 
-        if device.type == "blind":
+        if device.type == "B":
             blind = session.exec(select(Blind).where(Blind.device_id == device_id)).first()
             if not blind:
                 return
