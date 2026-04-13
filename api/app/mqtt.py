@@ -44,8 +44,8 @@ def on_message(client, userdata, message):
 
     device_id = topic[1]
 
-    # DeviceID announcement — 3 bytes
-    if len(payload) == 3:
+    # DeviceID announcement
+    if len(payload) == 1 and payload[0] == 0x01:
         provisioning.handle_announcement(device_id)
         return
 
