@@ -58,10 +58,23 @@ def set_prefs(id: str, prefs: PrefsPayload, session: Session = Depends(get_sessi
 
 
 @router.post("/admin/{id}/ota")
-def ota(id: str, session: Session = Depends(get_session)):
+def ota(id: str, version: str, session: Session = Depends(get_session)):
     _get_device(id, session)
-    _cmd(id, CMD_OTA)
-    return {"sent": "OTA", "device": id}
+    
+    # Validate format of the version code
+    parts = version.split(".")
+    if len(parts) != 3: raise HTTPException(status_code=422, detail=f"Invalid version format: major.minor.patch (1.2.12)")
+    major, minor, patch = [int(p) for p in parts]
+
+    # Validate each part of the version code
+    for name, value in [("major", major), ("minor", minor), ("patch", patch)]:
+        if not (0 <= value <= 255): raise HTTPException(status_code=422, detail=f"Version {name} must be between 0 and 255")
+
+    # Pack every part of the version code as three unsigned int bytes
+    payload = struct.pack("BBB", major, minor, patch)
+    _cmd(id, CMD_OTA, payload)
+    
+    return {"sent": "OTA", "device": id, "version": f"{major}.{minor}.{patch}"}
 
 
 @router.post("/admin/{id}/reboot")
