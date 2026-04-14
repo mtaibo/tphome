@@ -13,8 +13,9 @@ router = APIRouter(tags=["Admin"])
 CMD_OTA       = 0xA0
 CMD_REBOOT    = 0xA1
 CMD_RESET_MEM = 0xA2
-CMD_SET_POS   = 0xA3
-CMD_SET_PREFS = 0xA4
+CMD_GET_INFO  = 0xA3
+CMD_SET_POS   = 0xA4
+CMD_SET_PREFS = 0xA5
 
 class PrefsPayload(BaseModel):
     up_time:         int
@@ -75,6 +76,13 @@ def ota(id: str, version: str, session: Session = Depends(get_session)):
     _cmd(id, CMD_OTA, payload)
     
     return {"sent": "OTA", "device": id, "version": f"{major}.{minor}.{patch}"}
+
+
+@router.post("/admin/{id}/info")
+def info(id: str, session: Session = Depends(get_session)):
+    _get_device(id, session)
+    _cmd(id, CMD_GET_INFO)
+    return {"sent": "INFO", "device": id}
 
 
 @router.post("/admin/{id}/reboot")
