@@ -64,7 +64,7 @@ def _build_response(device: Device, session: Session) -> DeviceResponse:
         zone=device.zone,
         online=device.online,
         last_seen=str(device.last_seen) if device.last_seen else None,
-        firmware=device.firmware,
+        firmware_version=device.firmware_version,
         state=state
     )
 
