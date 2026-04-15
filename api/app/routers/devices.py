@@ -18,7 +18,7 @@ class DeviceResponse(BaseModel):
     zone: str
     online: bool
     last_seen: str | None
-    firmware: str | None
+    firmware_version: str | None
     state: dict | None = None
 
 
