@@ -16,6 +16,10 @@ def handle_announcement(id: str):
     if _active: _responses.add(id)
 
 
+def is_active():
+    return _active
+
+
 async def start():
     global _active, _responses
 
