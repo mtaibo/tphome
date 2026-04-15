@@ -28,7 +28,7 @@ class DeviceUpdate(BaseModel):
 
 
 class ConfigureDevice(BaseModel):
-    id: str
+    mac: str
     name: str
     zone: str
     type: str
@@ -88,14 +88,14 @@ def get_devices(session: Session = Depends(get_session)):
 @router.get("/devices/pending", response_model=list[str])
 def get_pending(session: Session = Depends(get_session)):
     pending = session.exec(select(PendingDevice)).all()
-    return [p.id for p in pending]
+    return [device.id for device in pending]
 
 
 @router.post("/devices/pending/configure")
 def configure_device(data: ConfigureDevice, session: Session = Depends(get_session)):
 
     pending = session.exec(
-        select(PendingDevice).where(PendingDevice.id == data.id)
+        select(PendingDevice).where(PendingDevice.mac == data.mac)
     ).first()
     if not pending:
         raise HTTPException(status_code=404, detail="Pending device not found")
@@ -104,12 +104,12 @@ def configure_device(data: ConfigureDevice, session: Session = Depends(get_sessi
     new_id = _next_device_id(data.type, data.zone, session)
 
     # Send new ID to device via MQTT
-    mqtt.publish(f"def/{data.id}/a", new_id.encode())
+    mqtt.publish(f"def/{data.mac}/a", new_id.encode())
 
     # Create Device
     device = Device(
         id=new_id,
-        mac=data.id,
+        mac=data.mac,
         name=data.name,
         type=data.type,
         zone=data.zone,

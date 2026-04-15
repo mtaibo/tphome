@@ -72,7 +72,7 @@ async def _process():
 
             # Unknown id, move to pending
             pending.append(id)
-            session.add(PendingDevice(id=id))
+            session.add(PendingDevice(mac=id))
 
         session.commit()
 
