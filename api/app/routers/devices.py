@@ -88,7 +88,7 @@ def get_devices(session: Session = Depends(get_session)):
 @router.get("/devices/pending", response_model=list[str])
 def get_pending(session: Session = Depends(get_session)):
     pending = session.exec(select(PendingDevice)).all()
-    return [p.mac for p in pending]
+    return [p.id for p in pending]
 
 
 @router.post("/devices/pending/configure")
