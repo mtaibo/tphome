@@ -5,8 +5,9 @@ from connections import manager
 
 import paho.mqtt.client as mqtt
 import provisioning
-import asyncio
 import threading
+import asyncio
+import struct
 import os
 
 BROKER_HOST = os.getenv("MQTT_BROKER", "mosquitto")
@@ -36,12 +37,13 @@ def on_message(client, userdata, message):
     topic = message.topic.split("/")
     payload = message.payload
 
-    if topic[2] != "s": return  # Ignore anything that is not a state message
+    if topic[2] != "s": return # Ignore anything that is not a state message
+    if len(payload) == 0: return
 
     device_id = topic[1]
 
     # DeviceID announcement
-    if len(payload) == 1 and payload[0] == 0x01:
+    if len(payload) == 1 and payload[0] == 0x01 and provisioning.is_active():
         provisioning.handle_announcement(device_id)
         return
 
@@ -58,8 +60,35 @@ def on_message(client, userdata, message):
         return
 
     # State update — position + motor state
-    if len(payload) >= 2:
+    if len(payload) == 2:
         _update_state(device_id, position=payload[0], motor_state=payload[1])
+
+    if len(payload) >= 15:
+
+        try:
+            
+            unpacked = struct.unpack("<BBB3s2sHHH?", payload[:15])
+            
+            info = {
+                "id": f"{chr(unpacked[0])}{unpacked[1]:02d}{unpacked[2]:02d}",
+
+                "firmware_version"     : unpacked[3].hex('.'),
+                "mac"                  : unpacked[4].hex(':'),
+
+                "prefs": {
+                    "up_time"          : unpacked[5],
+                    "down_time"        : unpacked[6],
+                    "down_pos"         : unpacked[7],
+                    "inverted_relays"  : unpacked[8]
+                }
+            }
+
+            _update_device_info(device_id, info)
+            _push("device_info", info)
+            
+        except struct.error as e:
+            print(f"Error decodificando payload de {device_id}: {e}")
+
 
 
 def _update_online(device_id: str, online: bool):
@@ -80,6 +109,7 @@ def _update_state(device_id: str, position: int, motor_state: int):
     with Session(engine) as session:
         device = session.exec(select(Device).where(Device.id == device_id)).first()
         if not device:
+            print("LOG: Device to update its state was not found")
             return
 
         device.online = True
@@ -98,6 +128,33 @@ def _update_state(device_id: str, position: int, motor_state: int):
                 "motor_state": motor_state
             })
 
+        session.add(device)
+        session.commit()
+
+
+def _update_device_info(device_id: str, info: dict):
+    with Session(engine) as session:
+        device = session.exec(select(Device).where(Device.id == device_id)).first()
+        if not device:
+            print("LOG: Device to update its info was not found")
+            return
+
+        device.firmware_version = info["firmware_version"]
+        device.mac = info["mac"]
+
+        if device.type == "B":
+            blind = session.exec(select(Blind).where(Blind.id == device_id)).first()
+            if not blind:
+                print("LOG: Blind linked to the device info to be updated not found")
+                return
+
+            prefs = info["prefs"]
+            blind.up_time = prefs["up_time"]
+            blind.down_time = prefs["down_time"]
+            blind.down_pos = prefs["down_pos"]
+            blind.inverted_relays = prefs["inverted_relays"]
+            session.add(blind)
+        
         session.add(device)
         session.commit()
 
