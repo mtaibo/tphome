@@ -77,6 +77,13 @@ def _next_device_id(type: str, zone: str, session: Session) -> str:
     return f"{type}{zone}{number:02d}"
 
 
+def _encode_device_id(id: str) -> bytes:
+    type = id[0]
+    zone = int(device_id[1:3])
+    device = int(device_id[3:5])
+    return bytes([ord(type), zone, device])
+
+
 # Routes
 
 @router.get("/devices", response_model=list[DeviceResponse])
@@ -104,7 +111,7 @@ def configure_device(data: ConfigureDevice, session: Session = Depends(get_sessi
     new_id = _next_device_id(data.type, data.zone, session)
 
     # Send new ID to device via MQTT
-    mqtt.publish(f"def/{data.mac}/a", new_id.encode())
+    mqtt.publish(f"def/{data.mac}/a", _encode_device_id(new_id))
 
     # Create Device
     device = Device(
