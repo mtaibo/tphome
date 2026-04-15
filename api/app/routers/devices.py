@@ -20,6 +20,7 @@ class DeviceResponse(BaseModel):
     last_seen: str | None
     firmware_version: str | None
     state: dict | None = None
+    prefs: dict | None = None
 
 
 class DeviceUpdate(BaseModel):
@@ -50,6 +51,8 @@ def _build_response(device: Device, session: Session) -> DeviceResponse:
         blind = session.exec(select(Blind).where(Blind.id == device.id)).first()
         if blind:
             state = {"position": blind.position, "motor_state": blind.motor_state}
+            prefs = {"up_time": blind.up_time, "down_time": blind.down_time,
+                     "down_pos": blind.down_pos, "inverted_relays": blind.inverted_relays}
 
     elif device.type == "L":
         light = session.exec(select(Light).where(Light.id == device.id)).first()
@@ -65,7 +68,8 @@ def _build_response(device: Device, session: Session) -> DeviceResponse:
         online=device.online,
         last_seen=str(device.last_seen) if device.last_seen else None,
         firmware_version=device.firmware_version,
-        state=state
+        state=state,
+        prefs=prefs
     )
 
 
