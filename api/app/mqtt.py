@@ -36,11 +36,7 @@ def on_message(client, userdata, message):
     topic = message.topic.split("/")
     payload = message.payload
 
-    if topic[0] == "def":
-        return  # Handled by provisioning router
-
-    if topic[0] != "tp" or topic[2] != "s":
-        return  # Ignore anything that is not a state message
+    if topic[2] != "s": return  # Ignore anything that is not a state message
 
     device_id = topic[1]
 
