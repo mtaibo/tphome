@@ -79,8 +79,8 @@ def _next_device_id(type: str, zone: str, session: Session) -> str:
 
 def _encode_device_id(id: str) -> bytes:
     type = id[0]
-    zone = int(device_id[1:3])
-    device = int(device_id[3:5])
+    zone = int(id[1:3])
+    device = int(id[3:5])
     return bytes([ord(type), zone, device])
 
 
