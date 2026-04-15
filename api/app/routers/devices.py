@@ -118,9 +118,9 @@ def configure_device(data: ConfigureDevice, session: Session = Depends(get_sessi
     session.add(device)
 
     if data.type == "B":
-        session.add(Blind(device_id=new_id))
+        session.add(Blind(id=new_id))
     elif data.type == "L":
-        session.add(Light(device_id=new_id))
+        session.add(Light(id=new_id))
 
     # Remove from pending
     session.delete(pending)
