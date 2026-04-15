@@ -25,8 +25,16 @@ class PendingDevice(SQLModel, table=True):
 
 class Blind(SQLModel, table=True):
     id: str = Field(foreign_key="device.id", primary_key=True)
+
+    # State
     position: int = 0       # 0-100
     motor_state: int = 0    # 0=IDLE 1=WAITING 2=MOVING 3=STOPPING
+
+    # Prefs
+    up_time: int = Field(default=0)
+    down_time: int = Field(default=0)
+    down_pos: int = Field(default=0)
+    inverted_relays: bool = Field(default=False)
 
 
 class Light(SQLModel, table=True):
