@@ -20,7 +20,7 @@ class Device(SQLModel, table=True):
 
 
 class PendingDevice(SQLModel, table=True):
-    id: str = Field(primary_key=True)
+    mac: str = Field(primary_key=True)
 
 
 class Blind(SQLModel, table=True):
