@@ -47,12 +47,12 @@ def _build_response(device: Device, session: Session) -> DeviceResponse:
     state = None
 
     if device.type == "B":
-        blind = session.exec(select(Blind).where(Blind.device_id == device.id)).first()
+        blind = session.exec(select(Blind).where(Blind.id == device.id)).first()
         if blind:
             state = {"position": blind.position, "motor_state": blind.motor_state}
 
     elif device.type == "L":
-        light = session.exec(select(Light).where(Light.device_id == device.id)).first()
+        light = session.exec(select(Light).where(Light.id == device.id)).first()
         if light:
             state = {"on": light.on}
 
