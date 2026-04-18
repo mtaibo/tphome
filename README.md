@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- Replace with your banner -->
-<img src="docs/banner.png" alt="TPHome" width="100%" />
+<img src="docs/banner.svg" alt="TPHome" width="100%" />
 
 <br/>
 <br/>
