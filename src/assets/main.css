@@ -23,3 +23,10 @@
     margin: 0;
   }
 }
+
+@layer components {
+    .bg-grid-dots {
+        background-image: radial-gradient(var(--color-tp-border) 1px, transparent 1px);
+        background-size: 32px 32px;
+    }
+}

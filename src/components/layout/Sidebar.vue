@@ -1,53 +1,85 @@
 <script setup>
-import { ref } from 'vue';
-import { LayoutDashboard, Blinds, Lightbulb, Settings, House, User } from 'lucide-vue-next';
 
-const activeTab = ref('plano');
+    import { ref } from 'vue';
+    import { LayoutDashboard, Blinds, Lightbulb, Settings, House, User } from 'lucide-vue-next';
+
+    const activeItem = ref('blueprint');
+    const navItems = [
+        { id: 'blueprint', name: 'Plano',         icon: LayoutDashboard },
+        { id: 'lights',    name: 'Luces',         icon: Lightbulb       },
+        { id: 'blinds',    name: 'Persianas',     icon: Blinds          },
+    ]
+
+    const getButtonClass = (itemId) => {
+        const isActive = activeItem.value === itemId;
+        
+        const baseClass = 'w-full flex items-center gap-4 px-4 py-2.5 rounded-lg transition-colors duration-200 cursor-pointer';
+        
+        const activeClass = 'bg-tp-accent/10 text-tp-accent font-semibold';
+        const inactiveClass = 'text-muted hover:bg-tp-border/20 hover:text-white';
+        
+        return `${baseClass} ${isActive ? activeClass : inactiveClass}`;
+    };
+
 </script>
 
 <template>
-  <aside class="w-72 bg-tp-surface border-r border-tp-border flex flex-col z-20 shadow-xl">
-    <div class="p-8 flex flex-col items-center gap-3">
-      <div class="w-14 h-14 bg-linear-to-br from-tp-accent to-tp-accent2 rounded-2xl flex items-center justify-center shadow-[0_0_25px_rgba(79,156,249,0.4)]">
-        <House class="text-white w-8 h-8" />
-      </div>
-      <div class="text-center">
-        <h1 class="text-2xl font-bold tracking-tighter bg-gradient-to-r from-tp-accent to-tp-accent2 bg-clip-text text-transparent">
-          TPHOME
-        </h1>
-        <p class="text-[10px] text-muted tracking-[0.3em] uppercase font-mono mt-1 opacity-70">Control Central</p>
-      </div>
-    </div>
 
-    <nav class="flex-1 px-4 space-y-2">
-      <button v-for="item in [
-        { id: 'plano', name: 'Plano de Casa', icon: LayoutDashboard },
-        { id: 'luces', name: 'Luces', icon: Lightbulb },
-        { id: 'persianas', name: 'Persianas', icon: Blinds }
-      ]" :key="item.id"
-        @click="activeTab = item.id"
-        :class="['w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 border', 
-        activeTab === item.id ? 'bg-tp-accent/10 border-tp-accent/30 text-tp-accent shadow-inner' : 'border-transparent text-muted hover:bg-tp-border/40 hover:text-white']"
-      >
-        <component :is="item.icon" class="w-5 h-5" />
-        <span class="font-medium text-sm">{{ item.name }}</span>
-      </button>
-    </nav>
+    <aside class="z-20 w-72 flex flex-col border-r border-tp-border shadow-xl bg-tp-surface">
 
-    <div class="p-4 border-t border-tp-border space-y-2">
-      <button class="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-muted hover:text-white transition-colors">
-        <Settings class="w-5 h-5" />
-        <span class="text-sm font-medium">Configuración</span>
-      </button>
-      <div class="flex items-center gap-3 px-4 py-3 bg-tp-bg/50 rounded-2xl border border-tp-border">
-        <div class="w-8 h-8 rounded-full bg-tp-border flex items-center justify-center">
-          <User class="w-4 h-4 text-tp-accent" />
-        </div>
-        <div class="flex flex-col text-left">
-          <span class="text-xs font-bold leading-none">Miguel</span>
-          <span class="text-[10px] text-muted italic mt-1">Administrador</span>
-        </div>
-      </div>
-    </div>
-  </aside>
+        <header class="h-20 px-6 pt-1.5 flex items-center gap-4">
+
+            <div class="shrink-0">
+                <House class="text-tp-accent w-9 h-9" />
+            </div>
+
+            <div class="flex flex-col justify-center">
+                <h1 class="text-xl font-bold tracking-tight"> TPHome </h1>
+                <span class="text-[10px] font-mono text-muted/60 tracking-wider"> v1.0.0 - stable </span>
+            </div>
+
+        </header>
+
+
+        <nav class="flex-1 p-3 space-y-2">
+
+            <button 
+                v-for="item in navItems" 
+                :key="item.id"
+                @click="activeItem = item.id"
+                :class="getButtonClass(item.id)"
+            >
+                <component :is="item.icon" class="w-5 h-5" />
+                <span class="font-medium text-sm">{{ item.name }}</span>
+            </button>
+
+        </nav>
+
+
+        <footer class="p-4 border-t border-tp-border space-y-2">
+
+            <button class="w-full flex items-center gap-4 px-4 py-2.5 rounded-lg transition-colors duration-200 cursor-pointer text-muted hover:text-white">
+
+                <Settings class="w-5 h-5" />
+                <span class="text-sm font-medium">Configuración</span>
+
+            </button>
+
+            <div class="flex items-center gap-3 px-4 py-3 bg-tp-bg/50 rounded-xl border border-tp-border">
+            
+                <div class="w-8 h-8 rounded-lg bg-tp-border flex items-center justify-center">
+                    <User class="w-4 h-4 text-tp-accent" />
+                </div>
+
+                <div class="flex flex-col text-left">
+                    <span class="text-xs font-bold leading-none">Miguel</span>
+                    <span class="text-[10px] text-muted italic mt-1">Administrador</span>
+                </div>
+
+            </div>
+
+        </footer>
+
+    </aside>
+
 </template>
