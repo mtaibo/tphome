@@ -1,0 +1,7 @@
+services:
+  tphome-frontend:
+    build: .
+    container_name: tphome-frontend
+    ports:
+      - "8080:80"
+    restart: unless-stopped
