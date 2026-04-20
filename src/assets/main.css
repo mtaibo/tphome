@@ -25,8 +25,36 @@
 }
 
 @layer components {
+
+    /* Background grid */
     .bg-grid-dots {
         background-image: radial-gradient(var(--color-tp-border) 1px, transparent 1px);
         background-size: 32px 32px;
+    }
+
+    /* Topbar dot online indicator */
+    .status-dot {
+        @apply w-1.5 h-1.5 rounded-full shadow-[0_0_5px] animate-pulse transition-all duration-500;
+    }
+
+    .is-online .status-dot {
+        @apply bg-tp-ok shadow-tp-ok/50;
+    }
+ 
+    .is-offline .status-text {
+        @apply bg-tp-danger shadow-tp-danger/50;
+    }
+
+    /* Topbar text online indicator */
+    .status-text {
+        @apply text-[10px] font-bold uppercase tracking-tighter transition-colors duration-500;
+    }
+
+    .is-online .status-text {
+        @apply text-tp-ok shadow-tp-danger/50;
+    }
+
+    .is-offline .status-text {
+        @apply text-tp-danger shadow-tp-danger/50;
     }
 }
