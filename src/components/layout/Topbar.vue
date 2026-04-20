@@ -19,9 +19,9 @@
 
                 <span class="text-[10px] font-mono text-muted/60 uppercase tracking-widest">API</span>
 
-                <div class="flex items-center gap-2">
-                    <div :class="['w-1.5 h-1.5 rounded-full shadow-[0_0_5px] animate-pulse', isOnline ? 'bg-tp-ok shadow-tp-ok/50' : 'bg-tp-danger shadow-tp-danger/50']"></div>
-                    <span class="text-xs font-bold text-white uppercase tracking-tighter italic">{{ isOnline ? 'Online' : 'Offline' }}</span>
+                <div class="flex items-center gap-2" :class="isOnline ? 'is-online' : 'is-offline'">
+                    <div class="status-dot"></div>
+                    <span class="status-text">{{ isOnline ? 'Online' : 'Offline' }}</span>
                 </div>
 
             </div>
