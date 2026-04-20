@@ -1,10 +1,21 @@
 <script setup>
 
+    import { ref } from 'vue';
     import { RefreshCw, Bell } from 'lucide-vue-next';
+
+    const pendingCount = ref(0);
 
     defineProps({
         isOnline: Boolean
     });
+
+    const togglePending = () => {
+        if (pendingCount.value === 0) {
+            pendingCount.value = 2;
+        } else {
+            pendingCount.value = 0;
+        }
+    }
 
 </script>
 
@@ -36,21 +47,36 @@
 
                 <div class="flex items-center gap-1.5">
                     <span class="text-xs font-bold text-tp-accent">12</span>
-                    <span class="text-[10px] text-muted uppercase">Activos</span>
+                    <span class="text-[10px] text-tp-accent/80 uppercase">Activos</span>
                 </div>
 
             </div>
 
         </div>
 
-        <div class="flex items-center gap-4">
 
-            <button class="p-2.5 bg-tp-border/30 rounded-full hover:bg-tp-accent/20 hover:text-tp-accent transition-all text-muted">
-                <Bell class="w-5 h-5" />
-            </button>
+        <div class="flex items-center gap-6">
 
-            <button class="p-2.5 bg-tp-border/30 rounded-full hover:bg-tp-accent/20 hover:text-tp-accent transition-all text-muted">
-                <RefreshCw class="w-5 h-5" />
+            <!-- UNCONFIGURED DEVICES -->
+            <div 
+                v-if="pendingCount > 0"
+                class="flex items-center gap-2.5 px-3 py-1.5 bg-tp-danger/5 border border-tp-danger/20 rounded-lg  hover:bg-tp-danger/10 hover:border-tp-danger/40 transition-all duration-300 cursor-pointer"
+            >
+  
+                <div class="w-1.5 h-1.5 bg-tp-danger rounded-full shadow-[0_0_8px_var(--color-tp-danger)]"></div>
+                <span class="text-[10px] font-bold text-tp-danger uppercase tracking-tight">2 Dispositivos sin configurar</span>
+
+            </div>
+
+            <!-- UPDATE -->
+            <button 
+                @click="togglePending"
+                class="group flex items-center gap-2.5 px-3 py-1.5 rounded-lg border border-transparent hover:border-tp-border hover:bg-tp-surface/50 transition-all duration-300 active:scale-95 cursor-pointer"
+            >
+            
+                <RefreshCw class="w-3.5 h-3.5 text-muted group-hover:text-tp-accent group-hover:rotate-180 transition-all duration-500" />
+                <span class="text-xs font-mono font-medium text-muted/80 group-hover:text-tp-accent uppercase tracking-wider">UPDATE</span>
+
             </button>
 
         </div>
