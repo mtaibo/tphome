@@ -1,3 +1,63 @@
+<script setup>
+    import { ref } from 'vue'
+
+    const devices = ref([
+
+        { id: 'L0101', name: 'Luz Grande Salón',   x: 110, y: 270, type: 'L' },
+        { id: 'L0102', name: 'Luz Pequeña Salón',  x: 75,  y: 340, type: 'L' },
+
+        { id: 'L0201', name: 'Luz Habitación Gemelas',            x: 200, y: 320, type: 'L' },
+
+        { id: 'L0301', name: 'Luz Habitación Ordenador Cama',     x: 280, y: 280, type: 'L' },
+        { id: 'L0302', name: 'Luz Habitación Ordenador Armario',  x: 315, y: 330, type: 'L' },
+
+        { id: 'L0401', name: 'Luz Habitación Principal Cama',     x: 420, y: 340, type: 'L' },
+        { id: 'L0402', name: 'Luz Habitación Principal Armario',  x: 375, y: 240, type: 'L' },
+
+        { id: 'L0501', name: 'Luz Entrada',   x: 30, y: 125, type: 'L' },
+        { id: 'L0502', name: 'Luz Pasillo',   x: 160, y: 211, type: 'L' },
+        { id: 'L0503', name: 'Luz Exterior',  x: 30, y: 25, type: 'L' },
+
+        { id: 'L0601', name: 'Luz Baño Invitados',  x: 228, y: 140, type: 'L' },
+        { id: 'L0701', name: 'Luz Baño Principal',  x: 445, y: 240, type: 'L' },
+
+        { id: 'L0801', name: 'Luz Cocina',     x: 125, y: 125, type: 'L' },
+        { id: 'L0802', name: 'Luz Tendedero',  x: 90, y: 25, type: 'L' },
+
+    ])
+
+    const deviceStates = ref({
+
+        'L0101': { status: 'on' },
+        'L0102': { status: 'off' },
+
+        'L0201': { status: 'off' },
+
+        'L0301': { status: 'off' },
+        'L0302': { status: 'off' },
+
+        'L0401': { status: 'off' },
+        'L0402': { status: 'off' },
+
+        'L0501': { status: 'off' },
+        'L0502': { status: 'off' },
+        'L0503': { status: 'off' },
+
+        'L0601': { status: 'off' },
+        'L0701': { status: 'off' },
+
+        'L0801': { status: 'off' },
+        'L0802': { status: 'off' },
+    })
+
+    const toggleDevice = (id) => {
+        if (deviceStates.value[id]) {
+            deviceStates.value[id].status = deviceStates.value[id].status === 'on' ? 'off' : 'on'
+        }
+    }
+
+</script>
+
 <template>
 
     <div class="w-full h-full flex items-center justify-center p-8">
@@ -33,19 +93,18 @@
             <!-- Names -->
             <g class="fill-muted font-mono text-[11px] uppercase tracking-widest pointer-events-none">
 
-                <text x="35" y="150" text-anchor="middle" transform="rotate(270, 35, 200)">Entrada</text>
-                <text x="210" y="215" text-anchor="middle">Pasillo</text>
+                <text x="210" y="214" text-anchor="middle">Pasillo</text>
 
-                <text x="125" y="115" text-anchor="middle">Cocina</text>
+                <text x="125" y="105" text-anchor="middle">Cocina</text>
 
-                <text x="75" y="320" text-anchor="middle">Salón</text>
+                <text x="45" y="290" text-anchor="middle">Salón</text>
 
-                <text x="227" y="130" text-anchor="middle">Baño</text> <!-- Secundario -->
-                <text x="445" y="235" text-anchor="middle">Baño</text> <!-- Principal  -->
+                <text x="227" y="120" text-anchor="middle">Baño</text> <!-- Secundario -->
+                <text x="445" y="220" text-anchor="middle">Baño</text> <!-- Principal  -->
 
-                <text x="200" y="320" text-anchor="middle">Hab.</text> <!-- Gemelas -->
-                <text x="300" y="320" text-anchor="middle">Hab.</text> <!-- Ordenador -->
-                <text x="425" y="340" text-anchor="middle">Hab.</text> <!-- Principal  -->
+                <text x="200" y="290" text-anchor="middle">Hab.</text> <!-- Gemelas -->
+                <text x="320" y="290" text-anchor="middle">Hab.</text> <!-- Ordenador -->
+                <text x="422" y="320" text-anchor="middle">Hab.</text> <!-- Principal  -->
 
             </g>
 
@@ -69,6 +128,29 @@
                 <line x1="60" y1="181" x2="60" y2="239" />   <!-- Entrada/Pasillo     -->
                 <line x1="400" y1="281" x2="400" y2="399" /> <!-- Baño/HabitaciónPrincipal -->
 
+            </g>
+
+            <!-- Devices -->
+            <g
+                v-for="device in devices" 
+                :key="device.id"
+                :transform="`translate(${device.x}, ${device.y})`"
+                class="cursor-pointer select-none"
+                @click="toggleDevice(device.id)"
+            >
+
+                <circle 
+                    r="7" 
+                    :class="[
+                        'transition-all duration-300 stroke-2',
+                        deviceStates[device.id]?.status === 'on' 
+                        ? 'fill-yellow-400/20 stroke-yellow-400' 
+                        : 'fill-tp-surface/50 stroke-tp-border'
+                    ]"
+                />
+                    
+                <circle r="3" :class="deviceStates[device.id]?.status === 'on' ? 'fill-yellow-400' : 'fill-muted'" />
+                    
             </g>
 
         </svg>
