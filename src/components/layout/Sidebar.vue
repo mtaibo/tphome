@@ -59,10 +59,8 @@
         <footer class="p-4 border-t border-tp-border space-y-2">
 
             <button class="w-full flex items-center gap-4 px-4 py-2.5 rounded-lg transition-colors duration-200 cursor-pointer text-muted hover:text-white">
-
                 <Settings class="w-5 h-5" />
                 <span class="text-sm font-medium">Configuración</span>
-
             </button>
 
             <div class="flex items-center gap-3 px-4 py-3 bg-tp-bg/50 rounded-xl border border-tp-border">
