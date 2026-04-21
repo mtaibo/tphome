@@ -4,7 +4,7 @@
 
     import Sidebar from './components/layout/Sidebar.vue';
     import Topbar from './components/layout/Topbar.vue';
-    import HouseMap from './components/dashboard/HouseMap.vue';
+    import Blueprint from './components/dashboard/Blueprint.vue';
 
     const isOnline = ref(true); // API connection status
 
@@ -21,7 +21,7 @@
       <Topbar :isOnline="isOnline" />
 
       <section class="flex-1 relative overflow-hidden bg-grid-dots">
-        <HouseMap />
+        <Blueprint />
       </section>
 
     </main>
