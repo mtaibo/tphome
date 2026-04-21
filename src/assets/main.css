@@ -41,7 +41,7 @@
         @apply bg-tp-ok shadow-tp-ok/50;
     }
  
-    .is-offline .status-text {
+    .is-offline .status-dot {
         @apply bg-tp-danger shadow-tp-danger/50;
     }
 
