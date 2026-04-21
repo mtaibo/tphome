@@ -71,7 +71,7 @@
             <!-- UPDATE -->
             <button 
                 @click="togglePending"
-                class="group flex items-center gap-2.5 px-3 py-1.5 rounded-lg border border-transparent hover:border-tp-border hover:bg-tp-surface/50 transition-all duration-300 active:scale-95 cursor-pointer"
+                class="group flex items-center gap-2.5 px-3 py-1.5 rounded-lg transition-all duration-300 active:scale-95 cursor-pointer"
             >
             
                 <RefreshCw class="w-3.5 h-3.5 text-muted group-hover:text-tp-accent group-hover:rotate-180 transition-all duration-500" />
