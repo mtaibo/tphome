@@ -35,14 +35,14 @@ export const devices = {
 
     blinds: {
 
-        'B0101': { name: 'Persiana Salón Grande',         x:  10, y: 427, width: 60, height:  7, state: { position: 100, motor: 0 } },
-        'B0102': { name: 'Persiana Salón Pequeña',        x:  77, y: 405, width:  7, height: 20, state: { position: 0, motor: 0 } },
+        'B0101': { name: 'Persiana Salón Grande',         x:  10, y: 427, width: 60, height:  7, state: { position: 75, motor: 0 } },
+        'B0102': { name: 'Persiana Salón Pequeña',        x:  77, y: 405, width:  7, height: 20, state: { position: 50, motor: 0 } },
 
         'B0201': { name: 'Persiana Habitación Gemelas',   x: 180, y: 397, width: 50, height:  7, state: { position:  60, motor: 0 } },
 
         'B0301': { name: 'Persiana Habitación Ordenador', x: 270, y: 397, width: 50, height:  7, state: { position: 100, motor: 0 } },
 
-        'B0401': { name: 'Persiana Habitación Principal', x: 400, y: 397, width: 50, height:  7, state: { position: 100, motor: 0 } },
+        'B0401': { name: 'Persiana Habitación Principal', x: 400, y: 397, width: 50, height:  7, state: { position:   0, motor: 0 } },
 
     }
 }
