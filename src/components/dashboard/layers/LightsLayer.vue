@@ -26,7 +26,7 @@
             :class="[
                 'transition-all duration-300 stroke-2',
                 device.on 
-                ? 'fill-yellow-400/20 stroke-yellow-400' 
+                ? 'fill-yellow-400/20 stroke-yellow-400/50' 
                 : 'fill-tp-surface/50 stroke-tp-border/20'
             ]"
         />
