@@ -53,8 +53,8 @@
 
                 <text x="45" y="290" text-anchor="middle">Salón</text>
 
-                <text x="227" y="120" text-anchor="middle">Baño</text> <!-- Secundario -->
-                <text x="445" y="220" text-anchor="middle">Baño</text> <!-- Principal  -->
+                <text x="227" y="105" text-anchor="middle">Baño</text> <!-- Invitados -->
+                <text x="440" y="214" text-anchor="middle">Baño</text> <!-- Principal  -->
 
                 <text x="200" y="290" text-anchor="middle">Hab.</text> <!-- Gemelas -->
                 <text x="320" y="290" text-anchor="middle">Hab.</text> <!-- Ordenador -->
@@ -93,16 +93,18 @@
                 @click="toggleDevice(device)"
             >
 
+                <!-- Outline circle -->
                 <circle 
-                    r="7" 
+                    r="10" 
                     :class="[
                         'transition-all duration-300 stroke-2',
                         device.on 
                         ? 'fill-yellow-400/20 stroke-yellow-400' 
-                        : 'fill-tp-surface/50 stroke-tp-border'
+                        : 'fill-tp-surface/50 stroke-tp-border/20'
                     ]"
                 />
                     
+                <!-- Inline circle -->
                 <circle r="3" :class="device.on ? 'fill-yellow-400' : 'fill-muted'" />
                     
             </g>

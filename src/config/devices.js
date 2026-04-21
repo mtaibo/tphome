@@ -18,11 +18,11 @@ export const devices = {
         'L0502' : { name: 'Luz Pasillo',  x: 160, y: 211, on: false },
         'L0503' : { name: 'Luz Exterior', x:  30, y:  25, on: false },
 
-        'L0601' : { name: 'Luz Baño Invitados',        x: 228, y: 140, on: false },
-        'L0602' : { name: 'Luz Baño Invitados Espejo', x: 200, y: 160, on: false },
+        'L0601' : { name: 'Luz Baño Invitados',        x: 228, y: 130, on: false },
+        'L0602' : { name: 'Luz Baño Invitados Espejo', x: 205, y: 160, on: false },
 
         'L0701' : { name: 'Luz Baño Principal',        x: 445, y: 240, on: false },
-        'L0702' : { name: 'Luz Baño Principal Espejo', x: 480, y: 200, on: false },
+        'L0702' : { name: 'Luz Baño Principal Espejo', x: 475, y: 200, on: false },
 
         'L0801' : { name: 'Luz Cocina',    x: 125, y: 125, on: false },
         'L0802' : { name: 'Luz Tendedero', x:  90, y:  25, on: false },
