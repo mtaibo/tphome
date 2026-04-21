@@ -1,59 +1,13 @@
 <script setup>
+
     import { ref } from 'vue'
+    import { devices } from '../../config/devices'
 
-    const devices = ref([
+    const lights = ref(devices.lights)
+    const blinds = ref(devices.blinds)
 
-        { id: 'L0101', name: 'Luz Grande Salón',   x: 110, y: 270, type: 'L' },
-        { id: 'L0102', name: 'Luz Pequeña Salón',  x: 75,  y: 340, type: 'L' },
-
-        { id: 'L0201', name: 'Luz Habitación Gemelas',            x: 200, y: 320, type: 'L' },
-
-        { id: 'L0301', name: 'Luz Habitación Ordenador Cama',     x: 280, y: 280, type: 'L' },
-        { id: 'L0302', name: 'Luz Habitación Ordenador Armario',  x: 315, y: 330, type: 'L' },
-
-        { id: 'L0401', name: 'Luz Habitación Principal Cama',     x: 420, y: 340, type: 'L' },
-        { id: 'L0402', name: 'Luz Habitación Principal Armario',  x: 375, y: 240, type: 'L' },
-
-        { id: 'L0501', name: 'Luz Entrada',   x: 30, y: 125, type: 'L' },
-        { id: 'L0502', name: 'Luz Pasillo',   x: 160, y: 211, type: 'L' },
-        { id: 'L0503', name: 'Luz Exterior',  x: 30, y: 25, type: 'L' },
-
-        { id: 'L0601', name: 'Luz Baño Invitados',  x: 228, y: 140, type: 'L' },
-        { id: 'L0701', name: 'Luz Baño Principal',  x: 445, y: 240, type: 'L' },
-
-        { id: 'L0801', name: 'Luz Cocina',     x: 125, y: 125, type: 'L' },
-        { id: 'L0802', name: 'Luz Tendedero',  x: 90, y: 25, type: 'L' },
-
-    ])
-
-    const deviceStates = ref({
-
-        'L0101': { status: 'on' },
-        'L0102': { status: 'off' },
-
-        'L0201': { status: 'off' },
-
-        'L0301': { status: 'off' },
-        'L0302': { status: 'off' },
-
-        'L0401': { status: 'off' },
-        'L0402': { status: 'off' },
-
-        'L0501': { status: 'off' },
-        'L0502': { status: 'off' },
-        'L0503': { status: 'off' },
-
-        'L0601': { status: 'off' },
-        'L0701': { status: 'off' },
-
-        'L0801': { status: 'off' },
-        'L0802': { status: 'off' },
-    })
-
-    const toggleDevice = (id) => {
-        if (deviceStates.value[id]) {
-            deviceStates.value[id].status = deviceStates.value[id].status === 'on' ? 'off' : 'on'
-        }
+    const toggleDevice = (device) => {
+        device.on = !device.on
     }
 
 </script>
@@ -130,27 +84,50 @@
 
             </g>
 
-            <!-- Devices -->
+            <!-- Lights -->
             <g
-                v-for="device in devices" 
-                :key="device.id"
+                v-for="(device, id) in lights" 
+                :key="id"
                 :transform="`translate(${device.x}, ${device.y})`"
                 class="cursor-pointer select-none"
-                @click="toggleDevice(device.id)"
+                @click="toggleDevice(device)"
             >
 
                 <circle 
                     r="7" 
                     :class="[
                         'transition-all duration-300 stroke-2',
-                        deviceStates[device.id]?.status === 'on' 
+                        device.on 
                         ? 'fill-yellow-400/20 stroke-yellow-400' 
                         : 'fill-tp-surface/50 stroke-tp-border'
                     ]"
                 />
                     
-                <circle r="3" :class="deviceStates[device.id]?.status === 'on' ? 'fill-yellow-400' : 'fill-muted'" />
+                <circle r="3" :class="device.on ? 'fill-yellow-400' : 'fill-muted'" />
                     
+            </g>
+            
+            <!-- Blinds -->
+            <g v-for="(blind, id) in blinds" :key="id" class="select-none cursor-pointer">
+                
+                <rect 
+                    :x="blind.x" 
+                    :y="blind.y" 
+                    :width="blind.width" 
+                    :height="blind.height" 
+                    rx="1.5"
+                    class="fill-tp-surface/10 stroke-tp-border stroke-[1px]"
+                />
+
+                <rect 
+                    :x="blind.x" 
+                    :y="blind.y" 
+                    :width="blind.width > blind.height ? (blind.state.position / 100) * blind.width : blind.width" 
+                    :height="blind.height > blind.width ? (blind.state.position / 100) * blind.height : blind.height" 
+                    rx="1"
+                    class="fill-muted/40 transition-all duration-500 ease-in-out"
+                />
+
             </g>
 
         </svg>
