@@ -8,7 +8,12 @@
 
 <template>
 
-    <g v-for="(blind, id) in blinds" :key="id" class="select-none cursor-pointer">
+    <g 
+        v-for="(blind, id) in blinds" 
+        :key="id" 
+        class="select-none cursor-pointer" 
+        @click="$emit('select', blind)"
+    >
     
         <rect 
             :x="blind.x" :y="blind.y" 
