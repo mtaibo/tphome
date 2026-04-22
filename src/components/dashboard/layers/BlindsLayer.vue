@@ -15,25 +15,26 @@
         @click="$emit('select', blind)"
     >
     
+        <!-- Blind background -->
         <rect 
-            :x="blind.x" :y="blind.y" 
+            :x="blind.x" :y="blind.y" rx="1.5"
             :width="blind.width" :height="blind.height" 
-            rx="1.5"
-            class="fill-black stroke-tp-border stroke-[1px]"
+            class="fill-black stroke-tp-border"
         />
 
+        <!-- Blind plain cover -->
         <rect 
-            :x="blind.x" :y="blind.y" 
-            :width="blind.width > blind.height ? (blind.state.position / 100) * blind.width : blind.width" 
-            :height="blind.height > blind.width ? (blind.state.position / 100) * blind.height : blind.height" 
-            rx="1"
+            :x="blind.x" :y="blind.y" rx="1.5"
+            :width="blind.width > blind.height ? blind.width * (100 - blind.state.position) / 100 : blind.width" 
+            :height="blind.height > blind.width ? blind.height * (100 - blind.state.position) / 100 : blind.height" 
             class="fill-muted transition-all duration-500 ease-in-out"
         />
 
+        <!-- Apply pattern -->
         <rect 
             :x="blind.x" :y="blind.y" 
-            :width="blind.width > blind.height ? (blind.state.position / 100) * blind.width : blind.width" 
-            :height="blind.height > blind.width ? (blind.state.position / 100) * blind.height : blind.height" 
+            :width="blind.width > blind.height ? blind.width * (100 - blind.state.position) / 100 : blind.width" 
+            :height="blind.height > blind.width ? blind.height * (100 - blind.state.position) / 100 : blind.height" 
             :fill="blind.width > blind.height ? 'url(#pattern-v)' : 'url(#pattern-h)'"
             class="pointer-events-none transition-all duration-500 ease-in-out"
         />
