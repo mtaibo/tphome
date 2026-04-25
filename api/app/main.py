@@ -7,6 +7,7 @@ from db import database
 import mqtt
 
 from routers import devices, commands, admin
+import connections
 
 
 @asynccontextmanager
@@ -17,6 +18,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(connections.router)
 app.include_router(commands.router)
 app.include_router(devices.router)
 app.include_router(admin.router)
