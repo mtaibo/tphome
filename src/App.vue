@@ -2,8 +2,8 @@
 
     import { ref } from 'vue';
 
-    import Sidebar from './components/Sidebar.vue';
-    import Topbar from './components/Topbar.vue';
+    import Sidebar from './layout/Sidebar.vue';
+    import Topbar from './layout/Topbar.vue';
     import Blueprint from './components/Blueprint.vue';
 
     const isOnline = ref(true); // API connection status
