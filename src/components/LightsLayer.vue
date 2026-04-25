@@ -1,7 +1,7 @@
 <script setup>
     
     import { ref } from 'vue'
-    import { devices } from '../../../config/devices'
+    import { devices } from '../db/devices'
     const lights = ref(devices.lights)
 
     const toggleDevice = (device) => {

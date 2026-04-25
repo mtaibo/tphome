@@ -2,9 +2,9 @@
 
     import { ref } from 'vue'
 
-    import LightsLayer   from './layers/LightsLayer.vue'
-    import BlindsLayer   from './layers/BlindsLayer.vue'
-    import HouseLayer    from './layers/HouseLayer.vue'
+    import LightsLayer   from './LightsLayer.vue'
+    import BlindsLayer   from './BlindsLayer.vue'
+    import HouseLayer    from './HouseLayer.vue'
 
     import BlindsControl from '../layout/BlindsControl.vue'
 
