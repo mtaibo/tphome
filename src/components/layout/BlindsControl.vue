@@ -21,11 +21,11 @@
     const sendCommand = async (command, value = null) => {
         isLoading.value = true
         try {
-            let url = `/commands/${props.device.id}/${command}`
-            if (value !== null) url = `/commands/${props.device.id}/set/${value}`
+            let url = `/commands/B0401/${command}`
+            if (value !== null) url = `/commands/B0401/set/${value}`
             
             await api.post(url)
-            console.log(`Comando ${command} enviado a ${props.device.id}`)
+            console.log(`Comando ${command} enviado a B0401`)
         } catch (error) {
             console.error("Error enviando comando:", error)
         } finally {
