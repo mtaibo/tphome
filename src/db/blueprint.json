@@ -1,0 +1,44 @@
+{
+  "lights": {
+
+    "L0101": { "name": "Grande Salón",  "x": 110, "y": 270 },
+    "L0102": { "name": "Pequeña Salón", "x": 75,  "y": 340 },
+
+    "L0201": { "name": "Habitación Gemelas", "x": 200, "y": 320 },
+
+    "L0301": { "name": "Habitación Ordenador Cama",    "x": 280, "y": 280 },
+    "L0302": { "name": "Habitación Ordenador Armario", "x": 315, "y": 330 },
+
+    "L0401": { "name": "Habitación Principal Cama",    "x": 420, "y": 340 },
+    "L0402": { "name": "Habitación Principal Armario", "x": 375, "y": 240 },
+
+    "L0501": { "name": "Entrada",  "x": 30,  "y": 125 },
+    "L0502": { "name": "Pasillo",  "x": 160, "y": 211 },
+    "L0503": { "name": "Exterior", "x": 30,  "y": 25 },
+
+    "L0601": { "name": "Baño Invitados",        "x": 228, "y": 130 },
+    "L0602": { "name": "Baño Invitados Espejo", "x": 205, "y": 160 },
+
+    "L0701": { "name": "Baño Principal",        "x": 445, "y": 240 },
+    "L0702": { "name": "Baño Principal Espejo", "x": 475, "y": 200 },
+
+    "L0801": { "name": "Cocina",    "x": 125, "y": 125 },
+    "L0802": { "name": "Tendedero", "x": 90,  "y": 25 }
+  },
+
+  "switches": {
+
+  },
+
+  "blinds": {
+
+    "B0101": { "name": "Salón Grande",  "x": 10, "y": 427, "width": 60, "height": 7,  "prefs" : { "up_time": 3200, "down_time": 3000, "down_pos": 2000, "inverted_relays": false } },
+    "B0102": { "name": "Salón Pequeña", "x": 77, "y": 405, "width": 7,  "height": 20, "prefs" : { "up_time": 1750, "down_time": 1700, "down_pos": 2000, "inverted_relays": true  } },
+
+    "B0201": { "name": "Habitación Gemelas",   "x": 180, "y": 397, "width": 50, "height": 7, "prefs" : { "up_time": 1750, "down_time": 1700, "down_pos": 2000, "inverted_relays": true } },
+
+    "B0301": { "name": "Habitación Ordenador", "x": 270, "y": 397, "width": 50, "height": 7, "prefs" : { "up_time": 1750, "down_time": 1700, "down_pos": 2000, "inverted_relays": true } },
+
+    "B0401": { "name": "Habitación Principal", "x": 400, "y": 397, "width": 50, "height": 7, "prefs" : { "up_time": 1750, "down_time": 1700, "down_pos": 2000, "inverted_relays": true } }
+  }
+}

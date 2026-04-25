@@ -100,7 +100,7 @@
                         class="absolute top-0 w-full bg-muted/20 border-b border-tp-accent/40 transition-all duration-700 ease-in-out flex flex-col gap-1.5 p-2 overflow-hidden"
                         :style="{ height: (100 - tempPosition) + '%' }"
                     >
-                        <div v-for="i in 20" :key="i" class="h-2 min-h-[8px] w-full bg-muted/30 rounded-sm shrink-0 shadow-sm"></div>
+                        <div v-for="i in 20" :key="i" class="h-2 min-h-2 w-full bg-muted/30 rounded-sm shrink-0 shadow-sm"></div>
                     </div>
 
                     <input 
@@ -119,7 +119,7 @@
                 </div>
             </div>
 
-            <div class="w-full max-w-[260px] space-y-8">
+            <div class="w-full max-w-65 space-y-8">
                 <div class="grid grid-cols-3 gap-3">
                     <button @click="handleUp" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl transition-all cursor-pointer hover:bg-tp-accent/10 hover:border-tp-accent/50 group">
                         <ChevronUp class="w-6 h-6 text-muted group-hover:text-tp-accent" />
