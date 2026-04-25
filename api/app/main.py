@@ -17,7 +17,12 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    lifespan=lifespan,
+    title="TPHome API",
+    root_path="/api"
+)
+
 app.include_router(connections.router)
 app.include_router(commands.router)
 app.include_router(devices.router)
