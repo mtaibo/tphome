@@ -16,18 +16,24 @@
     const inputPosition = ref(props.device.state.position)
     const isLoading = ref(false)
 
-    const api = axios.create({ baseURL: '/api' })
+    const api = axios.create({ 
+        baseURL: '/api'
+    })
 
     const sendCommand = async (command, value = null) => {
         isLoading.value = true
         try {
-            let url = `/commands/B0401/${command}`
-            if (value !== null) url = `/commands/B0401/set/${value}`
+            let path = `/commands/B0401/${command}`
             
-            await api.post(url)
-            console.log(`Comando ${command} enviado a B0401`)
+            if (command === 'set' && value !== null) {
+                path = `/commands/B0401/set/${value}`
+            }
+            
+            const response = await api.post(path)
+            
+            console.log("Respuesta del servidor:", response.data)
         } catch (error) {
-            console.error("Error enviando comando:", error)
+            console.error("Error detallado:", error.response?.data || error.message)
         } finally {
             isLoading.value = false
         }
