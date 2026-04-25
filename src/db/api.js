@@ -1,10 +1,27 @@
 import axios from 'axios'
 
-const api = axios.create({
+const client = axios.create({
     baseURL: '/api',
     headers: {
         'Content-Type': 'application/json'
     }
 })
 
-export default api
+export const api = {
+
+    /* Function to update devices state */
+    async update() {
+
+        const response = await client.get('/devices')
+        return response.data
+    },
+
+    /* Function to build commands requests */
+    async sendCommand(deviceId, command, value = null) {
+
+        let path = `/commands/${deviceId}/${command}`
+        if (command === 'set' && value !== null) path = `/commands/${deviceId}/set/${value}`
+
+        return client.post(path)
+    }
+}
