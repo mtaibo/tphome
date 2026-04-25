@@ -1,6 +1,6 @@
 import { reactive, readonly } from 'vue'
-import { DeviceHub } from './deviceHub'
-import blueprint from './blueprint.json'
+import { api } from './api'
+import devices from './devices.json'
 
 const state = reactive({
     devices: [], 
