@@ -1,64 +1,44 @@
 import { reactive, readonly } from 'vue'
 import { api } from './api'
-import devices from './devices.json'
+import devicesConfig from './devices.json'
 
-const state = reactive({
-    devices: [], 
-    blueprint: blueprint, 
-    isLoading: false,
-    error: null
-})
+const devices = reactive([])
 
 export const useDeviceStore = () => {
-    
-    const fetchDevices = async () => {
-        state.isLoading = true
-        try {
-            const onlineDevices = await DeviceHub.update()
-            
-            state.devices = onlineDevices.map(device => ({
-                ...device,
-                config: state.blueprint[device.id] || {} 
-            }))
-        } catch (err) {
-            state.error = "Error al sincronizar dispositivos"
-        } finally {
-            state.isLoading = false
-        }
+
+    /* Fill state var with api db devices */
+    const updateDevices = async () => {
+        try { devices = await api.getDevices()
+        } catch (error) { console.error("Error en el store:", error) }
     }
 
-
-    const configureNewDevice = async (newId) => {
-        const configToApply = state.blueprint[newId]
-        
-        if (!configToApply) {
-            console.error("Este ID no existe en el plano maestro")
-            return
-        }
-
-        try {
-            state.isLoading = true
-            await DeviceHub.exec(newId, 'configure', configToApply)
-            
-            await fetchDevices()
-        } catch (err) {
-            state.error = "No se pudo configurar el dispositivo"
-        } finally {
-            state.isLoading = false
-        }
+    const getMapItems = () => {
+        return state.devices.map(d => {
+            const config = devicesConfig.lights[d.id] || devicesConfig.blinds[d.id] || {}
+            return {
+                id: d.id,
+                x: config.x,
+                y: config.y,
+                online: d.online,
+                type: d.type
+            }
+        })
     }
 
-    const updateDeviceLocalState = (deviceId, newState) => {
-        const device = state.devices.find(d => d.id === deviceId)
-        if (device) {
-            Object.assign(device.state, newState)
-        }
+    const getControlCards = () => {
+        return devices.map(d => ({
+            id: d.id,
+            name: d.name,
+            state: d.state,
+            online: d.online,
+            type: d.type
+        }))
     }
 
     return {
-        state: readonly(state),
-        fetchDevices,
-        configureNewDevice,
-        updateDeviceLocalState
+        devices: readonly(devices),
+        updateDevices,
+        getMapItems,
+        getControlCards
     }
 }

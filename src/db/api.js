@@ -9,9 +9,8 @@ const client = axios.create({
 
 export const api = {
 
-    /* Function to update devices state */
-    async update() {
-
+    /* Function to get devices from api db */
+    async getDevices() {
         const response = await client.get('/devices')
         return response.data
     },
