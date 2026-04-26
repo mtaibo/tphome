@@ -16,9 +16,9 @@ export const api = {
     },
 
     /* Function to build commands requests */
-    async sendCommand(deviceId, command, value = null) {
+    async sendCommand(id, command, value = null) {
 
-        let path = `/commands/${deviceId}/${command}`
+        let path = `/commands/${id}/${command}`
         if (command === 'set' && value !== null) path = `/commands/${deviceId}/set/${value}`
 
         return client.post(path)
