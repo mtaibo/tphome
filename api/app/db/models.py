@@ -23,10 +23,10 @@ class Blind(SQLModel, table=True):
     id: str = Field(foreign_key="device.id", primary_key=True)
 
     # Prefs
-    up_time: int = Field(default=0)
-    down_time: int = Field(default=0)
-    down_pos: int = Field(default=0)
-    inverted_relays: bool = Field(default=False)
+    up_time: int = 0
+    down_time: int = 0
+    down_pos: int = 0
+    inverted_relays: bool = False
 
     # State
     position: int = 0
