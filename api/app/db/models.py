@@ -3,34 +3,6 @@ from typing import Optional
 from datetime import datetime
 
 
-'''
-{
-    "id": "B0101",
-
-    "hardware": {
-        "mac": "20:40",
-        "firmware_version": "3f.68.af"
-    },
-
-    "connection": {
-        "online": true,
-        "last_seen": "2026-04-29T16:40:11.675639Z"
-    },
-
-    "prefs": {
-        "up_time": 5242,
-        "down_time": 42926,
-        "down_pos": 61008,
-        "inverted_relays": true
-    },
-
-    "state": {
-        "position": 100,
-        "motor_state": 0
-    }
-}
-'''
-
 class Device(SQLModel, table=True):
     id: str = Field(primary_key=True)
 
