@@ -3,29 +3,25 @@ from sqlmodel import Session, select
 from db.database import get_session
 from db.models import Device, Blind, Light, PendingDevice
 from pydantic import BaseModel
+from admin import reset_mem
 import mqtt
 
 router = APIRouter(tags=["Devices"])
 
 
-# Models
+# MODELS
 
-class DeviceResponse(BaseModel):
+
+class Response(BaseModel):
     id: str
-    mac: str
-    name: str
-    type: str
-    zone: str
-    online: bool
-    last_seen: str | None
-    firmware_version: str | None
-    state: dict | None = None
-    prefs: dict | None = None
+    hardware: dict
+    connection: dict
+    prefs: dict
+    state: dict
 
 
-class DeviceUpdate(BaseModel):
-    name: str
-    zone: str
+class Update(BaseModel):
+    prefs: dict
 
 
 class ConfigureDevice(BaseModel):
@@ -35,7 +31,8 @@ class ConfigureDevice(BaseModel):
     type: str
 
 
-# Aux functions
+# AUX FUNCTIONS
+
 
 def _get_device(id: str, session: Session) -> Device:
     device = session.exec(select(Device).where(Device.id == id)).first()
@@ -44,41 +41,34 @@ def _get_device(id: str, session: Session) -> Device:
     return device
 
 
-def _build_response(device: Device, session: Session) -> DeviceResponse:
-    state = None
+def _build_response(device: Device, session: Session) -> Response:
 
-    if device.type == "B":
+    if device.id[0] == "B":
         blind = session.exec(select(Blind).where(Blind.id == device.id)).first()
         if blind:
             state = {"position": blind.position, "motor_state": blind.motor_state}
             prefs = {"up_time": blind.up_time, "down_time": blind.down_time,
                      "down_pos": blind.down_pos, "inverted_relays": blind.inverted_relays}
+        else: return f"Device {device.id} not found on blinds database table"
 
-    elif device.type == "L":
+    elif device.id[0] == "L":
         light = session.exec(select(Light).where(Light.id == device.id)).first()
         if light:
             state = {"on": light.on}
 
-    return DeviceResponse(
+    return Response(
         id=device.id,
-        mac=device.mac,
-        name=device.name,
-        type=device.type,
-        zone=device.zone,
-        online=device.online,
-        last_seen=str(device.last_seen) if device.last_seen else None,
-        firmware_version=device.firmware_version,
-        state=state,
-        prefs=prefs
+        hardware={
+            "mac" : device.mac,
+            "firmware_version" : device.firmware_version
+        },
+        connection={
+            "online" : device.online,
+            "last_seen" : str(device.last_seen)
+        },
+        prefs=prefs,
+        state=state
     )
-
-
-def _next_device_id(type: str, zone: str, session: Session) -> str:
-    existing = session.exec(
-        select(Device).where(Device.type == type, Device.zone == zone)
-    ).all()
-    number = len(existing) + 1
-    return f"{type}{zone}{number:02d}"
 
 
 def _encode_device_id(id: str) -> bytes:
@@ -88,12 +78,41 @@ def _encode_device_id(id: str) -> bytes:
     return bytes([ord(type), zone, device])
 
 
-# Routes
+# DB DEVICES ROUTES
 
-@router.get("/devices", response_model=list[DeviceResponse])
+
+@router.get("/devices", response_model=list[Response])
 def get_devices(session: Session = Depends(get_session)):
     devices = session.exec(select(Device)).all()
-    return [_build_response(d, session) for d in devices]
+    return [_build_response(device, session) for device in devices]
+
+
+@router.get("/devices/{id}", response_model=Response)
+def get_device(id: str, session: Session = Depends(get_session)):
+    device = _get_device(id, session)
+    return _build_response(device, session)
+
+
+@router.put("/devices/{id}")
+def update_device(id: str, data: Update, session: Session = Depends(get_session)):
+    device = _get_device(id, session)
+    device.prefs = data.prefs
+    session.add(device)
+    session.commit()
+    session.refresh(device)
+    return _build_response(device, session)
+
+
+@router.delete("/devices/{id}")
+def delete_device(id: str, session: Session = Depends(get_session)):
+    device = _get_device(id, session)
+    reset_mem(id, session)
+    session.delete(device)
+    session.commit()
+    return {"deleted": id}
+
+
+# DB PROVISIONING DEVICES ROUTES
 
 
 @router.get("/devices/pending", response_model=list[str])
@@ -112,7 +131,7 @@ def configure_device(data: ConfigureDevice, session: Session = Depends(get_sessi
         raise HTTPException(status_code=404, detail="Pending device not found")
 
     # Build new device ID
-    new_id = _next_device_id(data.type, data.zone, session)
+    new_id = None
 
     # Send new ID to device via MQTT
     mqtt.publish(f"def/{data.mac}/a", _encode_device_id(new_id))
@@ -138,28 +157,3 @@ def configure_device(data: ConfigureDevice, session: Session = Depends(get_sessi
     session.commit()
 
     return {"configured": new_id}
-
-
-@router.get("/devices/{id}", response_model=DeviceResponse)
-def get_device(id: str, session: Session = Depends(get_session)):
-    device = _get_device(id, session)
-    return _build_response(device, session)
-
-
-@router.put("/devices/{id}")
-def update_device(id: str, data: DeviceUpdate, session: Session = Depends(get_session)):
-    device = _get_device(id, session)
-    device.name = data.name
-    device.zone = data.zone
-    session.add(device)
-    session.commit()
-    session.refresh(device)
-    return _build_response(device, session)
-
-
-@router.delete("/devices/{id}")
-def delete_device(id: str, session: Session = Depends(get_session)):
-    device = _get_device(id, session)
-    session.delete(device)
-    session.commit()
-    return {"deleted": id}
