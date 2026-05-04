@@ -3,32 +3,43 @@ from sqlmodel import Session, select
 from db.database import get_session
 from db.models import Device, Blind, Light, PendingDevice
 from pydantic import BaseModel
+from typing import Union
 from admin import reset_mem
 import mqtt
 
 router = APIRouter(tags=["Devices"])
 
 
-# MODELS
+# AUX MODELS
 
-
-class Response(BaseModel):
+class Response(BaseModel): # Returning model  return device info to frontend
     id: str
     hardware: dict
     connection: dict
-    prefs: dict
-    state: dict
+    prefs: Union[BlindPrefs, dict]
+    state: Union[BlindState, dict]
 
+class Update(BaseModel): # Receiving model to update device prefs
+    prefs: Union[BlindPrefs, dict]
 
-class Update(BaseModel):
-    prefs: dict
-
-
-class ConfigureDevice(BaseModel):
+class ConfigureDevice(BaseModel): # 
+    id: str
     mac: str
-    name: str
-    zone: str
-    type: str
+    prefs: Union[BlindPrefs, dict]
+
+
+# BLIND MODELS
+
+class BlindState(BaseModel):
+    position: int
+    motor_state: int
+
+
+class BlindPrefs(BaseModel):
+    up_time: int
+    down_time: int
+    down_pos: int
+    inverted_relays: bool
 
 
 # AUX FUNCTIONS
@@ -43,13 +54,18 @@ def _get_device(id: str, session: Session) -> Device:
 
 def _build_response(device: Device, session: Session) -> Response:
 
+    state = {}
+    prefs = {}
+
     if device.id[0] == "B":
         blind = session.exec(select(Blind).where(Blind.id == device.id)).first()
         if blind:
-            state = {"position": blind.position, "motor_state": blind.motor_state}
-            prefs = {"up_time": blind.up_time, "down_time": blind.down_time,
-                     "down_pos": blind.down_pos, "inverted_relays": blind.inverted_relays}
-        else: return f"Device {device.id} not found on blinds database table"
+            state = BlindState(position=blind.position, motor_state=blind.motor_state)
+            prefs = BlindPrefs(
+                up_time=blind.up_time, down_time=blind.down_time,
+                down_pos=blind.down_pos, inverted_relays=blind.inverted_relays
+            )
+        else: return HTTPException(status_code=404, detail=f"Device {device.id} not found on blinds database table")
 
     elif device.id[0] == "L":
         light = session.exec(select(Light).where(Light.id == device.id)).first()
@@ -124,36 +140,42 @@ def get_pending(session: Session = Depends(get_session)):
 @router.post("/devices/pending/configure")
 def configure_device(data: ConfigureDevice, session: Session = Depends(get_session)):
 
-    pending = session.exec(
-        select(PendingDevice).where(PendingDevice.mac == data.mac)
-    ).first()
+    pending = session.exec(select(PendingDevice).where(PendingDevice.mac == data.mac)).first()
     if not pending:
         raise HTTPException(status_code=404, detail="Pending device not found")
 
-    # Build new device ID
-    new_id = None
-
-    # Send new ID to device via MQTT
-    mqtt.publish(f"def/{data.mac}/a", _encode_device_id(new_id))
-
     # Create Device
-    device = Device(
-        id=new_id,
-        mac=data.mac,
-        name=data.name,
-        type=data.type,
-        zone=data.zone,
-        online=False
-    )
+    device = Device(id=data.id, mac=data.mac)
     session.add(device)
 
-    if data.type == "B":
-        session.add(Blind(id=new_id))
-    elif data.type == "L":
-        session.add(Light(id=new_id))
+    if data.id[0] == "B":
 
-    # Remove from pending
+        prefs = data.prefs
+        is_model = isinstance(prefs, BlindPrefs)
+        
+        blind = Blind(
+            id=data.id,
+            up_time=prefs.up_time if is_model else prefs.get("up_time", 0),
+            down_time=prefs.down_time if is_model else prefs.get("down_time", 0),
+            down_pos=prefs.down_pos if is_model else prefs.get("down_pos", 0),
+            inverted_relays=prefs.inverted_relays if is_model else prefs.get("inverted_relays", False)
+        )
+        session.add(blind)
+
+    elif data.id[0] == "L":
+        session.add(Light(id=data.id))
+
+    # Remove device from pending table
     session.delete(pending)
-    session.commit()
+    
+    # Save changes on db or throw an error before sending new config to the device
+    try:
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status_code=500, detail="Database error during configuration")
 
-    return {"configured": new_id}
+    # Send new ID to device via MQTT
+    mqtt.publish(f"def/{data.mac}/a", _encode_device_id(data.id))
+
+    return {"configured": data.id}
