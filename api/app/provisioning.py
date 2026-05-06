@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime
-from sqlmodel import Session, select
+from sqlmodel import Session, select, delete
 from db.database import engine
 from db.models import Device, PendingDevice
 from connections import manager
@@ -22,6 +22,12 @@ def is_active():
 
 async def start():
     global _active, _responses
+
+    # Restart pending device table
+    with Session(engine) as session:
+        statement = delete(PendingDevice)
+        session.exec(statement)
+        session.commit()
 
     # Restart variables to start new discovery
     _responses = set()
