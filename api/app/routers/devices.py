@@ -105,6 +105,12 @@ def get_devices(session: Session = Depends(get_session)):
     return [_build_response(device, session) for device in devices]
 
 
+@router.get("/devices/pending", response_model=list[str])
+def get_pending(session: Session = Depends(get_session)):
+    pending = session.exec(select(PendingDevice)).all()
+    return [pending_device.mac for pending_device in pending]
+
+
 @router.get("/devices/{id}", response_model=Response)
 def get_device(id: str, session: Session = Depends(get_session)):
     device = _get_device(id, session)
@@ -131,12 +137,6 @@ def delete_device(id: str, session: Session = Depends(get_session)):
 
 
 # DB PROVISIONING DEVICES ROUTES
-
-
-@router.get("/devices/pending", response_model=list[str])
-def get_pending(session: Session = Depends(get_session)):
-    pending = session.exec(select(PendingDevice)).all()
-    return [pending_device.mac for pending_device in pending]
 
 
 @router.post("/devices/pending/configure")
