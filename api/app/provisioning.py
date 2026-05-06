@@ -72,11 +72,17 @@ async def _process():
                 session.add(device)
 
         # Unknown responses
-        for id in _responses:
+        for mac in _responses:
+
+            if len(mac) > 4:
+                mqtt.publish(f"tp/{mac}/a", bytes([0xA2]) + b"")
+                continue
 
             # Unknown id, move to pending
-            pending.append(id)
-            session.add(PendingDevice(mac=id))
+            pending_device = session.exec(select(PendingDevice).where(PendingDevice.mac == mac)).first()
+            if not pending_device: 
+                pending.append(mac)
+                session.add(PendingDevice(mac=mac))
 
         session.commit()
 
