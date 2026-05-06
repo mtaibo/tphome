@@ -165,7 +165,7 @@ def configure_device(data: ConfigureDevice, session: Session = Depends(get_sessi
         session.commit()
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=500, detail="Database error during configuration")
+        raise HTTPException(status_code=500, detail=f"Database error during configuration: {e}")
 
     # Send new ID to device via MQTT
     mqtt.publish(f"def/{data.mac}/a", _encode_device_id(data.id))
