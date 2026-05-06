@@ -67,7 +67,7 @@ def _build_response(device: Device, session: Session) -> Response:
                 up_time=blind.up_time, down_time=blind.down_time,
                 down_pos=blind.down_pos, inverted_relays=blind.inverted_relays
             )
-        else: return HTTPException(status_code=404, detail=f"Device {device.id} not found on blinds database table")
+        else: raise HTTPException(status_code=404, detail=f"Device {device.id} not found on blinds database table")
 
     elif device.id[0] == "L":
         light = session.exec(select(Light).where(Light.id == device.id)).first()
@@ -151,17 +151,7 @@ def configure_device(data: ConfigureDevice, session: Session = Depends(get_sessi
     session.add(device)
 
     if data.id[0] == "B":
-
-        prefs = data.prefs
-        is_model = isinstance(prefs, BlindPrefs)
-        
-        blind = Blind(
-            id=data.id,
-            up_time=prefs.up_time if is_model else prefs.get("up_time", 0),
-            down_time=prefs.down_time if is_model else prefs.get("down_time", 0),
-            down_pos=prefs.down_pos if is_model else prefs.get("down_pos", 0),
-            inverted_relays=prefs.inverted_relays if is_model else prefs.get("inverted_relays", False)
-        )
+        blind = Blind(id=data.id, **data.prefs.model_dump())
         session.add(blind)
 
     elif data.id[0] == "L":
@@ -180,4 +170,4 @@ def configure_device(data: ConfigureDevice, session: Session = Depends(get_sessi
     # Send new ID to device via MQTT
     mqtt.publish(f"def/{data.mac}/a", _encode_device_id(data.id))
 
-    return {"configured": data.id}
+    return {"configured": { "id": data.id, "mac": data.mac}}
