@@ -4,13 +4,29 @@ from db.database import get_session
 from db.models import Device, Blind, Light, PendingDevice
 from pydantic import BaseModel
 from typing import Union
-from admin import reset_mem
+from routers.admin import reset_mem
 import mqtt
 
 router = APIRouter(tags=["Devices"])
 
 
+# BLIND MODELS
+
+
+class BlindState(BaseModel):
+    position: int
+    motor_state: int
+
+
+class BlindPrefs(BaseModel):
+    up_time: int
+    down_time: int
+    down_pos: int
+    inverted_relays: bool
+
+
 # AUX MODELS
+
 
 class Response(BaseModel): # Returning model  return device info to frontend
     id: str
@@ -26,20 +42,6 @@ class ConfigureDevice(BaseModel): #
     id: str
     mac: str
     prefs: Union[BlindPrefs, dict]
-
-
-# BLIND MODELS
-
-class BlindState(BaseModel):
-    position: int
-    motor_state: int
-
-
-class BlindPrefs(BaseModel):
-    up_time: int
-    down_time: int
-    down_pos: int
-    inverted_relays: bool
 
 
 # AUX FUNCTIONS
