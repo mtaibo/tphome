@@ -72,9 +72,11 @@ def on_message(client, userdata, message):
             info = {
                 "id": f"{chr(unpacked[0])}{unpacked[1]:02d}{unpacked[2]:02d}",
 
-                "firmware_version"     : unpacked[3].hex('.'),
-                "mac"                  : unpacked[4].hex(':'),
-
+                "hardware" : {
+                    "mac"                  : unpacked[4].hex(':'),
+                    "firmware_version"     : unpacked[3].hex('.'),
+                },
+                
                 "prefs": {
                     "up_time"          : unpacked[5],
                     "down_time"        : unpacked[6],
@@ -104,26 +106,24 @@ def _update_online(device_id: str, online: bool):
         session.commit()
 
 
-def _update_state(device_id: str, position: int, motor_state: int):
+def _update_state(id: str, position: int, motor_state: int):
     from datetime import datetime
     with Session(engine) as session:
-        device = session.exec(select(Device).where(Device.id == device_id)).first()
+        device = session.exec(select(Device).where(Device.id == id)).first()
         if not device:
-            print("LOG: Device to update its state was not found")
+            print("LOG: Device to update state was not found")
             return
 
         device.online = True
         device.last_seen = datetime.now()
 
         if device.type == "B":
-            blind = session.exec(select(Blind).where(Blind.id == device_id)).first()
-            if not blind:
-                return
+            blind = session.exec(select(Blind).where(Blind.id == id)).first()
             blind.position = position
             blind.motor_state = motor_state
             session.add(blind)
             _push("device_state", {
-                "id": device_id,
+                "id": id,
                 "position": position,
                 "motor_state": motor_state
             })
@@ -139,20 +139,15 @@ def _update_device_info(device_id: str, info: dict):
             print("LOG: Device to update its info was not found")
             return
 
-        device.firmware_version = info["firmware_version"]
-        device.mac = info["mac"]
+        device.firmware_version = info["hardware"]["firmware_version"]
+        device.mac = info["hardware"]["mac"]
 
         if device.type == "B":
             blind = session.exec(select(Blind).where(Blind.id == device_id)).first()
-            if not blind:
-                print("LOG: Blind linked to the device info to be updated not found")
-                return
-
-            prefs = info["prefs"]
-            blind.up_time = prefs["up_time"]
-            blind.down_time = prefs["down_time"]
-            blind.down_pos = prefs["down_pos"]
-            blind.inverted_relays = prefs["inverted_relays"]
+            blind.up_time = info["prefs"]["up_time"]
+            blind.down_time = info["prefs"]["down_time"]
+            blind.down_pos = info["prefs"]["down_pos"]
+            blind.inverted_relays = info["prefs"]["inverted_relays"]
             session.add(blind)
         
         session.add(device)
