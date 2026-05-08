@@ -45,22 +45,24 @@ export const devices = defineStore('devices', () => {
     /* Function to sync devices on storage with real devices and get its state from api */
     async function update() {
 
-        try {
+        try { // Show errors if something fails
 
-            const devicesState = await api.getState()
+            const devices = await api.getDevices()
+            for (const device of devices) {
 
-            await Promise.all(devicesState.map(async (device) => {
+                if (!(device.id in storage)) continue
 
-                const nameChanged = device.name !== storage[device.id].name;
-                const prefsChanged = JSON.stringify(device.prefs) !== JSON.stringify(storage[device.id].prefs);
+                storage[device.id].connection = { ...device.connection }
+                storage[device.id].state      = { ...device.state }
 
-                if (nameChanged) await api.postName(device.id, storage[device.id].name);
-                if (prefsChanged) await api.postPrefs(device.id, storage[device.id].prefs);
-                
-                storage[device.id].state = { ...device.state };
-            }))
+                const configPrefs  = storage[device.id].prefs
+                const currentPrefs = device.prefs
 
-        } catch (err) { console.error('TPHome - Update Error:', err) }
+                const notSync = Object.keys(configPrefs).some(k => configPrefs[k] !== currentPrefs[k])
+                if (notSync) await api.sendPrefs(device.id, configPrefs)
+            }
+
+        } catch (error) { console.error('TPHome - Update error:', error) }
     }
 
     /* Fast function to change only state */

@@ -9,9 +9,9 @@ const client = axios.create({
 
 export const api = {
 
-    /* Function to get devices state from api db */
-    async getState() {
-        const response = await client.get('/devices/state')
+    /* Function to get devices from api db */
+    async getDevices() {
+        const response = await client.get('/devices')
         return response.data
     },
 
