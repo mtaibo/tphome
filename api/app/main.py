@@ -6,7 +6,7 @@ import asyncio
 from db import database
 import mqtt
 
-from routers import devices, commands, admin
+from routers import devices, commands, admin, config
 import connections
 
 
@@ -26,6 +26,7 @@ app = FastAPI(
 app.include_router(connections.router)
 app.include_router(commands.router)
 app.include_router(devices.router)
+app.include_router(config.router)
 app.include_router(admin.router)
 
 app.add_middleware(
