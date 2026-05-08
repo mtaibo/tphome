@@ -3,51 +3,43 @@ import { reactive, computed } from 'vue'
 
 import { api } from './api'
 
-// ── Estructura esperada del JSON importado ────────────────────────────────
-const REQUIRED_CATEGORIES = ['lights', 'blinds', 'switches']
-const REQUIRED_FIELDS = {
-  lights:   ['id', 'name', 'map', 'prefs'],
-  blinds:   ['id', 'name', 'map', 'prefs'],
-  switches: ['id', 'name', 'map', 'prefs'],
-}
-const REQUIRED_PREFS = ['upTime', 'downTime', 'downPosition', 'invertedRelays']
-const REQUIRED_MAP   = ['x', 'y']
-
 export const devices = defineStore('devices', () => {
 
     const storage = reactive({}) // Variable where every active device on api is stored with all device properties.
-    const unconfigured = computed(() => Object.keys(storage).length === 0) // Computed flag for empty devices storage.
+    const unconfigured = computed(() => Object.keys(storage).length === 0) // Computed flag for empty devices storage, it toggles an upload json button on ui.
 
-    /*  */
+    /* Take devices config file from API and fills or replace devices on storage */
     async function setup() {
 
         try { // Show errors if something fails
 
-            const devicesConfig = await api.getConfig('devices')
-            if (Object.keys(devicesConfig).length === 0) return // No devices config file
+            /* Get the devices config json, if there is no config file, return setup() function */
+            const config = await api.getConfig('devices')
+            if (Object.keys(config).length === 0) return
+
             for (const device of Object.keys(storage)) delete storage[device] // Clear current storage
 
-
             /* Loop that goes through each devices category: lights, blinds, switches */
-            for (const [category, categoryDevices] of Object.entries(devicesConfig)) {
+            for (const [category, devices] of Object.entries(config)) {
 
                 /* For each device on each category, stablish a new key on storage */
-                for (const device of Object.values(categoryDevices)) {
+                for (const [id, device] of Object.entries(devices)) {
 
-                    storage[device.id] = {
-                        id:    device.id,
+                    storage[id] = {
                         name:  device.name,
+
                         map:   { ...device.map },
                         prefs: { ...device.prefs },
-                        state: null, // State will be taken from API with another GET on update()
+
+                        state: null, // State will be filled on update()
+                        connection: null, // Connection will be filled on update()
                     }
                 }
             }
 
-            await update()
-
+            await update() // Call to update function to fill state and connection on every available device
         
-        } catch (err) { console.error('TPHome - Setup error:', err) }
+        } catch (error) { console.error('TPHome - Setup error:', error) }
     }
 
     /* Function to sync devices on storage with real devices and get its state from api */
