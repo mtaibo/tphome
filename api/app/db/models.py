@@ -1,4 +1,5 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Column
+from sqlalchemy import JSON
 from typing import Optional
 from datetime import datetime
 
@@ -13,6 +14,13 @@ class Device(SQLModel, table=True):
     # Connection
     online: bool = False
     last_seen: Optional[datetime] = None
+
+
+class Config(SQLModel, table=True):
+    id: int = Field(default=1, primary_key=True) # Just 1 row
+
+    devices: dict = Field(sa_column=Column(JSON))
+    map: dict = Field(sa_column=Column(JSON))
 
 
 class PendingDevice(SQLModel, table=True):
