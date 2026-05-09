@@ -1,17 +1,13 @@
 <script setup>
-    
+
     import { computed } from 'vue'
     import { useDevices } from '../db/devices'
+    import { api } from '../db/api'
 
-    /* Get stored devices and filter them by its state. Null state indicates device not available on API */
     const store = useDevices()
-    const lights = computed(() =>
-        Object.fromEntries(
-            Object.entries(store.lights ?? {}).filter(([, d]) => d.state !== null)
-        )
-    )
+    const lights = computed(() => store.lights)
 
-    const toggleLight = (light) => { light.state.on = !light.state.on }
+    const toggleLight = async (id) => { await api.sendCommand(id, 'toggle') }
 
 </script>
 
@@ -22,7 +18,7 @@
         :key="id"
         :transform="`translate(${light.map.x}, ${light.map.y})`"
         class="cursor-pointer select-none"
-        @click="toggleDevice(light)"
+        @click="toggleLight(id)"
     >
 
         <!-- Outline circle -->
@@ -35,10 +31,10 @@
                 : 'fill-tp-surface/50 stroke-tp-border/20'
             ]"
         />
-                        
+
         <!-- Inline circle -->
         <circle r="3" :class="light.state.on ? 'fill-yellow-400' : 'fill-muted'" />
-                        
+
     </g>
 
 </template>
