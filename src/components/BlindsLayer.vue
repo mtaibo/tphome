@@ -1,8 +1,12 @@
 <script setup>
-    
-    import { ref } from 'vue'
+
     import { devices } from '../db/devices'
-    const blinds = ref(devices.blinds)
+
+    const blinds = computed(() => devices.blinds)
+
+    const isHorizontal = (blind) => blind.width > blind.height
+    const coverWidth   = (blind) => isHorizontal(blind) ? blind.width  * (100 - blind.state.position) / 100 : blind.width
+    const coverHeight  = (blind) => isHorizontal(blind) ? blind.height : blind.height * (100 - blind.state.position) / 100
 
 </script>
 
@@ -25,17 +29,15 @@
         <!-- Blind plain cover -->
         <rect 
             :x="blind.x" :y="blind.y" rx="1.5"
-            :width="blind.width > blind.height ? blind.width * (100 - blind.state.position) / 100 : blind.width" 
-            :height="blind.height > blind.width ? blind.height * (100 - blind.state.position) / 100 : blind.height" 
+            :width="coverWidth(blind)" :height="coverHeight(blind)" 
             class="fill-muted transition-all duration-500 ease-in-out"
         />
 
         <!-- Apply pattern -->
         <rect 
             :x="blind.x" :y="blind.y" 
-            :width="blind.width > blind.height ? blind.width * (100 - blind.state.position) / 100 : blind.width" 
-            :height="blind.height > blind.width ? blind.height * (100 - blind.state.position) / 100 : blind.height" 
-            :fill="blind.width > blind.height ? 'url(#pattern-v)' : 'url(#pattern-h)'"
+            :width="coverWidth(blind)" :height="coverHeight(blind)" 
+            :fill="isHorizontal(blind) ? 'url(#pattern-v)' : 'url(#pattern-h)'"
             class="pointer-events-none transition-all duration-500 ease-in-out"
         />
 
