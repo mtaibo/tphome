@@ -1,77 +1,39 @@
 <script setup>
     import { ref, watch } from 'vue'
     import { X, ChevronUp, ChevronDown, Square, Blinds, Check } from 'lucide-vue-next'
-    import axios from 'axios'
+    import { api } from '../../db/api'
 
     const props = defineProps({
-        device: {
-            type: Object,
-            required: true
-        }
+        id:     { type: String, required: true },
+        device: { type: Object, required: true }
     })
-
     const emit = defineEmits(['close'])
 
     const tempPosition = ref(props.device.state.position)
-    const inputPosition = ref(props.device.state.position)
-    const isLoading = ref(false)
-
-    const api = axios.create({ 
-        baseURL: '/api'
-    })
+    const isLoading    = ref(false)
 
     const sendCommand = async (command, value = null) => {
         isLoading.value = true
         try {
-            let path = `/commands/B0401/${command}`
-            
-            if (command === 'set' && value !== null) {
-                path = `/commands/B0401/set/${value}`
-            }
-            
-            const response = await api.post(path)
-            
-            console.log("Respuesta del servidor:", response.data)
+            await api.sendCommand(props.id, command, value)
         } catch (error) {
-            console.error("Error detallado:", error.response?.data || error.message)
+            console.error('TPHome - BlindsControl error:', error)
         } finally {
             isLoading.value = false
         }
     }
 
-    const updatePosition = (newVal) => {
-        let value = parseInt(newVal)
-        if (isNaN(value)) value = 0
-        value = Math.max(0, Math.min(100, value))
-        
+    const updatePosition = (val) => {
+        let value = Math.max(0, Math.min(100, parseInt(val) || 0))
         tempPosition.value = value
-        inputPosition.value = value
-        
         sendCommand('set', value)
     }
 
-    const handleUp = () => {
-        tempPosition.value = 100
-        sendCommand('up')
-    }
+    const handleUp   = () => { tempPosition.value = 100; sendCommand('up')   }
+    const handleDown = () => { tempPosition.value = 0;   sendCommand('down') }
+    const handleStop = () => { sendCommand('stop') }
 
-    const handleDown = () => {
-        tempPosition.value = 0
-        sendCommand('down')
-    }
-
-    const handleStop = () => {
-        sendCommand('stop')
-    }
-
-    watch(tempPosition, (val) => {
-        inputPosition.value = val
-    })
-
-    watch(() => props.device.state.position, (newVal) => {
-        tempPosition.value = newVal
-        inputPosition.value = newVal
-    })
+    watch(() => props.device.state.position, (val) => { tempPosition.value = val })
 </script>
 
 <template>
@@ -84,8 +46,7 @@
                 </div>
                 <h2 class="text-lg font-bold tracking-tight text-white">{{ device.name }}</h2>
             </div>
-
-            <button @click="$emit('close')" class="p-2 hover:bg-tp-border/30 rounded-lg transition-colors cursor-pointer text-muted hover:text-white">
+            <button @click="emit('close')" class="p-2 hover:bg-tp-border/30 rounded-lg transition-colors cursor-pointer text-muted hover:text-white">
                 <X class="w-5 h-5" />
             </button>
         </header>
@@ -124,11 +85,9 @@
                     <button @click="handleUp" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl transition-all cursor-pointer hover:bg-tp-accent/10 hover:border-tp-accent/50 group">
                         <ChevronUp class="w-6 h-6 text-muted group-hover:text-tp-accent" />
                     </button>
-
                     <button @click="handleStop" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl transition-all cursor-pointer hover:bg-red-500/10 hover:border-red-500/50 group">
                         <Square class="w-4 h-4 text-muted group-hover:text-red-500 fill-current" />
                     </button>
-
                     <button @click="handleDown" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl transition-all cursor-pointer hover:bg-tp-accent/10 hover:border-tp-accent/50 group">
                         <ChevronDown class="w-6 h-6 text-muted group-hover:text-tp-accent" />
                     </button>
@@ -138,16 +97,15 @@
                     <div class="flex-1 bg-tp-bg/50 border border-tp-border rounded-xl flex items-center px-4 focus-within:border-tp-accent/50 transition-colors">
                         <input 
                             type="number"
-                            v-model="inputPosition"
-                            @keyup.enter="updatePosition(inputPosition)"
+                            v-model.number="tempPosition"
+                            @keyup.enter="updatePosition(tempPosition)"
                             placeholder="0-100"
                             class="w-full bg-transparent border-none text-sm font-mono text-white focus:outline-none [appearance:textfield]"
                         />
                         <span class="text-muted/30 font-mono text-lg">%</span>
                     </div>
-
                     <button 
-                        @click="updatePosition(inputPosition)"
+                        @click="updatePosition(tempPosition)"
                         class="flex items-center justify-center px-6 bg-tp-border/20 border border-tp-border rounded-xl transition-all cursor-pointer hover:bg-tp-accent/10 hover:border-tp-accent/50 group"
                     >
                         <Check class="w-5 h-5 text-muted group-hover:text-tp-accent transition-colors" />
