@@ -23,7 +23,7 @@
         v-for="(blind, id) in blinds" 
         :key="id" 
         class="select-none cursor-pointer" 
-        @click="$emit('select', blind)"
+        @click="$emit('select', id)"
     >
     
         <!-- Blind background -->
