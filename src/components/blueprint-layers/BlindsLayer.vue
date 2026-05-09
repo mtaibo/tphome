@@ -8,7 +8,11 @@
     const blinds = computed(() => store.blinds)
 
     const isHorizontal = (blind) => blind.map.width > blind.map.height
-    const coverWidth  = (blind) => !blind.state ? 0 : isHorizontal(blind) ? blind.map.width  * (100 - blind.state.position) / 100 : blind.map.width
+    const coverWidth = (blind) => {
+    console.log(blind.map, blind.state)
+    if (!blind.state) return 0
+    return isHorizontal(blind) ? blind.map.width * (100 - blind.state.position) / 100 : blind.map.width
+}
     const coverHeight = (blind) => !blind.state ? 0 : isHorizontal(blind) ? blind.map.height : blind.map.height * (100 - blind.state.position) / 100
 
 </script>
