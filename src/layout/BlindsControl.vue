@@ -1,7 +1,7 @@
 <script setup>
     import { ref, watch } from 'vue'
     import { X, ChevronUp, ChevronDown, Square, Blinds, Check } from 'lucide-vue-next'
-    import { api } from '../../db/api'
+    import { api } from '../db/api'
 
     const props = defineProps({
         id:     { type: String, required: true },
