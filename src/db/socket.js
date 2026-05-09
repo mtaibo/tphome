@@ -29,13 +29,8 @@ function handle(store, type, data) {
     switch (type) {
 
         case 'device_state': {
-            const category = Object.keys(store.storage).find(cat => data.id in store.storage[cat])
-            if (!category) return
-            store.storage[category][data.id].state = {
-                position:    data.position,
-                motor_state: data.motor_state
-            }
-            break
+            console.log('RAW DATA:', JSON.stringify(data))
+            // ...
         }
 
         case 'device_online':
