@@ -33,7 +33,10 @@
     const handleDown = () => { tempPosition.value = tempPosition.value === 20 ? 0 : 20; sendCommand('down') }
     const handleStop = () => { sendCommand('stop') }
 
-    watch(() => props.device.state.position, (val) => { tempPosition.value = val })
+    watch(() => props.device.state.position, (val) => {
+        tempPosition.value = val
+    }, { immediate: true })
+
 </script>
 
 <template>
