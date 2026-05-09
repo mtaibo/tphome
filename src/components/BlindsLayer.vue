@@ -1,9 +1,9 @@
 <script setup>
 
     import { computed } from 'vue'
-    import { devices } from '../db/devices'
+    import { useDevices } from '../db/devices'
 
-    const store = devices()
+    const store = useDevices()
     const blinds = computed(() => store.blinds)
 
     const isHorizontal = (blind) => blind.map.width > blind.map.height

@@ -3,7 +3,7 @@ import { reactive, computed } from 'vue'
 
 import { api } from './api'
 
-export const devices = defineStore('devices', () => {
+export const useDevices = defineStore('devices', () => {
 
     const storage = reactive({}) // Variable where every active device on api is stored with all device properties.
     const unconfigured = computed(() => Object.keys(storage).length === 0) // Computed flag for empty devices storage, it toggles an upload json button on ui.
