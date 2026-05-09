@@ -52,7 +52,8 @@ export const devices = defineStore('devices', () => {
             const devices = await api.getDevices()
             for (const device of devices) {
 
-                if (!(device.id in storage)) continue
+                const category = Object.keys(storage).find(cat => device.id in storage[cat])
+                if (!category) continue
 
                 storage[device.id].connection = { ...device.connection }
                 storage[device.id].state      = { ...device.state }
