@@ -1,12 +1,15 @@
 <script setup>
 
-    import { ref } from 'vue'
+    import { ref, computed } from 'vue'
+    import { useDevices } from '../db/devices'
 
     import LightsLayer   from './LightsLayer.vue'
     import BlindsLayer   from './BlindsLayer.vue'
     import HouseLayer    from './HouseLayer.vue'
 
     import BlindsControl from '../layout/BlindsControl.vue'
+
+    const store = useDevices()
 
     const selectedId = ref(null)
     const selectedBlind = computed(() => 
