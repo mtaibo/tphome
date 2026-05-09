@@ -22,10 +22,12 @@ export const devices = defineStore('devices', () => {
             /* Loop that goes through each devices category: lights, blinds, switches */
             for (const [category, devices] of Object.entries(config)) {
 
+                if (!storage[category]) storage[category] = {}
+
                 /* For each device on each category, stablish a new key on storage */
                 for (const [id, device] of Object.entries(devices)) {
 
-                    storage[id] = {
+                    storage[category][id] = {
                         name:  device.name,
 
                         map:   { ...device.map },
