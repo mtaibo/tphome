@@ -62,6 +62,14 @@ def on_message(client, userdata, message):
     # State update — position + motor state
     if len(payload) == 2:
         _update_state(device_id, position=payload[0], motor_state=payload[1])
+        state = {
+            "id" : device_id,
+            "state" : {
+                "position": payload[0],
+                "motor_state": payload[1]
+            }
+        }
+        _push("device_state", state)
 
     if len(payload) >= 15:
 
