@@ -46,7 +46,7 @@ def set_prefs(id: str, prefs: PrefsPayload, session: Session = Depends(get_sessi
     _get_device(id, session)
     try:
         payload = struct.pack('<HHH?',
-            prefs.up_time, prefs.down_time, prefs.down_position, prefs.inverted_relays)
+            prefs.up_time, prefs.down_time, prefs.down_pos, prefs.inverted_relays)
         _cmd(id, CMD_SET_PREFS, payload)
         return {
             "status": "admin_cmd_sent",
