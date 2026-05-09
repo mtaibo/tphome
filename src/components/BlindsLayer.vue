@@ -1,12 +1,14 @@
 <script setup>
 
+    import { computed } from 'vue'
     import { devices } from '../db/devices'
 
-    const blinds = computed(() => devices.blinds)
+    const store = devices()
+    const blinds = computed(() => store.blinds)
 
-    const isHorizontal = (blind) => blind.width > blind.height
-    const coverWidth   = (blind) => isHorizontal(blind) ? blind.width  * (100 - blind.state.position) / 100 : blind.width
-    const coverHeight  = (blind) => isHorizontal(blind) ? blind.height : blind.height * (100 - blind.state.position) / 100
+    const isHorizontal = (blind) => blind.map.width > blind.map.height
+    const coverWidth   = (blind) => isHorizontal(blind) ? blind.map.width  * (100 - blind.state.position) / 100 : blind.map.width
+    const coverHeight  = (blind) => isHorizontal(blind) ? blind.map.height : blind.map.height * (100 - blind.state.position) / 100
 
 </script>
 
