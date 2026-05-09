@@ -5,10 +5,23 @@ import { api } from './api'
 
 export const useDevices = defineStore('devices', () => {
 
-    const storage = reactive({}) // Variable where every active device on api is stored with all device properties.
-    const unconfigured = computed(() => Object.keys(storage).length === 0) // Computed flag for empty devices storage, it toggles an upload json button on ui.
+    const storage = reactive({})
+    const unconfigured = computed(() => Object.keys(storage).length === 0)
 
-    /* Take devices config file from API and fills or replace devices on storage */
+    /* Serve the blinds on the store with a filter for null state blinds (not available on API) */
+    const blinds = computed(() => 
+        Object.fromEntries(
+            Object.entries(storage.blinds ?? {}).filter(([, d]) => d.state !== null)
+        )
+    )
+
+    /* Serve the lights on the store with a filter for null state lights (not available on API) */
+    const lights = computed(() => 
+        Object.fromEntries(
+            Object.entries(storage.lights ?? {}).filter(([, d]) => d.state !== null)
+        )
+    )
+
     async function setup() {
 
         try { // Show errors if something fails
