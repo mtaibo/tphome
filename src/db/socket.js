@@ -10,9 +10,7 @@ function connect() {
     socket.onopen = () => console.log('[WS] Connected')
 
     socket.onmessage = (event) => {
-        const msg = JSON.parse(event.data)
-        console.log('[WS]', msg)
-        const { event: type, data } = msg
+        const { event: type, data } = JSON.parse(event.data)
         const store = useDevices()
         handle(store, type, data)
     }
