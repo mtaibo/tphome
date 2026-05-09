@@ -7,11 +7,17 @@
     import Blueprint from './components/Blueprint.vue';
 
     import { useDevices } from './db/devices'
+    import { useMap } from './db/map'
 
     const isOnline = ref(true); // API connection status
 
-    const store = useDevices()
-    onMounted(async () => { await store.setup() })
+    const devices = useDevices()
+    const map = useMap()
+
+    onMounted(async () => { 
+        await devices.setup() 
+        await map.setup()
+    })
 
 </script>
 

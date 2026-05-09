@@ -2,14 +2,16 @@
 
     import { ref, computed } from 'vue'
     import { useDevices } from '../db/devices'
+    import { useMap } from '../db/map'
 
-    import LightsLayer   from './LightsLayer.vue'
-    import BlindsLayer   from './BlindsLayer.vue'
-    import HouseLayer    from './HouseLayer.vue'
+    import LightsLayer   from './blueprint-layers/LightsLayer.vue'
+    import BlindsLayer   from './blueprint-layers/BlindsLayer.vue'
+    import HouseLayer    from './blueprint-layers/HouseLayer.vue'
 
     import BlindsControl from '../layout/BlindsControl.vue'
 
     const store = useDevices()
+    const map = useMap()
 
     const selectedId = ref(null)
     const selectedBlind = computed(() => 
@@ -26,7 +28,7 @@
     
         <div class="flex-1 flex items-center justify-center p-12 transition-all duration-500 ease-in-out">
 
-            <svg viewBox="0 0 500 450" class="w-full h-auto max-w-3xl drop-shadow-2xl" xmlns="http://www.w3.org/2000/svg">
+            <svg :viewBox="map.storage.viewBox ?? '0 0 0 0'" class="w-full h-auto max-w-3xl drop-shadow-2xl" xmlns="http://www.w3.org/2000/svg">
 
                 <HouseLayer />
                 <LightsLayer />
