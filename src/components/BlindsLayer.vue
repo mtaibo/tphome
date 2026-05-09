@@ -3,13 +3,8 @@
     import { computed } from 'vue'
     import { useDevices } from '../db/devices'
 
-    /* Get stored devices and filter them by its state. Null state indicates device not available on API */
     const store = useDevices()
-    const blinds = computed(() =>
-        Object.fromEntries(
-            Object.entries(store.blinds ?? {}).filter(([, d]) => d.state !== null)
-        )
-    )
+    const blinds = computed(() => store.blinds)
 
     const isHorizontal = (blind) => blind.map.width > blind.map.height
     const coverWidth   = (blind) => isHorizontal(blind) ? blind.map.width  * (100 - blind.state.position) / 100 : blind.map.width
@@ -28,21 +23,21 @@
     
         <!-- Blind background -->
         <rect 
-            :x="blind.x" :y="blind.y" rx="1.5"
-            :width="blind.width" :height="blind.height" 
+            :x="blind.map.x" :y="blind.map.y" rx="1.5"
+            :width="blind.map.width" :height="blind.map.height" 
             class="fill-black stroke-tp-border"
         />
 
         <!-- Blind plain cover -->
         <rect 
-            :x="blind.x" :y="blind.y" rx="1.5"
+            :x="blind.map.x" :y="blind.map.y" rx="1.5"
             :width="coverWidth(blind)" :height="coverHeight(blind)" 
             class="fill-muted transition-all duration-500 ease-in-out"
         />
 
         <!-- Apply pattern -->
         <rect 
-            :x="blind.x" :y="blind.y" 
+            :x="blind.map.x" :y="blind.map.y" 
             :width="coverWidth(blind)" :height="coverHeight(blind)" 
             :fill="isHorizontal(blind) ? 'url(#pattern-v)' : 'url(#pattern-h)'"
             class="pointer-events-none transition-all duration-500 ease-in-out"
