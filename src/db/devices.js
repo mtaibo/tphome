@@ -11,14 +11,14 @@ export const useDevices = defineStore('devices', () => {
     /* Serve the blinds on the store with a filter for null state blinds (not available on API) */
     const blinds = computed(() => 
         Object.fromEntries(
-            Object.entries(storage.blinds ?? {}).filter(([, d]) => d.state !== null)
+            Object.entries(storage.blinds ?? {}).filter(([, d]) => d.state != null)
         )
     )
 
     /* Serve the lights on the store with a filter for null state lights (not available on API) */
     const lights = computed(() => 
         Object.fromEntries(
-            Object.entries(storage.lights ?? {}).filter(([, d]) => d.state !== null)
+            Object.entries(storage.lights ?? {}).filter(([, d]) => d.state != null)
         )
     )
 
