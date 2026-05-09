@@ -47,7 +47,7 @@
                     v-if="selectedBlind"
                     :id="selectedId"
                     :device="selectedBlind" 
-                    @close="selectedBlind = null" 
+                    @close="selectedId = null" 
                 />
 
             </div>
