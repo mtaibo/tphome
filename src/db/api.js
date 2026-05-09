@@ -36,4 +36,9 @@ export const api = {
 
         return client.post(path)
     },
+
+    async sendPrefs(id, prefs) {
+        let path = `/admin/${id}/prefs`
+        return client.post(path, prefs)
+    }
 }
