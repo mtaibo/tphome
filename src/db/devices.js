@@ -46,7 +46,7 @@ export const useDevices = defineStore('devices', () => {
                         map:   { ...device.map },
                         prefs: { ...device.prefs },
 
-                        state: null, // State will be filled on update()
+                        state:      null, // State will be filled on update()
                         connection: null, // Connection will be filled on update()
                     }
                 }
@@ -68,10 +68,10 @@ export const useDevices = defineStore('devices', () => {
                 const category = Object.keys(storage).find(cat => device.id in storage[cat])
                 if (!category) continue
 
-                storage[device.id].connection = { ...device.connection }
-                storage[device.id].state      = { ...device.state }
+                storage[category][device.id].connection = { ...device.connection }
+                storage[category][device.id].state      = { ...device.state }
 
-                const configPrefs  = storage[device.id].prefs
+                const configPrefs  = storage[category][device.id].prefs
                 const currentPrefs = device.prefs
 
                 const notSync = Object.keys(configPrefs).some(k => configPrefs[k] !== currentPrefs[k])
@@ -81,52 +81,5 @@ export const useDevices = defineStore('devices', () => {
         } catch (error) { console.error('TPHome - Update error:', error) }
     }
 
-    /* Fast function to change only state */
-    function patch(id, state) {
-
-        if (!devices[id]) return
-        devices[id].state = { ...state }
-    }
-
-  // ── importConfig(json) ────────────────────────────────────────────────────
-  // Valida el JSON, lo manda a la API y relanza setup().
-  async function importConfig(json) {
-    const error = validateConfig(json)
-    if (error) throw new Error(error)
-
-    await api.postConfig(json)  // POST /config/devices
-    await setup()
-  }
-
-  // ── validateConfig(json) ──────────────────────────────────────────────────
-  // Devuelve un string de error si el JSON no es válido, null si es correcto.
-  function validateConfig(json) {
-    if (!json || typeof json !== 'object') return 'El JSON no es válido'
-
-    for (const category of REQUIRED_CATEGORIES) {
-      if (!json[category] || typeof json[category] !== 'object') {
-        return `Falta la categoría "${category}"`
-      }
-
-      for (const [id, device] of Object.entries(json[category])) {
-        for (const field of REQUIRED_FIELDS[category]) {
-          if (!(field in device)) return `Dispositivo "${id}": falta el campo "${field}"`
-        }
-
-        for (const coord of REQUIRED_MAP) {
-          if (!(coord in device.map)) return `Dispositivo "${id}": falta map.${coord}`
-        }
-
-        if (category === 'blinds') {
-          for (const pref of REQUIRED_PREFS) {
-            if (!(pref in device.prefs)) return `Dispositivo "${id}": falta prefs.${pref}`
-          }
-        }
-      }
-    }
-
-    return null
-  }
-
-  return { devices, unconfigured, setup, update, patch, importConfig }
+    return { storage, unconfigured, blinds, setup, update }
 })
