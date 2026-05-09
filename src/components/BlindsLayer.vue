@@ -3,8 +3,13 @@
     import { computed } from 'vue'
     import { useDevices } from '../db/devices'
 
+    /* Get stored devices and filter them by its state. Null state indicates device not available on API */
     const store = useDevices()
-    const blinds = computed(() => store.blinds)
+    const blinds = computed(() =>
+        Object.fromEntries(
+            Object.entries(store.blinds ?? {}).filter(([, d]) => d.state !== null)
+        )
+    )
 
     const isHorizontal = (blind) => blind.map.width > blind.map.height
     const coverWidth   = (blind) => isHorizontal(blind) ? blind.map.width  * (100 - blind.state.position) / 100 : blind.map.width
