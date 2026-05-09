@@ -25,19 +25,14 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
-@router.websocket("/ws/{client_id}")
-async def websocket_endpoint(websocket: WebSocket, client_id: int):
+@router.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
 
     await manager.connect(websocket)
-    
+
     try:
         while True:
-            data = await websocket.receive_text()
-            await manager.broadcast({
-                "client": client_id,
-                "data": data
-            })
-            
+            await websocket.receive_text()
+
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        await manager.broadcast({"info": f"Client #{client_id} disconnected"})
