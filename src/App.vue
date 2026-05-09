@@ -1,7 +1,6 @@
 <script setup>
 
     import { ref, onMounted } from 'vue';
-    import { onMounted } from 'vue'
 
     import Sidebar from './layout/Sidebar.vue';
     import Topbar from './layout/Topbar.vue';
