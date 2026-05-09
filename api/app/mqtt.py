@@ -125,7 +125,7 @@ def _update_state(id: str, position: int, motor_state: int):
         device.online = True
         device.last_seen = datetime.now()
 
-        if device.type == "B":
+        if device.id[0] == "B":
             blind = session.exec(select(Blind).where(Blind.id == id)).first()
             blind.position = position
             blind.motor_state = motor_state
@@ -150,7 +150,7 @@ def _update_device_info(device_id: str, info: dict):
         device.firmware_version = info["hardware"]["firmware_version"]
         device.mac = info["hardware"]["mac"]
 
-        if device.type == "B":
+        if device.id[0] == "B":
             blind = session.exec(select(Blind).where(Blind.id == device_id)).first()
             blind.up_time = info["prefs"]["up_time"]
             blind.down_time = info["prefs"]["down_time"]
