@@ -30,7 +30,7 @@
     }
 
     const handleUp   = () => { tempPosition.value = 100; sendCommand('up')   }
-    const handleDown = () => { tempPosition.value = 0;   sendCommand('down') }
+    const handleDown = () => { tempPosition.value = tempPosition.value === 20 ? 0 : 20; sendCommand('down') }
     const handleStop = () => { sendCommand('stop') }
 
     watch(() => props.device.state.position, (val) => { tempPosition.value = val })
