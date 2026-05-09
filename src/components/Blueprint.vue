@@ -8,11 +8,12 @@
 
     import BlindsControl from '../layout/BlindsControl.vue'
 
-    const selectedBlind = ref(null)
+    const selectedId = ref(null)
+    const selectedBlind = computed(() => 
+        selectedId.value ? store.blinds[selectedId.value] : null
+    )
 
-    const handleSelection = (device) => {
-        selectedBlind.value = device
-    }
+    const handleSelection = (id) => { selectedId.value = id }
 
 </script>
 
