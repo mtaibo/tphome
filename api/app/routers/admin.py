@@ -20,7 +20,7 @@ CMD_SET_PREFS = 0xA5
 class PrefsPayload(BaseModel):
     up_time:         int
     down_time:       int
-    down_position:   int
+    down_pos:   int
     inverted_relays: bool
 
 
