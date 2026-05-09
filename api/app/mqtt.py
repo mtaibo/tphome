@@ -130,11 +130,6 @@ def _update_state(id: str, position: int, motor_state: int):
             blind.position = position
             blind.motor_state = motor_state
             session.add(blind)
-            _push("device_state", {
-                "id": id,
-                "position": position,
-                "motor_state": motor_state
-            })
 
         session.add(device)
         session.commit()
