@@ -45,6 +45,7 @@
 
                 <BlindsControl 
                     v-if="selectedBlind"
+                    :id="selectedId"
                     :device="selectedBlind" 
                     @close="selectedBlind = null" 
                 />
