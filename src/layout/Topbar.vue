@@ -1,13 +1,11 @@
 <script setup>
 
     import { ref } from 'vue';
-    import { RefreshCw, Bell } from 'lucide-vue-next';
+    import { RefreshCw } from 'lucide-vue-next';
+
+    import { apiOnline } from '../config/socket'
 
     const pendingCount = ref(0);
-
-    defineProps({
-        isOnline: Boolean
-    });
 
     const togglePending = () => {
         if (pendingCount.value === 0) {
@@ -32,7 +30,7 @@
 
                 <div class="flex items-center gap-2" :class="isOnline ? 'is-online' : 'is-offline'">
                     <div class="status-dot"></div>
-                    <span class="status-text">{{ isOnline ? 'Online' : 'Offline' }}</span>
+                    <span class="status-text">{{ apiOnline ? 'Online' : 'Offline' }}</span>
                 </div>
 
             </div>

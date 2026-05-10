@@ -9,7 +9,7 @@
     import { useDevices } from './config/devices'
     import { useMap } from './config/map'
 
-    const isOnline = ref(true); // API connection status
+    import { apiOnline } from './config/socket'
 
     const devices = useDevices()
     const map = useMap()
@@ -29,7 +29,7 @@
 
     <main class="flex-1 flex flex-col relative overflow-hidden">
 
-      <Topbar :isOnline="isOnline" />
+      <Topbar/>
 
       <section class="flex-1 relative overflow-hidden bg-grid-dots">
         <Blueprint />
