@@ -28,7 +28,7 @@
 
                 <span class="text-[10px] font-mono text-muted/60 uppercase tracking-widest">API</span>
 
-                <div class="flex items-center gap-2" :class="isOnline ? 'is-online' : 'is-offline'">
+                <div class="flex items-center gap-2" :class="apiOnline ? 'is-online' : 'is-offline'">
                     <div class="status-dot"></div>
                     <span class="status-text">{{ apiOnline ? 'Online' : 'Offline' }}</span>
                 </div>
