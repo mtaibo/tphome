@@ -2,8 +2,8 @@
 
     import { computed } from 'vue'
 
-    import { useDevices } from '../../db/devices'
-    import { api } from '../../db/api'
+    import { useDevices } from '../../config/devices'
+    import { api } from '../../config/api'
 
     const store = useDevices()
     const lights = computed(() => store.lights)

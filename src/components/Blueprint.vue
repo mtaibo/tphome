@@ -1,8 +1,8 @@
 <script setup>
 
     import { ref, computed } from 'vue'
-    import { useDevices } from '../db/devices'
-    import { useMap } from '../db/map'
+    import { useDevices } from '../config/devices'
+    import { useMap } from '../config/map'
 
     import LightsLayer   from './blueprint-layers/LightsLayer.vue'
     import BlindsLayer   from './blueprint-layers/BlindsLayer.vue'

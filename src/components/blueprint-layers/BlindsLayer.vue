@@ -2,7 +2,7 @@
 
     import { computed } from 'vue'
 
-    import { useDevices } from '../../db/devices'
+    import { useDevices } from '../../config/devices'
 
     const store = useDevices()
     const blinds = computed(() => store.blinds)
