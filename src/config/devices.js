@@ -22,6 +22,9 @@ export const useDevices = defineStore('devices', () => {
         )
     )
 
+    /* Counter of how many active devices are */
+    const active = computed(() => Object.values(storage.blinds ?? {}).filter(d => d.connection?.online).length)
+
     async function setup() {
 
         try { // Show errors if something fails
@@ -81,5 +84,5 @@ export const useDevices = defineStore('devices', () => {
         } catch (error) { console.error('TPHome - Update error:', error) }
     }
 
-    return { storage, unconfigured, blinds, setup, update }
+    return { storage, unconfigured, blinds, setup, update, active }
 })
