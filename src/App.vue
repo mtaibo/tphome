@@ -6,8 +6,8 @@
     import Topbar from './layout/Topbar.vue';
     import Blueprint from './components/Blueprint.vue';
 
-    import { useDevices } from './db/devices'
-    import { useMap } from './db/map'
+    import { useDevices } from './config/devices'
+    import { useMap } from './config/map'
 
     const isOnline = ref(true); // API connection status
 
