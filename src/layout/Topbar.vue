@@ -4,7 +4,9 @@
     import { RefreshCw } from 'lucide-vue-next';
 
     import { apiOnline } from '../config/socket'
-    import { active } from '../config/devices'
+    import { useDevices } from '../config/devices'
+
+    const store = useDevices()
 
     const pendingCount = ref(0);
 
@@ -45,7 +47,7 @@
                 <span class="text-[10px] font-mono text-muted/60 uppercase tracking-widest">Dispositivos</span>
 
                 <div class="flex items-center gap-1.5">
-                    <span class="text-xs font-bold text-tp-accent">{{ active }}</span>
+                    <span class="text-xs font-bold text-tp-accent">{{ store.active }}</span>
                     <span class="text-[10px] text-tp-accent/80 uppercase">Activos</span>
                 </div>
 
