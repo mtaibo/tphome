@@ -1,13 +1,18 @@
+import { ref } from 'vue'
 import { useDevices } from './devices'
 
 const WS_URL = `ws://${window.location.host}/api/ws`
 
 let socket = null
+export const apiOnline = ref(false)
 
 function connect() {
     socket = new WebSocket(WS_URL)
 
-    socket.onopen = () => console.log('[WS] Connected')
+    socket.onopen = () => {
+        console.log('[WS] Connected')
+        apiOnline.value = true
+    }
 
     socket.onmessage = (event) => {
         const { event: type, data } = JSON.parse(event.data)
@@ -17,6 +22,7 @@ function connect() {
 
     socket.onclose = () => {
         console.log('[WS] Disconnected, reconnecting in 3s...')
+        apiOnline.value = false
         setTimeout(connect, 3000)
     }
 
