@@ -4,7 +4,7 @@ import { useDevices } from './devices'
 const WS_URL = `ws://${window.location.host}/api/ws`
 
 let socket = null
-export const apiOnline = ref(false)
+export const apiOnline = ref(true)
 
 function connect() {
     socket = new WebSocket(WS_URL)
