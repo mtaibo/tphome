@@ -1,12 +1,11 @@
 <div align="center">
 
-<!-- Replace with your banner -->
 <img src="docs/banner.svg" alt="TPHome" width="100%" />
 
 <br/>
 <br/>
 
-**A fully local, self-built home automation system — from chip firmware to web frontend.**
+**A home automation system I built from scratch — firmware, backend, and frontend.**
 
 <br/>
 
@@ -18,38 +17,40 @@
 
 ---
 
-Most smart home devices ship locked to vendor clouds. You install an app per brand, none of them talk to each other, and the day the company shuts down their servers your switches stop working.
+I'm a first-year computer engineering student. I built TPHome because I got tired of needing five different apps to control my apartment. Every smart device wants you on its own cloud, its own account, and none of them talk to each other. And if the company goes under? Your switch is a brick.
 
-I wanted something different — a system that runs entirely on my local network, that I understood down to every layer, and that I could shape around how I actually use my home. Things like: the blind going to 20% on the first press instead of closing all the way, or a single interface that shows everything at once.
+So I started building my own system. One that lives on my local network and that I actually understand top to bottom. The C++ code inside the switches, the Python backend on a Raspberry Pi, the Vue frontend — I wrote all of it.
 
-I built TPHome during my first year at university, as a personal project to learn embedded systems, networking and backend development by solving a real problem I had at home. Every layer — the chip firmware, the backend, the frontend — is designed and written from scratch.
+It started as a way to learn embedded systems and backend development by doing something real, but it turned into something I use every day. I wanted the little things to feel right — like the blind stopping at 20% on the first press instead of closing all the way, or a single screen that shows everything at once.
+
+This is my portfolio too. I want it to show that I can build real systems, not just follow tutorials. I'm still learning, but I care about making things well.
 
 ---
 
 ## Architecture
 
-TPHome is split into three independent repositories, each responsible for one layer of the stack:
+Three layers, three repos, one system:
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                     tphome                          │
-│              Web frontend (planned)                 │
+│                     tphome                           │
+│              Web frontend (Vue)                      │
 └────────────────────────┬────────────────────────────┘
                          │ HTTP / WebSocket
 ┌────────────────────────▼────────────────────────────┐
-│                   tphome-api                        │
-│     FastAPI backend · MQTT orchestration · SQLite   │
-│         Running on a Raspberry Pi via Docker        │
+│                   tphome-api                         │
+│     FastAPI backend · MQTT · SQLite                  │
+│         Runs on a Raspberry Pi via Docker            │
 └────────────────────────┬────────────────────────────┘
-                         │ MQTT (binary protocol)
+                         │ MQTT
 ┌────────────────────────▼────────────────────────────┐
-│                 tphome-firmware                     │
-│   C++ firmware for ESP8266 / BK7231N smart switches │
-│        Replacing factory Tuya / BSEED software      │
+│                 tphome-firmware                      │
+│   C++ firmware for ESP8266 / BK7231N smart switches  │
+│     Replaces the factory Tuya / BSEED software       │
 └─────────────────────────────────────────────────────┘
 ```
 
-Each layer is independently versioned and deployable. The firmware runs on the chips inside commercial smart switches. The backend runs on a Raspberry Pi and bridges MQTT with the web layer. The frontend talks to the backend over HTTP and WebSocket.
+Each layer is independent and deployable on its own. The firmware replaces the factory software on off-the-shelf smart switches. The backend sits on a Pi, bridging MQTT to the web layer. The frontend is what you see in the browser. No cloud, no vendor lock-in.
 
 ---
 
@@ -61,9 +62,9 @@ Each layer is independently versioned and deployable. The firmware runs on the c
 
 ### [tphome-firmware](https://github.com/mtaibo/tphome-firmware)
 
-Custom C++ firmware for ESP8266 and BK7231N chips, built with PlatformIO.
+C++ firmware for ESP8266 and BK7231N chips, built with PlatformIO.
 
-Replaces factory software on commercial blind controllers and light switches with a fully local MQTT-based control layer.
+It replaces the factory software on blind controllers and light switches so everything talks over MQTT — no cloud, no vendor app.
 
 **C++ · PlatformIO · Arduino**
 
@@ -72,9 +73,9 @@ Replaces factory software on commercial blind controllers and light switches wit
 
 ### [tphome-api](https://github.com/mtaibo/tphome-api)
 
-FastAPI backend running on a Raspberry Pi alongside a Mosquitto MQTT broker, orchestrated with Docker.
+FastAPI backend running on a Raspberry Pi with a Mosquitto MQTT broker, all inside Docker.
 
-Handles device management, state persistence, OTA firmware serving and real-time WebSocket events.
+Handles device management, state persistence, OTA firmware updates, and WebSocket events.
 
 **Python · FastAPI · Docker · SQLite**
 
@@ -83,7 +84,7 @@ Handles device management, state persistence, OTA firmware serving and real-time
 
 ### tphome
 
-Web frontend — the single interface for controlling every device in the house.
+The web frontend — one interface for every device in the house.
 
 Under development.
 
@@ -95,7 +96,7 @@ Under development.
 
 ## How it works
 
-A typical interaction — pressing "down" on a blind from the frontend:
+Here's what happens when you press "down" on a blind:
 
 ```
 Frontend sends POST /commands/B0101/down
@@ -104,29 +105,19 @@ Frontend sends POST /commands/B0101/down
 API publishes 0xC1 to tp/B0101/c via MQTT
         │
         ▼
-ESP8266 chip receives command, activates relay, starts motor
+ESP8266 chip receives the command, activates the relay, starts the motor
         │
         ▼
-Chip publishes position + motor state every second to tp/B0101/s
+Chip sends position + motor state every second to tp/B0101/s
         │
         ▼
-API receives state, updates database, pushes WebSocket event
+API receives the state, updates the database, pushes a WebSocket event
         │
         ▼
-Frontend updates position in real time
+Frontend updates the position in real time
 ```
 
-No cloud involved at any point. The entire round trip happens on the local network.
-
----
-
-## Supported devices
-
-| Device | Chip | Type | Status |
-|---|---|---|---|
-| Matismo WIP100 | TYWE3S (ESP8266) | Blind controller | Stable |
-| Matismo WIP100 | CB3S (BK7231N) | Blind controller | In progress |
-| BSeed Melody M1 | T34 (BK7231N) | Light switch | In progress |
+No cloud, no internet. All on the local network.
 
 ---
 
