@@ -2,8 +2,6 @@
 
     import { onMounted } from 'vue';
 
-    import Dashboard from './views/Dashboard.vue'
-
     import { useDevices } from './config/devices'
     import { useMap } from './config/map'
 
@@ -17,8 +15,4 @@
 
 </script>
 
-<template>
-
-    <Dashboard />
-
-</template>
+<template> <RouterView /> </template>
