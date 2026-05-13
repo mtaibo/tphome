@@ -1,6 +1,9 @@
 <div align="center">
 
-<img src="images/banner.svg" alt="TPHome" width="100%" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="images/banner-dark.svg">
+  <img src="images/banner.svg" alt="TPHome" width="100%" />
+</picture>
 
 <br/>
 <br/>
