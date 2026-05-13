@@ -1,7 +1,6 @@
 <div align="center">
 
-<img src="images/banner.svg#gh-light-mode-only" alt="TPHome" width="100%" />
-<img src="images/banner-dark.svg#gh-dark-mode-only" alt="TPHome" width="100%" />
+<img src="images/banner.svg" alt="TPHome" width="100%" />
 
 <br/>
 <br/>
