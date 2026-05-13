@@ -64,10 +64,10 @@ Renders an interactive SVG floor plan where you can see and control every light 
 ## API architecture
 
 ```
-┌──────────────────────────────────────────────────────┐
+┌───────────────────────────────────────────────────────┐
 │                     tphome-api                        │
 │                                                       │
-│  ┌───────── HTTP ─────────┐  ┌─── WebSocket ────┐    │
+│  ┌───────── HTTP ──────────┐  ┌─── WebSocket ────┐    │
 │  │    REST routers         │  │ connections.py   │    │
 │  │  ┌──────────────────┐   │  │  broadcast()     │    │
 │  │  │ commands.py      │   │  └────────┬─────────┘    │
@@ -77,24 +77,24 @@ Renders an interactive SVG floor plan where you can see and control every light 
 │  │  └───────┬──────────┘   │           │              │
 │  └──────────┼──────────────┘           │              │
 │             │                          │              │
-│  ┌──────────▼──────────────────────────▼──────────┐  │
+│  ┌──────────▼──────────────────────────▼───────────┐  │
 │  │                   mqtt.py                       │  │
 │  │  publish() · binary message parsing · loop      │  │
 │  └──────────┬──────────────────────────┬───────────┘  │
 │             │                          │              │
-│  ┌──────────▼──────┐    ┌──────────────▼──────────┐   │
-│  │    Mosquitto     │    │  SQLite (SQLModel)      │   │
-│  │   MQTT Broker    │    │  Device · Blind · Light │   │
-│  │                  │    │  Config · PendingDevice │   │
-│  │  tp/{id}/{c,s,a} │    └─────────────────────────┘   │
-│  │  def/{mac}/a     │                                  │
-│  └─────────────────┘                                   │
+│  ┌──────────▼───────┐    ┌─────────────▼───────────┐  │
+│  │    Mosquitto     │    │  SQLite (SQLModel)      │  │
+│  │   MQTT Broker    │    │  Device · Blind · Light │  │
+│  │                  │    │  Config · PendingDevice │  │
+│  │  tp/{id}/{c,s,a} │    └─────────────────────────┘  │
+│  │  def/{mac}/a     │                                 │
+│  └──────────────────┘                                 │
 │                                                       │
-│  ┌──────────────────────────────────────────────┐     │
-│  │           provisioning.py                     │     │
-│  │  Device discovery via MQTT broadcast          │     │
-│  └──────────────────────────────────────────────┘     │
-└──────────────────────────────────────────────────────┘
+│  ┌───────────────────────────────────────────────┐    │
+│  │           provisioning.py                     │    │
+│  │  Device discovery via MQTT broadcast          │    │
+│  └───────────────────────────────────────────────┘    │
+└───────────────────────────────────────────────────────┘
 ```
 
 The API is structured around five routers, each with a single responsibility. The MQTT module is the core — it subscribes to device topics, parses incoming binary messages, updates the database, and broadcasts state changes to all connected WebSocket clients. The provisioning module handles device discovery when new hardware appears on the network.
