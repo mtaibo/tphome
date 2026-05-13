@@ -17,18 +17,20 @@
 
 ---
 
-I'm a first-year computer engineering student and this repo is the frontend for a home automation system I built from scratch. It renders an interactive floor plan of my house in the browser and lets me control every light and blind in real time — no cloud, no vendor app.
+I'm a first-year computer engineering student and this repository is the visible layer of a home automation system I built from scratch. This project involves frontend, backend and firmware, located in different repos around my GitHub profile.
+
+This repo contains the frontend layer that lets you easily interact with all devices, customize your house through JSON files, and host the web panel wherever you want.
 
 ## How it started
 
-I got tired of needing five different apps to control my apartment. Every brand has its own cloud and its own account, none of them talk to each other, and if the company shuts down your switch is a brick. So I started building my own system — one that lives entirely on my local network.
+I got tired of needing different apps to control my house. Every brand has its own cloud and its own account, they hardly talk to each other, and if you want a specific device behaviour — like closing at 20% first and then going fully closed — there was no way to do it. So I started building my own system — one that lives entirely on my local network.
 
-The whole thing is made of three parts: the C++ firmware inside the switches, a Python backend on a Raspberry Pi, and this Vue frontend. I wrote every layer myself.
+The whole project is made of three parts: the C++ firmware inside the switches, a Python backend hosted on a Raspberry Pi, and the Vue frontend in this repo (also hosted on the same Pi). I wrote every layer myself to get what I needed: a fast, personalized way to control my devices.
 
 Everything here is:
-- **Local** — no internet needed, everything runs on my home network
-- **Understandable** — no black boxes, I designed and built each piece
-- **Customizable** — the blind stops at 20% on first press instead of 0%
+- **Local** — no cloud needed, everything runs on my home network
+- **Understandable** — no black boxes, I designed and built each piece, all fully documented
+- **Customizable** — for example, the blind stops at 20% on first press instead of 0%
 - **Unified** — one screen shows every device in the house
 
 ## Architecture
@@ -37,25 +39,25 @@ Three repos, one for each layer of the stack:
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                     tphome (this repo)               │
-│              Vue 3 frontend · SVG floor plan         │
-│              Tailwind CSS · Pinia · WebSocket        │
+│                      tphome                         │
+│           Vue 3 frontend · Tailwind CSS             │
+│         Hosted via Docker on Raspberry Pi           │
 └────────────────────────┬────────────────────────────┘
                          │ HTTP / WebSocket
 ┌────────────────────────▼────────────────────────────┐
-│                   tphome-api                         │
-│     FastAPI backend · MQTT orchestration · SQLite    │
-│         Running on a Raspberry Pi via Docker         │
+│                   tphome-api                        │
+│    FastAPI backend · MQTT orchestration · SQLite    │
+│          Hosted via Docker on Raspberry Pi          │
 └────────────────────────┬────────────────────────────┘
                          │ MQTT (binary protocol)
 ┌────────────────────────▼────────────────────────────┐
-│                 tphome-firmware                      │
-│   C++ firmware for ESP8266 / BK7231N smart switches  │
-│        Replacing factory Tuya / BSEED software       │
+│                 tphome-firmware                     │
+│   C++ firmware for ESP8266 / BK7231N smart switches │
+│           Flashing over factory firmware            │
 └─────────────────────────────────────────────────────┘
 ```
 
-Each repo is independently versioned and deployable. The firmware runs on the chips inside the switches. The backend runs on a Raspberry Pi and bridges MQTT with the web layer. This frontend talks to the backend over HTTP and WebSocket.
+Each repo is independently versioned and deployable, but the project depends on every layer being available. The firmware runs on the chips inside the switches. The backend is hosted on a Raspberry Pi and communicates with the firmware via MQTT using a custom protocol. The frontend also runs on the Pi and talks to the backend through HTTP requests and WebSockets.
 
 ## Repositories
 
@@ -65,7 +67,7 @@ Each repo is independently versioned and deployable. The firmware runs on the ch
 
 ### [tphome-firmware](https://github.com/mtaibo/tphome-firmware)
 
-Custom C++ firmware for ESP8266 and BK7231N chips, built with PlatformIO.
+Custom C++ firmware for proprietary chips, built with PlatformIO.
 
 Replaces factory software on commercial blind controllers and light switches with a fully local MQTT-based control layer.
 
@@ -76,7 +78,7 @@ Replaces factory software on commercial blind controllers and light switches wit
 
 ### [tphome-api](https://github.com/mtaibo/tphome-api)
 
-FastAPI backend running on a Raspberry Pi alongside a Mosquitto MQTT broker, orchestrated with Docker.
+FastAPI backend running on a Raspberry Pi alongside a Mosquitto MQTT broker, managed with Docker.
 
 Handles device management, state persistence, OTA firmware serving and real-time WebSocket events.
 
@@ -87,11 +89,11 @@ Handles device management, state persistence, OTA firmware serving and real-time
 
 ### tphome (this repo)
 
-Vue 3 frontend served by Nginx behind a Caddy reverse proxy.
+Vue 3 frontend served by Nginx behind a Caddy reverse proxy, also hosted on the Raspberry Pi.
 
-Renders an interactive SVG floor plan of my house where I can see and control every light and blind in real time.
+You can manage devices in multiple ways — through simple cards, or by rendering an interactive SVG floor plan of my house where I can see and control every light and blind in real time. You can also configure chip firmwares from here.
 
-**Vue 3 · Tailwind CSS · Pinia · Nginx**
+**Vue 3 · Tailwind CSS · Nginx**
 
 </td>
 </tr>
@@ -99,7 +101,7 @@ Renders an interactive SVG floor plan of my house where I can see and control ev
 
 ## What's managed here
 
-This repository is the **frontend layer** of TPHome — the single interface for controlling every device in the house:
+This repository is the **frontend layer** of TPHome — the single interface to control every device in the house:
 
 | What | How |
 |---|---|
@@ -134,15 +136,7 @@ API receives state, updates database, pushes WebSocket event
 Frontend updates position in real time
 ```
 
-No cloud involved at any point. The entire round trip happens on the local network.
-
-## Supported devices
-
-| Device | Chip | Type | Status |
-|---|---|---|---|
-| Matismo WIP100 | TYWE3S (ESP8266) | Blind controller | Stable |
-| Matismo WIP100 | CB3S (BK7231N) | Blind controller | In progress |
-| BSeed Melody M1 | T34 (BK7231N) | Light switch | In progress |
+No cloud involved at any point. The entire system works on the local network.
 
 ## Tech stack
 
@@ -169,7 +163,7 @@ npm run dev
 npm run build
 
 # Docker
-docker compose up -d
+docker compose up --build -d
 ```
 
 The frontend expects `tphome-api` to be available on the same Docker network. See the [Caddyfile](Caddyfile) for routing details.
