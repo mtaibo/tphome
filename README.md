@@ -5,7 +5,7 @@
 <br/>
 <br/>
 
-**A fully local, self-built home automation system — from chip firmware to web frontend.**
+**Home automation I built myself — from the chip to the browser.**
 
 <br/>
 
@@ -17,15 +17,15 @@
 
 ---
 
-I'm a first-year computer engineering student and this is my biggest project so far — a home automation system I built from scratch during my first year at university to learn embedded systems, networking, and full-stack development by solving a real problem I had at home.
+I'm a first-year computer engineering student. This is the biggest thing I've built so far.
 
-Most smart home devices ship locked to vendor clouds. You install an app per brand, none of them talk to each other, and the day the company shuts down their servers your switches stop working. I wanted something different — a system that runs entirely on my local network, that I understood down to every layer, and that I could shape around how I actually use my home. Things like: the blind going to 20% on the first press instead of closing all the way, or a single interface that shows everything at once.
+Most smart home stuff locks you into vendor apps and cloud services. One app for this brand, another for that one, and if the company ever shuts down, your switches stop working. I wanted something that lives on my local network and works the way I want it to — like the blind stopping at 20% the first time I press the button instead of closing all the way, or a single screen where I can see everything at once.
 
-Every layer of the stack — the C++ firmware running inside the switches, the Python backend orchestrating everything, and the Vue frontend you see here — is designed and written by me.
+So I built my own. The C++ inside the switches, the Python backend on a Raspberry Pi, the Vue frontend — I made all of it.
 
 ## Architecture
 
-TPHome is split into three independent repositories, each responsible for one layer of the stack:
+The whole system is split into three repos, one for each layer:
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -47,7 +47,7 @@ TPHome is split into three independent repositories, each responsible for one la
 └─────────────────────────────────────────────────────┘
 ```
 
-Each repository is independently versioned and deployable. The firmware runs on the chips inside commercial smart switches. The backend runs on a Raspberry Pi and bridges MQTT with the web layer. This frontend talks to the backend over HTTP and WebSocket.
+Each repo is independently versioned and deployable. The firmware runs on the chips inside the switches, the backend runs on a Raspberry Pi and bridges MQTT with the web layer, and this frontend talks to the backend over HTTP and WebSocket.
 
 ## Repositories
 
