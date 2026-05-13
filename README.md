@@ -5,7 +5,7 @@
 <br/>
 <br/>
 
-**Home automation I built myself — from the chip to the browser.**
+**Home automation system — from the chip to the browser.**
 
 <br/>
 
@@ -17,15 +17,23 @@
 
 ---
 
-I'm a first-year computer engineering student. This is the biggest thing I've built so far.
+I'm a first-year computer engineering student and this repo is the frontend for a home automation system I built from scratch. It renders an interactive floor plan of my house in the browser and lets me control every light and blind in real time — no cloud, no vendor app.
 
-Most smart home stuff locks you into vendor apps and cloud services. One app for this brand, another for that one, and if the company ever shuts down, your switches stop working. I wanted something that lives on my local network and works the way I want it to — like the blind stopping at 20% the first time I press the button instead of closing all the way, or a single screen where I can see everything at once.
+## How it started
 
-So I built my own. The C++ inside the switches, the Python backend on a Raspberry Pi, the Vue frontend — I made all of it.
+I got tired of needing five different apps to control my apartment. Every brand has its own cloud and its own account, none of them talk to each other, and if the company shuts down your switch is a brick. So I started building my own system — one that lives entirely on my local network.
+
+The whole thing is made of three parts: the C++ firmware inside the switches, a Python backend on a Raspberry Pi, and this Vue frontend. I wrote every layer myself.
+
+Everything here is:
+- **Local** — no internet needed, everything runs on my home network
+- **Understandable** — no black boxes, I designed and built each piece
+- **Customizable** — the blind stops at 20% on first press instead of 0%
+- **Unified** — one screen shows every device in the house
 
 ## Architecture
 
-The whole system is split into three repos, one for each layer:
+Three repos, one for each layer of the stack:
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -47,7 +55,7 @@ The whole system is split into three repos, one for each layer:
 └─────────────────────────────────────────────────────┘
 ```
 
-Each repo is independently versioned and deployable. The firmware runs on the chips inside the switches, the backend runs on a Raspberry Pi and bridges MQTT with the web layer, and this frontend talks to the backend over HTTP and WebSocket.
+Each repo is independently versioned and deployable. The firmware runs on the chips inside the switches. The backend runs on a Raspberry Pi and bridges MQTT with the web layer. This frontend talks to the backend over HTTP and WebSocket.
 
 ## Repositories
 
@@ -89,7 +97,7 @@ Renders an interactive SVG floor plan of my house where I can see and control ev
 </tr>
 </table>
 
-## What's inside this repo
+## What's managed here
 
 This repository is the **frontend layer** of TPHome — the single interface for controlling every device in the house:
 
