@@ -5,7 +5,7 @@
 <br/>
 <br/>
 
-**A home automation system I built from scratch — firmware, backend, and frontend.**
+**A fully local, self-built home automation system — from chip firmware to web frontend.**
 
 <br/>
 
@@ -17,42 +17,37 @@
 
 ---
 
-I'm a first-year computer engineering student. I built TPHome because I got tired of needing five different apps to control my apartment. Every smart device wants you on its own cloud, its own account, and none of them talk to each other. And if the company goes under? Your switch is a brick.
+I'm a first-year computer engineering student and this is my biggest project so far — a home automation system I built from scratch during my first year at university to learn embedded systems, networking, and full-stack development by solving a real problem I had at home.
 
-So I started building my own system. One that lives on my local network and that I actually understand top to bottom. The C++ code inside the switches, the Python backend on a Raspberry Pi, the Vue frontend — I wrote all of it.
+Most smart home devices ship locked to vendor clouds. You install an app per brand, none of them talk to each other, and the day the company shuts down their servers your switches stop working. I wanted something different — a system that runs entirely on my local network, that I understood down to every layer, and that I could shape around how I actually use my home. Things like: the blind going to 20% on the first press instead of closing all the way, or a single interface that shows everything at once.
 
-It started as a way to learn embedded systems and backend development by doing something real, but it turned into something I use every day. I wanted the little things to feel right — like the blind stopping at 20% on the first press instead of closing all the way, or a single screen that shows everything at once.
-
-This is my portfolio too. I want it to show that I can build real systems, not just follow tutorials. I'm still learning, but I care about making things well.
-
----
+Every layer of the stack — the C++ firmware running inside the switches, the Python backend orchestrating everything, and the Vue frontend you see here — is designed and written by me.
 
 ## Architecture
 
-Three layers, three repos, one system:
+TPHome is split into three independent repositories, each responsible for one layer of the stack:
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                     tphome                           │
-│              Web frontend (Vue)                      │
+│                     tphome (this repo)               │
+│              Vue 3 frontend · SVG floor plan         │
+│              Tailwind CSS · Pinia · WebSocket        │
 └────────────────────────┬────────────────────────────┘
                          │ HTTP / WebSocket
 ┌────────────────────────▼────────────────────────────┐
 │                   tphome-api                         │
-│     FastAPI backend · MQTT · SQLite                  │
-│         Runs on a Raspberry Pi via Docker            │
+│     FastAPI backend · MQTT orchestration · SQLite    │
+│         Running on a Raspberry Pi via Docker         │
 └────────────────────────┬────────────────────────────┘
-                         │ MQTT
+                         │ MQTT (binary protocol)
 ┌────────────────────────▼────────────────────────────┐
 │                 tphome-firmware                      │
 │   C++ firmware for ESP8266 / BK7231N smart switches  │
-│     Replaces the factory Tuya / BSEED software       │
+│        Replacing factory Tuya / BSEED software       │
 └─────────────────────────────────────────────────────┘
 ```
 
-Each layer is independent and deployable on its own. The firmware replaces the factory software on off-the-shelf smart switches. The backend sits on a Pi, bridging MQTT to the web layer. The frontend is what you see in the browser. No cloud, no vendor lock-in.
-
----
+Each repository is independently versioned and deployable. The firmware runs on the chips inside commercial smart switches. The backend runs on a Raspberry Pi and bridges MQTT with the web layer. This frontend talks to the backend over HTTP and WebSocket.
 
 ## Repositories
 
@@ -62,9 +57,9 @@ Each layer is independent and deployable on its own. The firmware replaces the f
 
 ### [tphome-firmware](https://github.com/mtaibo/tphome-firmware)
 
-C++ firmware for ESP8266 and BK7231N chips, built with PlatformIO.
+Custom C++ firmware for ESP8266 and BK7231N chips, built with PlatformIO.
 
-It replaces the factory software on blind controllers and light switches so everything talks over MQTT — no cloud, no vendor app.
+Replaces factory software on commercial blind controllers and light switches with a fully local MQTT-based control layer.
 
 **C++ · PlatformIO · Arduino**
 
@@ -73,53 +68,103 @@ It replaces the factory software on blind controllers and light switches so ever
 
 ### [tphome-api](https://github.com/mtaibo/tphome-api)
 
-FastAPI backend running on a Raspberry Pi with a Mosquitto MQTT broker, all inside Docker.
+FastAPI backend running on a Raspberry Pi alongside a Mosquitto MQTT broker, orchestrated with Docker.
 
-Handles device management, state persistence, OTA firmware updates, and WebSocket events.
+Handles device management, state persistence, OTA firmware serving and real-time WebSocket events.
 
 **Python · FastAPI · Docker · SQLite**
 
 </td>
 <td width="33%">
 
-### tphome
+### tphome (this repo)
 
-The web frontend — one interface for every device in the house.
+Vue 3 frontend served by Nginx behind a Caddy reverse proxy.
 
-Under development.
+Renders an interactive SVG floor plan of my house where I can see and control every light and blind in real time.
+
+**Vue 3 · Tailwind CSS · Pinia · Nginx**
 
 </td>
 </tr>
 </table>
 
----
+## What's inside this repo
+
+This repository is the **frontend layer** of TPHome — the single interface for controlling every device in the house:
+
+| What | How |
+|---|---|
+| **Blueprint view** | Interactive SVG floor plan of the house with rooms, labels, and doors |
+| **Lights** | Click any light fixture on the plan to toggle it on/off |
+| **Blinds** | Click a blind to open a control panel with position slider, quick buttons, and presets |
+| **Live updates** | WebSocket connection receives device state changes and updates the UI in real time |
+| **Device management** | Pinia store syncs device configuration and state from the API |
+| **API communication** | Axios client for REST calls, WebSocket for real-time events |
+| **Docker deployment** | Nginx serves the static build, Caddy handles routing |
 
 ## How it works
 
-Here's what happens when you press "down" on a blind:
+A typical interaction — pressing "down" on a blind from the frontend:
 
 ```
 Frontend sends POST /commands/B0101/down
         │
         ▼
-API publishes 0xC1 to tp/B0101/c via MQTT
+API publishes command via MQTT
         │
         ▼
-ESP8266 chip receives the command, activates the relay, starts the motor
+ESP8266 chip receives command, activates relay, starts motor
         │
         ▼
-Chip sends position + motor state every second to tp/B0101/s
+Chip publishes position + motor state every second
         │
         ▼
-API receives the state, updates the database, pushes a WebSocket event
+API receives state, updates database, pushes WebSocket event
         │
         ▼
-Frontend updates the position in real time
+Frontend updates position in real time
 ```
 
-No cloud, no internet. All on the local network.
+No cloud involved at any point. The entire round trip happens on the local network.
 
----
+## Supported devices
+
+| Device | Chip | Type | Status |
+|---|---|---|---|
+| Matismo WIP100 | TYWE3S (ESP8266) | Blind controller | Stable |
+| Matismo WIP100 | CB3S (BK7231N) | Blind controller | In progress |
+| BSeed Melody M1 | T34 (BK7231N) | Light switch | In progress |
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| **Framework** | Vue 3 with Composition API |
+| **Build** | Vite 8 |
+| **Styling** | Tailwind CSS 4 |
+| **State** | Pinia |
+| **Routing** | Vue Router 4 |
+| **HTTP** | Axios |
+| **Icons** | Lucide |
+| **Reverse proxy** | Caddy |
+| **Container** | Docker + docker-compose |
+
+## How to run
+
+```bash
+# Development
+npm install
+npm run dev
+
+# Production build
+npm run build
+
+# Docker
+docker compose up -d
+```
+
+The frontend expects `tphome-api` to be available on the same Docker network. See the [Caddyfile](Caddyfile) for routing details.
 
 ## License
 
