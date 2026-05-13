@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/banner.svg" alt="TPHome" width="100%" />
+<img src="images/banner.svg" alt="TPHome" width="100%" />
 
 <br/>
 <br/>
