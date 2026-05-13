@@ -168,6 +168,8 @@ docker compose up --build -d
 
 The frontend expects `tphome-api` to be available on the same Docker network. See the [Caddyfile](Caddyfile) for routing details.
 
+> **Note:** `package-lock.json` is committed to ensure reproducible installs. Requires **npm >= 10**. If you use a different npm version the lockfile may be reformatted — just commit the result.
+
 ## License
 
 MIT — see [LICENSE](LICENSE)
