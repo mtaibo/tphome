@@ -2,10 +2,6 @@
   <style>
     .tp-text { fill: #0d0f14; }
     .tp-icon { stroke: #0d0f14; }
-    @media (prefers-color-scheme: dark) {
-      .tp-text { fill: #ffffff; }
-      .tp-icon { stroke: #ffffff; }
-    }
   </style>
   <g transform="translate(85, 18)">
     <g class="tp-icon" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
