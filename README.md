@@ -1,9 +1,7 @@
 <div align="center">
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="images/banner-dark.svg">
-  <img src="images/banner.svg" alt="TPHome" width="100%" />
-</picture>
+<img src="images/banner.svg#gh-light-mode-only" alt="TPHome" width="100%" />
+<img src="images/banner-dark.svg#gh-dark-mode-only" alt="TPHome" width="100%" />
 
 <br/>
 <br/>
