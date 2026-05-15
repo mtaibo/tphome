@@ -1,5 +1,7 @@
 import { ref } from 'vue'
+
 import { useDevices } from './devices'
+import { useMap } from './map'
 
 const WS_URL = `ws://${window.location.host}/api/ws`
 
@@ -9,9 +11,13 @@ export const apiOnline = ref(true)
 function connect() {
     socket = new WebSocket(WS_URL)
 
-    socket.onopen = () => {
+    socket.onopen = async () => {
         console.log('[WS] Connected')
         apiOnline.value = true
+        const devices = useDevices()
+        const map = useMap()
+        if (devices.unconfigured) await devices.setup()
+        if (map.unconfigured) await map.setup()
     }
 
     socket.onmessage = (event) => {
