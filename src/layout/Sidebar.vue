@@ -36,7 +36,9 @@
         :class="collapsed ? 'w-16 min-w-16 max-w-16' : 'w-1/5 min-w-44 max-w-60'"
     >
 
-        <header class="h-20 px-4 flex items-center gap-4 overflow-hidden">
+        <header class="h-20 flex items-center overflow-hidden transition-[padding] duration-300"
+            :class="collapsed ? 'justify-center px-0' : 'px-4 gap-4'"
+        >
 
             <div class="shrink-0">
                 <House class="text-tp-accent w-9 h-9" />
@@ -44,7 +46,7 @@
 
             <div class="flex flex-col justify-center min-w-0 transition-[width,opacity] duration-300" :class="collapsed ? 'opacity-0 w-0' : 'opacity-100'">
                 <h1 class="text-xl font-bold tracking-tight whitespace-nowrap">TPHome</h1>
-                <span class="text-[10px] font-mono text-muted/60 tracking-wider whitespace-nowrap">v1.0.0 - stable</span>
+                <span class="text-[10px] font-mono text-muted/60 tracking-wider whitespace-nowrap">v1.0.0</span>
             </div>
 
         </header>
