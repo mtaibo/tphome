@@ -59,7 +59,7 @@
                 :class="getButtonClass(item.id, collapsed)"
                 :title="collapsed ? item.name : ''"
             >
-                <component :is="item.icon" class="w-5 h-5 shrink-0" />
+                <component :is="item.icon" class="w-5 h-5 shrink-0 transition-colors duration-300" />
                 <span
                     class="font-medium text-sm whitespace-nowrap overflow-hidden transition-all duration-300"
                     :class="collapsed ? 'w-0 opacity-0' : 'opacity-100 ml-4'"
@@ -79,7 +79,7 @@
                 :class="collapsed ? 'px-[6px]' : 'px-4'"
                 :title="collapsed ? 'Configuración' : ''"
             >
-                <Settings class="w-5 h-5 shrink-0" />
+                <Settings class="w-5 h-5 shrink-0 transition-colors duration-300" />
                 <span
                     class="text-sm font-medium whitespace-nowrap overflow-hidden transition-all duration-300"
                     :class="collapsed ? 'w-0 opacity-0' : 'opacity-100 ml-4'"
@@ -112,7 +112,7 @@
                 class="w-full flex items-center py-2.5 rounded-lg transition-all duration-300 cursor-pointer text-muted hover:text-white"
                 :class="collapsed ? 'px-[6px]' : 'px-4'"
             >
-                <component :is="collapsed ? PanelLeftOpen : PanelLeftClose" class="w-5 h-5 shrink-0" />
+                <component :is="collapsed ? PanelLeftOpen : PanelLeftClose" class="w-5 h-5 shrink-0 transition-colors duration-300" />
                 <span
                     class="text-sm font-medium whitespace-nowrap overflow-hidden transition-all duration-300"
                     :class="collapsed ? 'w-0 opacity-0' : 'opacity-100 ml-4'"
