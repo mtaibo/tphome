@@ -33,6 +33,31 @@
     const handleDown = () => { tempPosition.value = tempPosition.value === 20 ? 0 : 20; sendCommand('down') }
     const handleStop = () => { sendCommand('stop') }
 
+    let dragging = false
+
+    function posFromY(el, clientY) {
+        const rect = el.getBoundingClientRect()
+        const y = clientY - rect.top
+        return Math.max(0, Math.min(100, Math.round((1 - y / rect.height) * 100)))
+    }
+
+    function onPointerDown(e) {
+        dragging = true
+        tempPosition.value = posFromY(e.currentTarget, e.clientY)
+        e.currentTarget.setPointerCapture(e.pointerId)
+    }
+
+    function onPointerMove(e) {
+        if (!dragging) return
+        tempPosition.value = posFromY(e.currentTarget, e.clientY)
+    }
+
+    function onPointerUp(e) {
+        if (!dragging) return
+        dragging = false
+        updatePosition(posFromY(e.currentTarget, e.clientY))
+    }
+
     watch(() => props.device.state.position, (val) => {
         tempPosition.value = val
     }, { immediate: true })
@@ -57,17 +82,17 @@
         <!-- MOBILE LAYOUT -->
         <div class="md:hidden flex-1 flex items-center justify-center px-4 pb-6 gap-3">
             <div class="flex flex-col items-center gap-3 flex-1 max-w-[140px]">
-                <div class="relative w-full aspect-[3/5] bg-black/40 rounded-2xl border border-tp-border shadow-inner overflow-hidden">
+                <div class="relative w-full aspect-[3/5] bg-black/40 rounded-2xl border border-tp-border shadow-inner overflow-hidden touch-none select-none"
+                     @pointerdown="onPointerDown"
+                     @pointermove="onPointerMove"
+                     @pointerup="onPointerUp"
+                     @pointercancel="onPointerUp">
                     <div class="absolute inset-y-0 left-3 w-px bg-tp-border/10"></div>
                     <div class="absolute inset-y-0 right-3 w-px bg-tp-border/10"></div>
                     <div class="absolute top-0 w-full bg-muted/20 border-b border-tp-accent/40 transition-all duration-700 ease-in-out flex flex-col gap-1 p-1.5 overflow-hidden"
                          :style="{ height: (100 - tempPosition) + '%' }">
                         <div v-for="i in 16" :key="i" class="h-1.5 min-h-1.5 w-full bg-muted/30 rounded-sm shrink-0 shadow-sm"></div>
                     </div>
-                    <input type="range" min="0" max="100" v-model.number="tempPosition"
-                           @change="updatePosition($event.target.value)"
-                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer [appearance:slider-vertical]"
-                    />
                 </div>
                 <div class="flex items-baseline gap-1">
                     <span class="text-2xl font-mono font-bold text-white">{{ tempPosition }}</span>
