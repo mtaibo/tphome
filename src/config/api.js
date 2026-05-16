@@ -40,5 +40,14 @@ export const api = {
     async sendPrefs(id, prefs) {
         let path = `/admin/${id}/prefs`
         return client.post(path, prefs)
+    },
+
+    async getPendingDevices() {
+        const response = await client.get('/devices/pending')
+        return response.data
+    },
+
+    async configurePendingDevice(mac, id, prefs) {
+        return client.post('/devices/pending/configure', { mac, id, prefs })
     }
 }
