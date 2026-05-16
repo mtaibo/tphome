@@ -23,7 +23,7 @@
             ? 'w-full flex items-center px-[10px] py-2.5 rounded-lg transition-all duration-200 cursor-pointer'
             : 'w-full flex items-center px-4 py-2.5 rounded-lg transition-all duration-200 cursor-pointer';
         const activeClass = 'bg-tp-accent/10 text-tp-accent font-semibold';
-        const inactiveClass = 'text-muted hover:bg-tp-border/20 hover:text-white';
+        const inactiveClass = 'text-muted bg-transparent hover:bg-tp-border/20 hover:text-white';
         return `${layoutClass} ${isActive ? activeClass : inactiveClass}`;
     };
 
@@ -75,7 +75,7 @@
 
             <RouterLink
                 to="/settings"
-                class="w-full flex items-center py-2.5 rounded-lg transition-all duration-200 cursor-pointer text-muted hover:text-white"
+                class="w-full flex items-center py-2.5 rounded-lg transition-all duration-200 cursor-pointer text-muted bg-transparent hover:text-white"
                 :class="collapsed ? 'px-[6px]' : 'px-4'"
                 :title="collapsed ? 'Configuración' : ''"
             >
@@ -109,7 +109,7 @@
 
             <button
                 @click="toggle"
-                class="w-full flex items-center py-2.5 rounded-lg transition-all duration-200 cursor-pointer text-muted hover:text-white"
+                class="w-full flex items-center py-2.5 rounded-lg transition-all duration-200 cursor-pointer text-muted bg-transparent hover:text-white"
                 :class="collapsed ? 'px-[6px]' : 'px-4'"
             >
                 <component :is="collapsed ? PanelLeftOpen : PanelLeftClose" class="w-5 h-5 shrink-0 transition-colors duration-200" />
