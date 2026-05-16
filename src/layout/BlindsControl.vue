@@ -56,7 +56,11 @@
 
         <!-- MOBILE LAYOUT -->
         <div class="md:hidden flex-1 flex items-center justify-center px-4 pb-6 gap-3">
-            <div class="flex flex-col items-center gap-3 flex-1 max-w-[140px]">
+            <div class="flex flex-col items-center gap-2 flex-1 max-w-[140px]">
+                <div class="flex items-baseline gap-1 mb-1">
+                    <span class="text-2xl font-mono font-bold text-white">{{ tempPosition }}</span>
+                    <span class="text-sm font-bold text-tp-accent">%</span>
+                </div>
                 <div class="relative w-full aspect-[3/5] bg-black/40 rounded-2xl border border-tp-border shadow-inner overflow-hidden">
                     <div class="absolute inset-y-0 left-3 w-px bg-tp-border/10"></div>
                     <div class="absolute inset-y-0 right-3 w-px bg-tp-border/10"></div>
@@ -68,10 +72,6 @@
                            @change="updatePosition($event.target.value)"
                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     />
-                </div>
-                <div class="flex items-baseline gap-1">
-                    <span class="text-2xl font-mono font-bold text-white">{{ tempPosition }}</span>
-                    <span class="text-sm font-bold text-tp-accent">%</span>
                 </div>
             </div>
 
