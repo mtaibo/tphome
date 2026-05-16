@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
-
 import { createPinia } from 'pinia'
+
 import { socket_manager } from './config/socket'
 
 import App from './App.vue'
