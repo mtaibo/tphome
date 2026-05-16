@@ -13,7 +13,7 @@
     
     <Sidebar />
 
-    <main class="flex-1 flex flex-col relative overflow-hidden pb-14 md:pb-0">
+    <main class="flex-1 flex flex-col relative overflow-hidden pb-18 md:pb-0">
 
       <Topbar/>
 

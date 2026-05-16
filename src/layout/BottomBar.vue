@@ -8,7 +8,7 @@
 
 <template>
 
-    <footer class="md:hidden fixed bottom-0 left-0 right-0 z-50 h-14 flex items-center justify-between px-10 pt-1 pb-4 bg-tp-surface/80 border-t border-tp-border backdrop-blur-md shadow-[0_-4px_16px_rgba(0,0,0,0.3)]">
+    <footer class="md:hidden fixed bottom-0 left-0 right-0 z-50 h-18 flex items-center justify-between px-10 pt-2 pb-8 bg-tp-surface/80 border-t border-tp-border backdrop-blur-md shadow-[0_-4px_16px_rgba(0,0,0,0.3)]">
 
         <div :class="apiOnline ? 'is-online' : 'is-offline'" class="flex items-center">
             <div class="status-dot"></div>
