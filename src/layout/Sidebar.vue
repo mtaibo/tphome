@@ -32,7 +32,7 @@
 <template>
 
     <aside
-        class="z-20 flex flex-col border-r border-tp-border shadow-xl bg-tp-surface transition-all duration-300 ease-in-out"
+        class="z-20 hidden md:flex md:flex-col border-r border-tp-border shadow-xl bg-tp-surface transition-all duration-300 ease-in-out"
         :class="collapsed ? 'w-16' : 'w-72'"
     >
 
