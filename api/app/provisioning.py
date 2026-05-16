@@ -2,7 +2,7 @@ import asyncio
 from datetime import datetime
 from sqlmodel import Session, select, delete
 from db.database import engine
-from db.models import Device, PendingDevice
+from db.models import Device, PendingDevice, Blind, Light
 from connections import manager
 import mqtt
 
@@ -67,7 +67,13 @@ async def _process():
                 pending.append(device.mac)
                 _responses.discard(device.mac)
 
-                # Delete device from db to then add it as pending
+                # Delete device and its associated state from db
+                if device.id[0] == 'B':
+                    blind = session.exec(select(Blind).where(Blind.id == device.id)).first()
+                    if blind: session.delete(blind)
+                elif device.id[0] == 'L':
+                    light = session.exec(select(Light).where(Light.id == device.id)).first()
+                    if light: session.delete(light)
                 session.delete(device)
                 session.add(PendingDevice(mac=device.mac))
 
