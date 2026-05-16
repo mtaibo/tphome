@@ -48,7 +48,7 @@
 
         <!-- Mobile -->
         <div 
-            class="md:hidden fixed inset-x-0 bottom-18 z-50 transition-transform duration-500 ease-in-out"
+            class="md:hidden fixed inset-x-0 bottom-0 z-50 transition-transform duration-500 ease-in-out"
             :class="selectedBlind ? 'translate-y-0' : 'translate-y-full'"
         >
             <!-- Overlay -->
@@ -58,7 +58,7 @@
                 @click="selectedId = null"
             />
 
-            <div class="bg-tp-surface border-t border-tp-border rounded-t-2xl min-h-[60vh]">
+            <div class="bg-tp-surface border-t border-tp-border rounded-t-2xl min-h-[60vh] pb-18">
                 <!-- Handle -->
                 <div class="flex justify-center pt-3 pb-1">
                     <div class="w-10 h-1 bg-tp-border rounded-full"></div>

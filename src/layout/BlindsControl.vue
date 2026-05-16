@@ -55,36 +55,39 @@
         </header>
 
         <!-- MOBILE LAYOUT -->
-        <div class="md:hidden flex-1 flex items-center justify-center px-4 pb-6 gap-3">
-            <div class="flex flex-col items-center gap-2 flex-1 max-w-[140px]">
-                <div class="flex items-baseline gap-1 mb-1">
-                    <span class="text-2xl font-mono font-bold text-white">{{ tempPosition }}</span>
-                    <span class="text-sm font-bold text-tp-accent">%</span>
-                </div>
-                <div class="relative w-full aspect-[3/5] bg-black/40 rounded-2xl border border-tp-border shadow-inner overflow-hidden">
-                    <div class="absolute inset-y-0 left-3 w-px bg-tp-border/10"></div>
-                    <div class="absolute inset-y-0 right-3 w-px bg-tp-border/10"></div>
-                    <div class="absolute top-0 w-full bg-muted/20 border-b border-tp-accent/40 transition-all duration-700 ease-in-out flex flex-col gap-1 p-1.5 overflow-hidden"
-                         :style="{ height: (100 - tempPosition) + '%' }">
-                        <div v-for="i in 16" :key="i" class="h-1.5 min-h-1.5 w-full bg-muted/30 rounded-sm shrink-0 shadow-sm"></div>
+        <div class="md:hidden flex-1 flex flex-col items-center justify-center px-4 pb-6 gap-3">
+            <div class="flex items-center gap-3">
+                <div class="flex-1 max-w-[140px]">
+                    <div class="relative w-full aspect-[3/5] bg-black/40 rounded-2xl border border-tp-border shadow-inner overflow-hidden">
+                        <div class="absolute inset-y-0 left-3 w-px bg-tp-border/10"></div>
+                        <div class="absolute inset-y-0 right-3 w-px bg-tp-border/10"></div>
+                        <div class="absolute top-0 w-full bg-muted/20 border-b border-tp-accent/40 transition-all duration-700 ease-in-out flex flex-col gap-1 p-1.5 overflow-hidden"
+                             :style="{ height: (100 - tempPosition) + '%' }">
+                            <div v-for="i in 16" :key="i" class="h-1.5 min-h-1.5 w-full bg-muted/30 rounded-sm shrink-0 shadow-sm"></div>
+                        </div>
+                        <input type="range" min="0" max="100" v-model.number="tempPosition"
+                               @change="updatePosition($event.target.value)"
+                               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
                     </div>
-                    <input type="range" min="0" max="100" v-model.number="tempPosition"
-                           @change="updatePosition($event.target.value)"
-                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <button @click="handleUp" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl hover:bg-tp-accent/10 hover:border-tp-accent/50 group cursor-pointer transition-all">
+                        <ChevronUp class="w-6 h-6 text-muted group-hover:text-tp-accent" />
+                    </button>
+                    <button @click="handleStop" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl cursor-pointer hover:bg-red-500/10 hover:border-red-500/50 group transition-all">
+                        <Square class="w-4 h-4 text-muted group-hover:text-red-500 fill-current" />
+                    </button>
+                    <button @click="handleDown" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl hover:bg-tp-accent/10 hover:border-tp-accent/50 group cursor-pointer transition-all">
+                        <ChevronDown class="w-6 h-6 text-muted group-hover:text-tp-accent" />
+                    </button>
                 </div>
             </div>
 
-            <div class="flex flex-col gap-3">
-                <button @click="handleUp" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl hover:bg-tp-accent/10 hover:border-tp-accent/50 group cursor-pointer transition-all">
-                    <ChevronUp class="w-6 h-6 text-muted group-hover:text-tp-accent" />
-                </button>
-                <button @click="handleStop" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl cursor-pointer hover:bg-red-500/10 hover:border-red-500/50 group transition-all">
-                    <Square class="w-4 h-4 text-muted group-hover:text-red-500 fill-current" />
-                </button>
-                <button @click="handleDown" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl hover:bg-tp-accent/10 hover:border-tp-accent/50 group cursor-pointer transition-all">
-                    <ChevronDown class="w-6 h-6 text-muted group-hover:text-tp-accent" />
-                </button>
+            <div class="flex items-baseline gap-1">
+                <span class="text-2xl font-mono font-bold text-white">{{ tempPosition }}</span>
+                <span class="text-sm font-bold text-tp-accent">%</span>
             </div>
         </div>
 
