@@ -26,7 +26,7 @@
     async function fetchPending() {
         try {
             loading.value = true
-            pendingDevices.value = await api.getPendingDevices()
+            pendingDevices.value = (await api.getPendingDevices()).map(m => ({ mac: m }))
         } catch (error) {
             console.error('TPHome - Error fetching pending devices:', error)
         } finally {
