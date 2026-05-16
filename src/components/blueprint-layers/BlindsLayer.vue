@@ -22,6 +22,13 @@
         @click="$emit('select', id)"
     >
     
+        <!-- Hit area (invisible, extends 4px beyond the blind for accessibility) -->
+        <rect 
+            :x="blind.map.x - 4" :y="blind.map.y - 4"
+            :width="blind.map.width + 8" :height="blind.map.height + 8" 
+            fill="transparent" rx="3"
+        />
+
         <!-- Blind background -->
         <rect 
             :x="blind.map.x" :y="blind.map.y" rx="1.5"
