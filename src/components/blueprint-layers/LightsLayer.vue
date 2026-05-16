@@ -5,10 +5,35 @@
     import { useDevices } from '../../config/devices'
     import { api } from '../../config/api'
 
-    const store = useDevices()
-    const lights = computed(() => store.lights)
+    const props = defineProps({
+        mode: { type: String, default: 'control' }
+    })
+    const emit = defineEmits(['pick'])
 
-    const toggleLight = async (id) => { await api.sendCommand(id, 'toggle') }
+    const store = useDevices()
+
+    const lights = computed(() =>
+        props.mode === 'config'
+            ? (store.storage.lights ?? {})
+            : store.lights
+    )
+
+    const toggleLight = async (id) => {
+        if (props.mode === 'config') return emit('pick', id)
+        await api.sendCommand(id, 'toggle')
+    }
+
+    const circleClass = (light) => {
+        if (props.mode === 'config') return 'fill-tp-surface/50 stroke-tp-accent/50'
+        return light.state.on
+            ? 'fill-yellow-400/20 stroke-yellow-400/50'
+            : 'fill-tp-surface/50 stroke-tp-border/20'
+    }
+
+    const dotClass = (light) => {
+        if (props.mode === 'config') return 'fill-tp-accent'
+        return light.state.on ? 'fill-yellow-400' : 'fill-muted'
+    }
 
 </script>
 
@@ -22,19 +47,17 @@
         @click="toggleLight(id)"
     >
 
+        <!-- Hit area (invisible, larger for accessibility) -->
+        <circle r="14" fill="transparent" />
+
         <!-- Outline circle -->
         <circle 
             r="10" 
-            :class="[
-                'transition-all duration-300 stroke-2',
-                light.state.on 
-                ? 'fill-yellow-400/20 stroke-yellow-400/50' 
-                : 'fill-tp-surface/50 stroke-tp-border/20'
-            ]"
+            :class="['transition-all duration-300 stroke-2', circleClass(light)]"
         />
 
         <!-- Inline circle -->
-        <circle r="3" :class="light.state.on ? 'fill-yellow-400' : 'fill-muted'" />
+        <circle r="3" :class="dotClass(light)" />
 
     </g>
 

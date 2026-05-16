@@ -4,12 +4,33 @@
 
     import { useDevices } from '../../config/devices'
 
+    const props = defineProps({
+        mode: { type: String, default: 'control' }
+    })
+    const emit = defineEmits(['select', 'pick'])
+
     const store = useDevices()
-    const blinds = computed(() => store.blinds)
+
+    const blinds = computed(() =>
+        props.mode === 'config'
+            ? (store.storage.blinds ?? {})
+            : store.blinds
+    )
 
     const isHorizontal = (blind) => blind.map.width > blind.map.height
-    const coverWidth   = (blind) => isHorizontal(blind) ? blind.map.width  * (100 - blind.state.position) / 100 : blind.map.width
-    const coverHeight  = (blind) => isHorizontal(blind) ? blind.map.height : blind.map.height * (100 - blind.state.position) / 100
+    const coverWidth   = (blind) => {
+        if (props.mode === 'config' || !blind.state) return blind.map.width
+        return isHorizontal(blind) ? blind.map.width  * (100 - blind.state.position) / 100 : blind.map.width
+    }
+    const coverHeight  = (blind) => {
+        if (props.mode === 'config' || !blind.state) return blind.map.height
+        return isHorizontal(blind) ? blind.map.height : blind.map.height * (100 - blind.state.position) / 100
+    }
+
+    const onClick = (id) => {
+        if (props.mode === 'config') return emit('pick', id)
+        emit('select', id)
+    }
 
 </script>
 
@@ -19,7 +40,7 @@
         v-for="(blind, id) in blinds" 
         :key="id" 
         class="select-none cursor-pointer" 
-        @click="$emit('select', id)"
+        @click="onClick(id)"
     >
     
         <!-- Hit area (invisible, extends 4px beyond the blind for accessibility) -->
@@ -40,11 +61,12 @@
         <rect 
             :x="blind.map.x" :y="blind.map.y" rx="1.5"
             :width="coverWidth(blind)" :height="coverHeight(blind)" 
-            class="fill-muted transition-all duration-500 ease-in-out"
+            :class="props.mode === 'config' ? 'fill-tp-accent/20' : 'fill-muted transition-all duration-500 ease-in-out'"
         />
 
         <!-- Apply pattern -->
         <rect 
+            v-if="props.mode !== 'config'"
             :x="blind.map.x" :y="blind.map.y" 
             :width="coverWidth(blind)" :height="coverHeight(blind)" 
             :fill="isHorizontal(blind) ? 'url(#pattern-v)' : 'url(#pattern-h)'"
