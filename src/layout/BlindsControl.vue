@@ -65,7 +65,7 @@
 </script>
 
 <template>
-    <div class="flex flex-col h-full bg-tp-surface border-l border-tp-border shadow-xl select-none" :class="{ 'opacity-80 pointer-events-none': isLoading }">
+    <div class="flex flex-col h-full md:bg-tp-surface bg-transparent md:border-l md:border-tp-border select-none" :class="{ 'opacity-80 pointer-events-none': isLoading }">
         
         <header class="h-20 px-6 flex items-center justify-between shrink-0">
             <div class="flex items-center gap-4">
