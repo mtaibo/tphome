@@ -20,7 +20,7 @@
         Object.entries(store.storage.blinds ?? {}).map(([id, d]) => ({ id, ...d, type: 'Persiana' }))
     )
     const allConfigured = computed(() =>
-        [...configuredBinds.value, ...configuredLights.value]
+        [...configuredBlinds.value, ...configuredLights.value]
     )
 
     async function fetchPending() {
