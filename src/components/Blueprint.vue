@@ -58,7 +58,7 @@
                 @click="selectedId = null"
             />
 
-            <div class="bg-tp-surface border-t border-tp-border rounded-t-2xl max-h-[70vh] overflow-y-auto">
+            <div class="bg-tp-surface border-t border-tp-border rounded-t-2xl">
                 <!-- Handle -->
                 <div class="flex justify-center pt-3 pb-1">
                     <div class="w-10 h-1 bg-tp-border rounded-full"></div>
