@@ -24,7 +24,7 @@
 
 <template>
 
-    <div class="flex flex-col md:flex-row h-[calc(100vh-5rem)] w-full overflow-hidden">
+    <div class="flex flex-col md:flex-row h-full w-full overflow-hidden">
 
         <!-- Blueprint itself -->
         <div class="flex-1 flex items-center justify-center p-4 md:p-12 transition-all duration-500 ease-in-out min-h-0">
