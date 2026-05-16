@@ -2,6 +2,7 @@
 
     import Sidebar from '../layout/Sidebar.vue';
     import Topbar from '../layout/Topbar.vue';
+    import BottomBar from '../layout/BottomBar.vue';
     import Blueprint from '../components/Blueprint.vue';
 
 </script>
@@ -12,7 +13,7 @@
     
     <Sidebar />
 
-    <main class="flex-1 flex flex-col relative overflow-hidden">
+    <main class="flex-1 flex flex-col relative overflow-hidden pb-14 md:pb-0">
 
       <Topbar/>
 
@@ -21,6 +22,8 @@
       </section>
 
     </main>
+
+    <BottomBar />
 
   </div>
 
