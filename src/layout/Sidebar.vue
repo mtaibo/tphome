@@ -36,8 +36,8 @@
         :class="collapsed ? 'w-16 min-w-16 max-w-16' : 'w-1/5 min-w-44 max-w-60'"
     >
 
-        <header class="h-20 flex items-center overflow-hidden transition-[padding] duration-300"
-            :class="collapsed ? 'justify-center px-0' : 'px-4 gap-4'"
+        <header class="h-20 flex items-center overflow-hidden transition-all duration-300"
+            :class="collapsed ? 'px-[14px]' : 'px-4 gap-4'"
         >
 
             <div class="shrink-0">
