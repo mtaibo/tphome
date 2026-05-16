@@ -3,7 +3,7 @@
     import { ref } from 'vue';
     import { LayoutDashboard, Blinds, Lightbulb, Settings, House, User, PanelLeftClose, PanelLeftOpen } from 'lucide-vue-next';
 
-    const collapsed = ref(localStorage.getItem('sidebar-collapsed') !== 'false')
+    const collapsed = ref(true)
 
     const toggle = () => {
         collapsed.value = !collapsed.value
