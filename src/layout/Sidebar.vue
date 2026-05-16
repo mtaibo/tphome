@@ -33,7 +33,7 @@
 
     <aside
         class="z-20 hidden md:flex md:flex-col border-r border-tp-border shadow-xl bg-tp-surface transition-all duration-300 ease-in-out"
-        :class="collapsed ? 'w-16' : 'w-72'"
+        :class="collapsed ? 'w-16' : 'w-1/5 min-w-44 max-w-60'"
     >
 
         <header class="h-20 px-4 flex items-center gap-4 overflow-hidden">
