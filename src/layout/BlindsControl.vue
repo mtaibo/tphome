@@ -116,17 +116,17 @@
         <!-- DESKTOP LAYOUT -->
         <div class="hidden md:flex flex-1 flex-col items-center justify-center p-6 space-y-8">
             <div class="flex flex-col items-center gap-4">
-                <div class="relative w-40 h-64 bg-black/40 rounded-2xl border border-tp-border shadow-inner overflow-hidden">
+                <div class="relative w-40 h-64 bg-black/40 rounded-2xl border border-tp-border shadow-inner overflow-hidden touch-none select-none"
+                     @pointerdown="onPointerDown"
+                     @pointermove="onPointerMove"
+                     @pointerup="onPointerUp"
+                     @pointercancel="onPointerUp">
                     <div class="absolute inset-y-0 left-4 w-px bg-tp-border/10"></div>
                     <div class="absolute inset-y-0 right-4 w-px bg-tp-border/10"></div>
                     <div class="absolute top-0 w-full bg-muted/20 border-b border-tp-accent/40 transition-all duration-700 ease-in-out flex flex-col gap-1.5 p-2 overflow-hidden"
                          :style="{ height: (100 - tempPosition) + '%' }">
                         <div v-for="i in 20" :key="i" class="h-2 min-h-2 w-full bg-muted/30 rounded-sm shrink-0 shadow-sm"></div>
                     </div>
-                    <input type="range" min="0" max="100" v-model.number="tempPosition"
-                           @change="updatePosition($event.target.value)"
-                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer [appearance:slider-vertical]"
-                    />
                 </div>
                 <div class="flex items-baseline gap-1">
                     <span class="text-3xl font-mono font-bold text-white">{{ tempPosition }}</span>
