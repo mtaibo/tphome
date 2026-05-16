@@ -27,11 +27,9 @@
     <BottomBar />
 
     <div
-        class="md:hidden fixed top-4 left-4 z-50 flex items-center gap-2 px-2 py-1.5 rounded-lg bg-tp-surface/80 backdrop-blur-sm border border-tp-border"
-        :class="apiOnline ? 'is-online' : 'is-offline'"
-    >
-        <div class="status-dot"></div>
-    </div>
+        class="md:hidden fixed top-4 left-4 z-50 w-2.5 h-2.5 rounded-full shadow-[0_0_8px] animate-pulse transition-all duration-500"
+        :class="apiOnline ? 'bg-tp-ok shadow-tp-ok/50' : 'bg-tp-danger shadow-tp-danger/50'"
+    ></div>
 
   </div>
 
