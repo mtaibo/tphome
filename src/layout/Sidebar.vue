@@ -17,12 +17,12 @@
         { id: 'blinds',    name: 'Persianas', icon: Blinds          },
     ]
 
-    const getButtonClass = (itemId) => {
+    const getButtonClass = (itemId, isCollapsed) => {
         const isActive = activeItem.value === itemId;
-        const baseClass = 'w-full flex items-center gap-4 px-4 py-2.5 rounded-lg transition-colors duration-200 cursor-pointer';
+        const layoutClass = isCollapsed ? 'w-full flex items-center justify-center px-0 py-2.5 rounded-lg transition-colors duration-200 cursor-pointer' : 'w-full flex items-center gap-4 px-4 py-2.5 rounded-lg transition-colors duration-200 cursor-pointer';
         const activeClass = 'bg-tp-accent/10 text-tp-accent font-semibold';
         const inactiveClass = 'text-muted hover:bg-tp-border/20 hover:text-white';
-        return `${baseClass} ${isActive ? activeClass : inactiveClass}`;
+        return `${layoutClass} ${isActive ? activeClass : inactiveClass}`;
     };
 
 </script>
@@ -54,7 +54,7 @@
                 v-for="item in navItems"
                 :key="item.id"
                 @click="activeItem = item.id"
-                :class="getButtonClass(item.id)"
+                :class="getButtonClass(item.id, collapsed)"
                 :title="collapsed ? item.name : ''"
             >
                 <component :is="item.icon" class="w-5 h-5 shrink-0" />
@@ -73,7 +73,8 @@
 
             <RouterLink
                 to="/settings"
-                class="w-full flex items-center gap-4 px-4 py-2.5 rounded-lg transition-colors duration-200 cursor-pointer text-muted hover:text-white"
+                class="w-full flex items-center py-2.5 rounded-lg transition-colors duration-200 cursor-pointer text-muted hover:text-white"
+                :class="collapsed ? 'justify-center px-0' : 'gap-4 px-4'"
                 :title="collapsed ? 'Configuración' : ''"
             >
                 <Settings class="w-5 h-5 shrink-0" />
@@ -86,7 +87,8 @@
             </RouterLink>
 
             <div
-                class="flex items-center gap-3 px-4 py-3 bg-tp-bg/50 rounded-xl border border-tp-border overflow-hidden"
+                class="flex items-center py-3 bg-tp-bg/50 rounded-xl border border-tp-border overflow-hidden"
+                :class="collapsed ? 'justify-center px-0' : 'gap-3 px-4'"
                 :title="collapsed ? 'Miguel' : ''"
             >
                 <div class="w-8 h-8 rounded-lg bg-tp-border flex items-center justify-center shrink-0">
@@ -105,7 +107,8 @@
 
             <button
                 @click="toggle"
-                class="w-full flex items-center gap-4 px-4 py-2.5 rounded-lg transition-colors duration-200 cursor-pointer text-muted hover:text-white"
+                class="w-full flex items-center py-2.5 rounded-lg transition-colors duration-200 cursor-pointer text-muted hover:text-white"
+                :class="collapsed ? 'justify-center px-0' : 'gap-4 px-4'"
             >
                 <component :is="collapsed ? PanelLeftOpen : PanelLeftClose" class="w-5 h-5 shrink-0" />
                 <span
