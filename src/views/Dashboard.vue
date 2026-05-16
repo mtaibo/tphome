@@ -4,6 +4,7 @@
     import Topbar from '../layout/Topbar.vue';
     import BottomBar from '../layout/BottomBar.vue';
     import Blueprint from '../components/Blueprint.vue';
+    import { apiOnline } from '../config/socket'
 
 </script>
 
@@ -24,6 +25,13 @@
     </main>
 
     <BottomBar />
+
+    <div
+        class="md:hidden fixed top-4 left-4 z-50 flex items-center gap-2 px-2 py-1.5 rounded-lg bg-tp-surface/80 backdrop-blur-sm border border-tp-border"
+        :class="apiOnline ? 'is-online' : 'is-offline'"
+    >
+        <div class="status-dot"></div>
+    </div>
 
   </div>
 
