@@ -8,7 +8,7 @@
 
 <template>
 
-  <div class="flex h-screen w-screen overflow-hidden font-sans bg-tp-bg text-slate-200">
+  <div class="flex h-screen w-screen overflow-hidden overscroll-none font-sans bg-tp-bg text-slate-200">
     
     <Sidebar />
 
