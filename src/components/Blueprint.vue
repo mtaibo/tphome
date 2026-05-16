@@ -58,12 +58,12 @@
                 @click="selectedId = null"
             />
 
-            <div class="bg-tp-surface border-t border-tp-border rounded-t-2xl min-h-[60vh] pb-18">
+            <div class="bg-tp-surface border-t border-tp-border rounded-t-2xl pb-18 flex flex-col min-h-[60vh]">
                 <!-- Handle -->
-                <div class="flex justify-center pt-3 pb-1">
+                <div class="flex justify-center pt-3 pb-1 shrink-0">
                     <div class="w-10 h-1 bg-tp-border rounded-full"></div>
                 </div>
-                <BlindsControl v-if="selectedBlind" :id="selectedId" :device="selectedBlind" @close="selectedId = null" />
+                <BlindsControl v-if="selectedBlind" :id="selectedId" :device="selectedBlind" @close="selectedId = null" class="flex-1 min-h-0" />
             </div>
         </div>
 
