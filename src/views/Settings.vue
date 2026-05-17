@@ -1,11 +1,7 @@
 <script setup>
 
     import DeviceManager from '@/layout/settings/DeviceManager.vue'
-    import Sidebar from '@/layout/settings/Sidebar.vue'
-
-    import { ref } from 'vue'
-
-    const sidebarRef = ref(null)
+    import Sidebar from '@/layout/Sidebar.vue'
 
 </script>
 
@@ -13,7 +9,7 @@
 
     <div class="flex h-screen w-screen overflow-hidden font-sans bg-tp-bg text-slate-200">
 
-        <Sidebar ref="sidebarRef" />
+        <Sidebar />
 
         <main class="flex-1 overflow-hidden">
             <DeviceManager />
