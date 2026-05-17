@@ -85,7 +85,6 @@
             />
 
             <div
-                v-if="isDashboard"
                 class="flex items-center overflow-hidden transition-all duration-300 rounded-xl"
                 :class="collapsed ? 'p-0 border-0 bg-transparent' : 'px-4 py-3 bg-tp-bg/50 border border-tp-border'"
                 :title="collapsed ? 'Miguel' : ''"
@@ -100,14 +99,6 @@
                     <span class="text-xs font-bold leading-none">Miguel</span>
                     <span class="text-[10px] text-muted italic mt-1">Administrador</span>
                 </div>
-            </div>
-
-            <div
-                v-else
-                class="overflow-hidden transition-all duration-300"
-                :class="collapsed ? 'h-0 opacity-0' : 'h-auto opacity-100'"
-            >
-                <span class="block text-[10px] font-mono text-muted/40 pt-2 px-4">TPHome v1.0.0</span>
             </div>
 
         </footer>
