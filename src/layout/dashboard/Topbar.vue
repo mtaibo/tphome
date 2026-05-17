@@ -3,8 +3,8 @@
     import { ref } from 'vue';
     import { RefreshCw } from 'lucide-vue-next';
 
-    import { apiOnline } from '../config/socket'
-    import { useDevices } from '../config/devices'
+    import { apiOnline } from '@/config/socket'
+    import { useDevices } from '@/config/devices'
 
     const store = useDevices()
 

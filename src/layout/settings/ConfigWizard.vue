@@ -3,13 +3,13 @@
     import { ref } from 'vue'
     import { X, Check, ArrowLeft } from 'lucide-vue-next'
 
-    import { useMap } from '../../config/map'
-    import { useDevices } from '../../config/devices'
-    import { api } from '../../config/api'
+    import { useMap } from '@/config/map'
+    import { useDevices } from '@/config/devices'
+    import { api } from '@/config/api'
 
-    import HouseLayer  from '../../components/blueprint-layers/HouseLayer.vue'
-    import LightsLayer from '../../components/blueprint-layers/LightsLayer.vue'
-    import BlindsLayer from '../../components/blueprint-layers/BlindsLayer.vue'
+    import HouseLayer  from '@/components/blueprint/Map.vue'
+    import LightsLayer from '@/components/blueprint/Lights.vue'
+    import BlindsLayer from '@/components/blueprint/Blinds.vue'
 
     const props = defineProps({
         device: { type: Object, required: true }
