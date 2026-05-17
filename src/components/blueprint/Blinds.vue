@@ -2,7 +2,7 @@
 
     import { computed } from 'vue'
 
-    import { useDevices } from '../../config/devices'
+    import { useDevices } from '@/config/devices'
 
     const props = defineProps({
         mode: { type: String, default: 'control' }

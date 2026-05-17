@@ -1,14 +1,14 @@
 <script setup>
 
     import { ref, computed } from 'vue'
-    import { useDevices } from '../config/devices'
-    import { useMap } from '../config/map'
+    import { useDevices } from '@/config/devices'
+    import { useMap } from '@/config/map'
 
-    import LightsLayer   from './blueprint-layers/LightsLayer.vue'
-    import BlindsLayer   from './blueprint-layers/BlindsLayer.vue'
-    import HouseLayer    from './blueprint-layers/HouseLayer.vue'
+    import LightsLayer   from '@/components/blueprint/Lights.vue'
+    import BlindsLayer   from '@/components/blueprint/Blinds.vue'
+    import HouseLayer    from '@/components/blueprint/Map.vue'
 
-    import BlindsControl from '../layout/BlindsControl.vue'
+    import BlindsControl from './BlindsControl.vue'
 
     const store = useDevices()
     const map = useMap()

@@ -1,6 +1,6 @@
 <script setup>
 
-    import { useMap } from '../../config/map'
+    import { useMap } from '@/config/map'
     const map = useMap()
 
 </script>
