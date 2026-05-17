@@ -78,7 +78,7 @@
             <NavButton
                 v-else
                 :icon="ArrowLeft"
-                label="Volver al plano"
+                label="Volver"
                 :collapsed="collapsed"
                 :nav-item="false"
                 @click="router.push('/')"
