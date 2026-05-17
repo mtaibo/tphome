@@ -2,8 +2,8 @@
 
     import Sidebar from '@/layout/dashboard/Sidebar.vue';
     import Topbar from '@/layout/dashboard/Topbar.vue';
-    import BottomBar from '@/layout/dashboard/BottomBar.vue';
     import Blueprint from '@/layout/dashboard/Blueprint.vue';
+    import BottomBar from '@/layout/dashboard/BottomBar.vue';
 
     import { apiOnline } from '@/config/socket'
 

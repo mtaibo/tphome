@@ -1,7 +1,20 @@
 <script setup>
 
     import { ref } from 'vue'
-    import { ArrowLeft, Smartphone } from 'lucide-vue-next'
+    import { useRouter } from 'vue-router'
+    import { Smartphone, ArrowLeft, PanelLeftClose, PanelLeftOpen } from 'lucide-vue-next'
+
+    import Header from '@/components/sidebar/Header.vue'
+    import NavButton from '@/components/sidebar/NavButton.vue'
+
+    const router = useRouter()
+
+    const collapsed = ref(false)
+
+    const toggle = () => {
+        collapsed.value = !collapsed.value
+        localStorage.setItem('sidebar-settings-collapsed', collapsed.value)
+    }
 
     const sections = [
         { id: 'dispositivos', name: 'Dispositivos', icon: Smartphone }
@@ -14,35 +27,51 @@
 
 <template>
 
-    <aside class="w-56 min-w-56 flex flex-col border-r border-tp-border bg-tp-surface shrink-0">
+    <aside
+        class="flex flex-col border-r border-tp-border bg-tp-surface shrink-0 transition-all duration-300 ease-in-out"
+        :class="collapsed ? 'w-16 min-w-16 max-w-16' : 'w-56 min-w-56 max-w-56'"
+    >
 
-        <header class="h-20 px-6 flex items-center border-b border-tp-border">
-            <RouterLink
-                to="/"
-                class="flex items-center gap-2 text-sm text-muted hover:text-white transition-colors"
-            >
-                <ArrowLeft class="w-4 h-4" />
-                <span class="font-medium">Ajustes</span>
-            </RouterLink>
-        </header>
+        <Header :collapsed="collapsed" />
 
-        <nav class="flex-1 p-3 space-y-1">
-            <button
+        <nav class="flex-1 p-3 space-y-2">
+            <NavButton
                 v-for="section in sections"
                 :key="section.id"
+                :icon="section.icon"
+                :label="section.name"
+                :active="activeSection === section.id"
+                :collapsed="collapsed"
+                :nav-item="true"
                 @click="activeSection = section.id"
-                class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all duration-200 cursor-pointer"
-                :class="activeSection === section.id
-                    ? 'bg-tp-accent/10 text-tp-accent font-semibold'
-                    : 'text-muted hover:text-white hover:bg-tp-border/20'"
-            >
-                <component :is="section.icon" class="w-4 h-4 shrink-0" />
-                {{ section.name }}
-            </button>
+            />
         </nav>
 
-        <footer class="p-4 border-t border-tp-border">
-            <span class="text-[10px] font-mono text-muted/40">TPHome v1.0.0</span>
+        <footer class="p-4 border-t border-tp-border space-y-2">
+
+            <NavButton
+                :icon="collapsed ? PanelLeftOpen : PanelLeftClose"
+                label="Colapsar"
+                :collapsed="collapsed"
+                :nav-item="false"
+                @click="toggle"
+            />
+
+            <NavButton
+                :icon="ArrowLeft"
+                label="Volver al plano"
+                :collapsed="collapsed"
+                :nav-item="false"
+                @click="router.push('/')"
+            />
+
+            <div
+                class="overflow-hidden transition-all duration-300"
+                :class="collapsed ? 'h-0 opacity-0' : 'h-auto opacity-100'"
+            >
+                <span class="block text-[10px] font-mono text-muted/40 pt-2 px-4">TPHome v1.0.0</span>
+            </div>
+
         </footer>
 
     </aside>
