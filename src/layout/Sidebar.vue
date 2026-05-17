@@ -1,34 +1,43 @@
 <script setup>
 
-    import { ref } from 'vue'
-    import { useRouter } from 'vue-router'
-    import { LayoutDashboard, Blinds, Lightbulb, Settings, User, PanelLeftClose, PanelLeftOpen } from 'lucide-vue-next'
+    import { ref, computed } from 'vue'
+    import { useRouter, useRoute } from 'vue-router'
+    import { LayoutDashboard, Blinds, Lightbulb, Settings as SettingsIcon, User, PanelLeftClose, PanelLeftOpen, Smartphone, ArrowLeft } from 'lucide-vue-next'
 
     import Header from '@/components/sidebar/Header.vue'
     import NavButton from '@/components/sidebar/NavButton.vue'
 
     const router = useRouter()
+    const route = useRoute()
 
-    const collapsed = ref(true)
+    const isDashboard = computed(() => route.path === '/')
+
+    const collapsed = ref(localStorage.getItem('sidebar-collapsed') === 'true')
 
     const toggle = () => {
         collapsed.value = !collapsed.value
         localStorage.setItem('sidebar-collapsed', collapsed.value)
     }
 
-    const activeItem = ref('blueprint')
-    const navItems = [
+    const dashboardItems = [
         { id: 'blueprint', name: 'Plano',     icon: LayoutDashboard },
         { id: 'lights',    name: 'Luces',     icon: Lightbulb       },
         { id: 'blinds',    name: 'Persianas', icon: Blinds          },
     ]
+    const settingsItems = [
+        { id: 'dispositivos', name: 'Dispositivos', icon: Smartphone }
+    ]
+
+    const navItems = computed(() => isDashboard.value ? dashboardItems : settingsItems)
+
+    const activeItem = ref('blueprint')
 
 </script>
 
 <template>
 
     <aside
-        class="z-20 hidden md:flex md:flex-col border-r border-tp-border shadow-xl bg-tp-surface transition-all duration-300 ease-in-out"
+        class="z-20 hidden md:flex md:flex-col border-r border-tp-border shadow-xl bg-tp-surface transition-all duration-300 ease-in-out shrink-0"
         :class="collapsed ? 'w-16 min-w-16 max-w-16' : 'w-1/5 min-w-44 max-w-60'"
     >
 
@@ -58,14 +67,25 @@
             />
 
             <NavButton
-                :icon="Settings"
+                v-if="isDashboard"
+                :icon="SettingsIcon"
                 label="Configuración"
                 :collapsed="collapsed"
                 :nav-item="false"
                 @click="router.push('/settings')"
             />
 
+            <NavButton
+                v-else
+                :icon="ArrowLeft"
+                label="Volver al plano"
+                :collapsed="collapsed"
+                :nav-item="false"
+                @click="router.push('/')"
+            />
+
             <div
+                v-if="isDashboard"
                 class="flex items-center overflow-hidden transition-all duration-300 rounded-xl"
                 :class="collapsed ? 'p-0 border-0 bg-transparent' : 'px-4 py-3 bg-tp-bg/50 border border-tp-border'"
                 :title="collapsed ? 'Miguel' : ''"
@@ -80,6 +100,14 @@
                     <span class="text-xs font-bold leading-none">Miguel</span>
                     <span class="text-[10px] text-muted italic mt-1">Administrador</span>
                 </div>
+            </div>
+
+            <div
+                v-else
+                class="overflow-hidden transition-all duration-300"
+                :class="collapsed ? 'h-0 opacity-0' : 'h-auto opacity-100'"
+            >
+                <span class="block text-[10px] font-mono text-muted/40 pt-2 px-4">TPHome v1.0.0</span>
             </div>
 
         </footer>
