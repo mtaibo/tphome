@@ -26,7 +26,9 @@
         { id: 'blinds',    name: 'Persianas', icon: Blinds          },
     ]
     const settingsItems = [
-        { id: 'dispositivos', name: 'Dispositivos', icon: Smartphone }
+        { id: 'active',  name: 'Dispositivos', icon: Smartphone },
+        { id: 'pending', name: 'Pendientes',   icon: Smartphone },
+        { id: 'json',    name: 'JSON',         icon: Smartphone }
     ]
 
     const navItems = computed(() => isDashboard.value ? dashboardItems : settingsItems)
