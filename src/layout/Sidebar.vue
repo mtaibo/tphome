@@ -2,7 +2,7 @@
 
     import { ref, computed } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
-    import { LayoutDashboard, Blinds, Lightbulb, Settings as SettingsIcon, PanelLeftClose, PanelLeftOpen, Smartphone, ArrowLeft } from 'lucide-vue-next'
+    import { LayoutDashboard, Blinds, Lightbulb, Settings as SettingsIcon, PanelLeftClose, PanelLeftOpen, Smartphone, ArrowLeft, Clock, Code } from 'lucide-vue-next'
 
     import Header from '@/components/sidebar/Header.vue'
     import NavButton from '@/components/sidebar/NavButton.vue'
@@ -27,8 +27,8 @@
     ]
     const settingsItems = [
         { id: 'active',  name: 'Dispositivos', icon: Smartphone },
-        { id: 'pending', name: 'Pendientes',   icon: Smartphone },
-        { id: 'json',    name: 'JSON',         icon: Smartphone }
+        { id: 'pending', name: 'Pendientes',   icon: Clock },
+        { id: 'json',    name: 'JSON',         icon: Code }
     ]
 
     const navItems = computed(() => isDashboard.value ? dashboardItems : settingsItems)
