@@ -2,7 +2,7 @@
 
     import { ref, computed } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
-    import { LayoutDashboard, Blinds, Lightbulb, Settings as SettingsIcon, PanelLeftClose, PanelLeftOpen, Smartphone, ArrowLeft, Clock, Code } from 'lucide-vue-next'
+    import { LayoutDashboard, Blinds, Lightbulb, Settings, PanelLeftClose, PanelLeftOpen, Smartphone, ArrowLeft, Clock, Code } from 'lucide-vue-next'
 
     import Header from '@/components/sidebar/Header.vue'
     import NavButton from '@/components/sidebar/NavButton.vue'
@@ -71,7 +71,7 @@
 
             <NavButton
                 v-if="isDashboard"
-                :icon="SettingsIcon"
+                :icon="Settings"
                 label="Configuración"
                 :collapsed="collapsed"
                 :nav-item="false"
