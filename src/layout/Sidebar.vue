@@ -1,6 +1,6 @@
 <script setup>
 
-    import { ref, computed } from 'vue'
+    import { ref, computed, watch } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
     import { LayoutDashboard, Blinds, Lightbulb, Settings, PanelLeftClose, PanelLeftOpen, Smartphone, ArrowLeft, Clock, Code } from 'lucide-vue-next'
 
@@ -33,7 +33,11 @@
 
     const navItems = computed(() => isDashboard.value ? dashboardItems : settingsItems)
 
-    const activeItem = ref('blueprint')
+    const activeItem = ref(isDashboard.value ? 'blueprint' : 'active')
+
+    watch(isDashboard, (val) => {
+        activeItem.value = val ? 'blueprint' : 'active'
+    })
 
 </script>
 
