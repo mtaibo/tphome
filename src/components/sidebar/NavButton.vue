@@ -13,20 +13,14 @@
     defineEmits(['click'])
 
     const buttonClass = computed(() => {
-        const base = 'w-full flex items-center py-2.5 rounded-lg transition-[background-color,padding] duration-300 cursor-pointer'
 
-        const padding = props.collapsed
-            ? (props.navItem ? 'px-[10px]' : 'px-[6px]')
-            : 'px-4'
+        const base = 'w-full flex items-center py-2.5 rounded-lg transition-[background-color,padding] duration-300 cursor-pointer'
+        const padding = props.collapsed ? (props.navItem ? 'px-[10px]' : 'px-[6px]') : 'px-4'
 
         let stateClass
-        if (props.navItem && props.active) {
-            stateClass = 'bg-tp-accent/10 text-tp-accent font-semibold'
-        } else if (props.navItem) {
-            stateClass = 'text-muted bg-transparent hover:bg-tp-border/20 hover:text-white'
-        } else {
-            stateClass = 'text-muted bg-transparent hover:text-white'
-        }
+        if (props.navItem && props.active) stateClass = 'bg-tp-accent/10 text-tp-accent font-semibold'
+        else if (props.navItem) stateClass = 'text-muted bg-transparent hover:bg-tp-border/20 hover:text-white'
+        else stateClass = 'text-muted bg-transparent hover:text-white'
 
         return `${base} ${padding} ${stateClass}`
     })
