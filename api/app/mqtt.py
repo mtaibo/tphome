@@ -4,7 +4,7 @@ from db.models import Device, Blind
 from connections import manager
 
 import paho.mqtt.client as mqtt
-import provisioning
+import update
 import threading
 import asyncio
 import struct
@@ -43,8 +43,8 @@ def on_message(client, userdata, message):
     device_id = topic[1]
 
     # DeviceID announcement
-    if len(payload) == 1 and payload[0] == 0x01 and provisioning.is_active():
-        provisioning.handle_announcement(device_id)
+    if len(payload) == 1 and payload[0] == 0x01 and update.is_active():
+        update.handle_announcement(device_id)
         return
 
     # LWT — device disconnected unexpectedly

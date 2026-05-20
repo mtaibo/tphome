@@ -5,7 +5,7 @@ from db.models import Device
 from pydantic import BaseModel
 import struct
 import mqtt
-import provisioning
+import update
 
 router = APIRouter(tags=["Admin"])
 
@@ -35,10 +35,10 @@ def _cmd(id: str, cmd_byte: int, payload: bytes = b""):
     mqtt.publish(f"tp/{id}/a", bytes([cmd_byte]) + payload)
 
 
-@router.post("/discover")
-async def discover():
-    await provisioning.start()
-    return {"sent": "DISCOVER"}
+@router.post("/update")
+async def start_update():
+    await update.start()
+    return {"sent": "UPDATE"}
 
 
 @router.post("/admin/{id}/prefs")
