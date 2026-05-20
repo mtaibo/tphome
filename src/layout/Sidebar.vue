@@ -1,6 +1,6 @@
 <script setup>
 
-    import { ref, computed, watch } from 'vue'
+    import { ref, computed } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
     import { LayoutDashboard, Blinds, Lightbulb, Settings, PanelLeftClose, PanelLeftOpen, Smartphone, ArrowLeft, Clock, Code } from 'lucide-vue-next'
 
@@ -8,36 +8,28 @@
     import NavButton from '@/components/sidebar/NavButton.vue'
     import UserCard from '@/components/sidebar/UserCard.vue'
 
-    const router = useRouter()
-    const route = useRoute()
-
-    const isDashboard = computed(() => route.path === '/')
-
-    const collapsed = ref(localStorage.getItem('sidebar-collapsed') === 'true')
-
-    const toggle = () => {
-        collapsed.value = !collapsed.value
-        localStorage.setItem('sidebar-collapsed', collapsed.value)
-    }
-
     const dashboardItems = [
         { id: 'blueprint', name: 'Plano',     icon: LayoutDashboard },
         { id: 'lights',    name: 'Luces',     icon: Lightbulb       },
         { id: 'blinds',    name: 'Persianas', icon: Blinds          },
     ]
+
     const settingsItems = [
         { id: 'active',  name: 'Dispositivos', icon: Smartphone },
         { id: 'pending', name: 'Pendientes',   icon: Clock },
         { id: 'json',    name: 'JSON',         icon: Code }
     ]
 
-    const navItems = computed(() => isDashboard.value ? dashboardItems : settingsItems)
+    const router = useRouter()
+    const route = useRoute()
 
+    /* Choose which nav items have to be displayed depending on the current view */
+    const isDashboard = computed(() => route.path === '/')
+    const navItems = computed(() => isDashboard.value ? dashboardItems : settingsItems)
     const activeItem = ref(isDashboard.value ? 'blueprint' : 'active')
 
-    watch(isDashboard, (val) => {
-        activeItem.value = val ? 'blueprint' : 'active'
-    })
+    const collapsed = ref(false)
+    const toggle = () => { collapsed.value = !collapsed.value }
 
 </script>
 

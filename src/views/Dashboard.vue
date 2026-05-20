@@ -20,7 +20,7 @@
     <Sidebar />
 
     <!-- Dot background - top-20 to not be shown below topbar due to its oppacity -->
-    <div class="fixed inset-0 top-20 bg-grid-dots pointer-events-none z-0"></div>
+    <div class="fixed inset-0 md:top-20 bg-grid-dots pointer-events-none z-0"></div>
 
     <main class="flex-1 flex flex-col relative overflow-hidden pb-18 md:pb-0 z-10">
       <Topbar/>
