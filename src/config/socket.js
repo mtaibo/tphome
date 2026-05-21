@@ -66,4 +66,9 @@ function handle(store, type, data) {
     }
 }
 
-export const socket_manager = { connect }
+function reconnect() {
+    if (socket) socket.close()
+    connect()
+}
+
+export const socket_manager = { connect, reconnect }
