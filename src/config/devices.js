@@ -6,7 +6,9 @@ import { api } from './api'
 export const useDevices = defineStore('devices', () => {
 
     const storage = reactive({})
+    const pendingStorage = reactive([])
     const unconfigured = computed(() => Object.keys(storage).length === 0)
+    const pendingCount = computed(() => pendingStorage.length)
 
     /* Serve the blinds on the store with a filter for null state blinds (not available on API) */
     const blinds = computed(() => 
@@ -55,6 +57,10 @@ export const useDevices = defineStore('devices', () => {
                 }
             }
 
+            /* Load pending devices */
+            const pending = await api.getPending()
+            pendingStorage.splice(0, pendingStorage.length, ...pending)
+
             await update() // Call to update function to fill state and connection on every available device
         
         } catch (error) { console.error('TPHome - Setup error:', error) }
@@ -84,5 +90,5 @@ export const useDevices = defineStore('devices', () => {
         } catch (error) { console.error('TPHome - Update error:', error) }
     }
 
-    return { storage, unconfigured, blinds, setup, update, active }
+    return { storage, unconfigured, pendingCount, blinds, setup, update, active }
 })

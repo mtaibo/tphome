@@ -15,6 +15,12 @@ export const api = {
         return response.data
     },
 
+    /* Function to get pending devices from api db */
+    async getPending() {
+        const response = await client.get('/devices/pending')
+        return response.data
+    },
+
     /* Function to get the devices or the map config json file */
     async getConfig(subject) {
         let path = `/config/${subject}`
@@ -42,12 +48,11 @@ export const api = {
         return client.post(path, prefs)
     },
 
-    async getPendingDevices() {
-        const response = await client.get('/devices/pending')
-        return response.data
+    async configurePending(mac, id, prefs) {
+        return client.post('/devices/pending/configure', { mac, id, prefs })
     },
 
-    async configurePendingDevice(mac, id, prefs) {
-        return client.post('/devices/pending/configure', { mac, id, prefs })
+    async triggerUpdate() {
+        return client.post('/update')
     }
 }

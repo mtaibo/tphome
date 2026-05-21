@@ -1,21 +1,21 @@
 <script setup>
 
-    import { ref } from 'vue';
     import { RefreshCw } from 'lucide-vue-next';
 
-    import { apiOnline } from '@/config/socket'
     import { useDevices } from '@/config/devices'
+    import { useMap } from '@/config/map'
+    import { apiOnline } from '@/config/socket'
+    import { socket_manager } from '@/config/socket'
+    import { api } from '@/config/api'
 
     const store = useDevices()
+    const map = useMap()
 
-    const pendingCount = ref(0);
-
-    const togglePending = () => {
-        if (pendingCount.value === 0) {
-            pendingCount.value = 2;
-        } else {
-            pendingCount.value = 0;
-        }
+    const handleUpdate = async () => {
+        socket_manager.reconnect()
+        await store.setup()
+        await map.setup()
+        await api.triggerUpdate()
     }
 
 </script>
@@ -60,18 +60,18 @@
 
             <!-- UNCONFIGURED DEVICES -->
             <div 
-                v-if="pendingCount > 0"
+                v-if="store.pendingCount > 0"
                 class="flex items-center gap-2.5 px-3 py-1.5 bg-tp-danger/5 border border-tp-danger/20 rounded-lg  hover:bg-tp-danger/10 hover:border-tp-danger/40 transition-all duration-300 cursor-pointer"
             >
   
                 <div class="w-1.5 h-1.5 bg-tp-danger rounded-full shadow-[0_0_8px_var(--color-tp-danger)]"></div>
-                <span class="text-[10px] font-bold text-tp-danger uppercase tracking-tight">2 Dispositivos sin configurar</span>
+                <span class="text-[10px] font-bold text-tp-danger uppercase tracking-tight">{{ store.pendingCount }} Dispositivos sin configurar</span>
 
             </div>
 
             <!-- UPDATE -->
             <button 
-                @click="togglePending"
+                @click="handleUpdate"
                 class="group flex items-center gap-2.5 px-3 py-1.5 rounded-lg transition-all duration-300 active:scale-95 cursor-pointer"
             >
             
