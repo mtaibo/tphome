@@ -3,12 +3,27 @@
     import { ref } from 'vue'
     import { LayoutDashboard, Lightbulb, Blinds, Settings, RefreshCw } from 'lucide-vue-next'
 
+    import { useDevices } from '@/config/devices'
+    import { useMap } from '@/config/map'
+    import { socket_manager } from '@/config/socket'
+    import { api } from '@/config/api'
+
+    const store = useDevices()
+    const map = useMap()
+
     const activeItem = ref('blueprint')
     const navItems = [
         { id: 'blueprint', name: 'Plano',     icon: LayoutDashboard },
         { id: 'lights',    name: 'Luces',     icon: Lightbulb       },
         { id: 'blinds',    name: 'Persianas', icon: Blinds          },
     ]
+
+    const handleUpdate = async () => {
+        await api.triggerUpdate()
+        await store.setup()
+        await map.setup()
+        socket_manager.reconnect()
+    }
 
 </script>
 
@@ -43,6 +58,7 @@
             </RouterLink>
 
             <button
+                @click="handleUpdate"
                 class="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer text-muted hover:text-tp-accent hover:bg-tp-border/20"
             >
                 <RefreshCw class="w-3.5 h-3.5" />

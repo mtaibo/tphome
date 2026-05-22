@@ -8,7 +8,14 @@ const WS_URL = `ws://${window.location.host}/api/ws`
 let socket = null
 export const apiOnline = ref(true)
 
+let reconnectTimer = null
+
 function connect() {
+    if (reconnectTimer) {
+        clearTimeout(reconnectTimer)
+        reconnectTimer = null
+    }
+
     socket = new WebSocket(WS_URL)
 
     socket.onopen = async () => {
@@ -29,7 +36,7 @@ function connect() {
     socket.onclose = () => {
         console.log('[WS] Disconnected, reconnecting in 3s...')
         apiOnline.value = false
-        setTimeout(connect, 3000)
+        reconnectTimer = setTimeout(connect, 3000)
     }
 
     socket.onerror = (error) => console.error('[WS] Error:', error)
