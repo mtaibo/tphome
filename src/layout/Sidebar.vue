@@ -8,6 +8,11 @@
     import NavButton from '@/components/sidebar/NavButton.vue'
     import UserCard from '@/components/sidebar/UserCard.vue'
 
+    const props = defineProps({
+        activeItem: { type: String, default: 'blueprint' }
+    })
+    const emit = defineEmits(['update:activeItem'])
+
     const dashboardItems = [
         { id: 'blueprint', name: 'Plano',     icon: LayoutDashboard },
         { id: 'lights',    name: 'Luces',     icon: Lightbulb       },
@@ -23,13 +28,15 @@
     const router = useRouter()
     const route = useRoute()
 
-    /* Choose which nav items have to be displayed depending on the current view */
     const isDashboard = computed(() => route.path === '/')
     const navItems = computed(() => isDashboard.value ? dashboardItems : settingsItems)
-    const activeItem = ref(isDashboard.value ? 'blueprint' : 'active')
 
     const collapsed = ref(false)
     const toggle = () => { collapsed.value = !collapsed.value }
+
+    function setActive(id) {
+        emit('update:activeItem', id)
+    }
 
 </script>
 
@@ -48,10 +55,10 @@
                 :key="item.id"
                 :icon="item.icon"
                 :label="item.name"
-                :active="activeItem === item.id"
+                :active="props.activeItem === item.id"
                 :collapsed="collapsed"
                 :nav-item="true"
-                @click="activeItem = item.id"
+                @click="setActive(item.id)"
             />
         </nav>
 

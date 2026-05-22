@@ -90,5 +90,5 @@ export const useDevices = defineStore('devices', () => {
         } catch (error) { console.error('TPHome - Update error:', error) }
     }
 
-    return { storage, unconfigured, pendingCount, blinds, setup, update, active }
+    return { storage, unconfigured, pendingCount, blinds, lights, setup, update, active }
 })

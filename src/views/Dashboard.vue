@@ -1,5 +1,7 @@
 <script setup>
 
+    import { ref } from 'vue'
+
     /* Control */
     import Sidebar from '@/layout/Sidebar.vue';
     import BottomBar from '@/layout/dashboard/BottomBar.vue';
@@ -11,13 +13,15 @@
     import Topbar from '@/layout/dashboard/Topbar.vue';
     import { apiOnline } from '@/config/socket'
 
+    const activeItem = ref('blueprint')
+
 </script>
 
 <template>
 
   <div class="flex h-screen w-screen overflow-clip font-sans bg-tp-bg text-slate-200">
     
-    <Sidebar />
+    <Sidebar v-model:activeItem="activeItem" />
 
     <!-- Dot background - top-20 to not be shown below topbar due to its oppacity -->
     <div class="fixed inset-0 md:top-20 bg-grid-dots pointer-events-none z-0"></div>
