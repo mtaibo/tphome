@@ -12,10 +12,10 @@
     const map = useMap()
 
     const handleUpdate = async () => {
-        socket_manager.reconnect()
+        await api.triggerUpdate()
         await store.setup()
         await map.setup()
-        await api.triggerUpdate()
+        socket_manager.reconnect()
     }
 
 </script>
