@@ -47,6 +47,13 @@
 
         <div class="flex items-center gap-4">
 
+            <button
+                @click="handleUpdate"
+                class="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer text-muted hover:text-tp-accent hover:bg-tp-border/20"
+            >
+                <RefreshCw class="w-3.5 h-3.5" />
+            </button>
+
             <RouterLink
                 to="/settings"
                 class="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95"
@@ -56,13 +63,6 @@
             >
                 <Settings class="w-4 h-4" />
             </RouterLink>
-
-            <button
-                @click="handleUpdate"
-                class="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer text-muted hover:text-tp-accent hover:bg-tp-border/20"
-            >
-                <RefreshCw class="w-3.5 h-3.5" />
-            </button>
 
         </div>
 
