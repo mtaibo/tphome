@@ -133,46 +133,61 @@
                     </div>
 
                     <!-- Mobile layout -->
-                    <div class="flex flex-col gap-2 md:hidden">
-                        <div class="flex items-center gap-3">
+                    <div class="md:hidden">
+                        <!-- Main row (clickable) -->
+                        <div
+                            class="flex items-center gap-3 px-4 py-3 cursor-pointer select-none"
+                            @click="toggleExpanded(device.id)"
+                        >
                             <component
                                 :is="device.type === 'Luz' ? Lightbulb : Blinds"
                                 class="w-4 h-4 shrink-0"
                                 :class="device.type === 'Luz' ? 'text-yellow-400/70' : 'text-tp-accent/70'"
                             />
-                            <div class="flex-1 min-w-0">
-                                <div class="text-sm text-white truncate">{{ device.name }}</div>
-                                <div class="text-xs font-mono text-muted">{{ device.id }}</div>
-                            </div>
+                            <span class="text-sm text-white flex-1 truncate">{{ device.name }}</span>
+                            <span class="text-xs font-mono text-muted shrink-0">{{ device.id }}</span>
                             <div
                                 class="w-2 h-2 rounded-full shrink-0"
                                 :class="device.connection?.online ? 'bg-tp-ok shadow-[0_0_6px_var(--color-tp-ok)]' : 'bg-tp-danger'"
                             ></div>
+                            <ChevronDown
+                                class="w-4 h-4 shrink-0 text-muted transition-transform duration-200"
+                                :class="{ 'rotate-180': expandedId === device.id }"
+                            />
                         </div>
-                        <div class="flex items-center gap-1 ml-7">
+
+                        <!-- Expanded actions -->
+                        <div
+                            v-show="expandedId === device.id"
+                            class="border-t border-tp-border/50 px-4 py-2 bg-black/10"
+                        >
                             <button
-                                @click="pingDevice(device.id)"
-                                class="flex items-center justify-center w-9 h-9 rounded-lg text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                @click.stop="pingDevice(device.id)"
+                                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
                             >
-                                <Radio class="w-4 h-4" />
+                                <Radio class="w-4 h-4 shrink-0" />
+                                <span>Ping</span>
                             </button>
                             <button
-                                @click="getDeviceInfo(device.id)"
-                                class="flex items-center justify-center w-9 h-9 rounded-lg text-muted hover:text-blue-400 hover:bg-blue-400/10 transition-all cursor-pointer"
+                                @click.stop="sendPrefsDevice(device.id, device.prefs)"
+                                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-yellow-400 hover:bg-yellow-400/10 transition-all cursor-pointer"
                             >
-                                <Info class="w-4 h-4" />
+                                <Braces class="w-4 h-4 shrink-0" />
+                                <span>Mandar preferencias</span>
                             </button>
                             <button
-                                @click="sendPrefsDevice(device.id, device.prefs)"
-                                class="flex items-center justify-center w-9 h-9 rounded-lg text-muted hover:text-yellow-400 hover:bg-yellow-400/10 transition-all cursor-pointer"
+                                @click.stop="getDeviceInfo(device.id)"
+                                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-blue-400 hover:bg-blue-400/10 transition-all cursor-pointer"
                             >
-                                <Braces class="w-4 h-4" />
+                                <Info class="w-4 h-4 shrink-0" />
+                                <span>Actualizar información</span>
                             </button>
                             <button
-                                @click="deleteDevice(device.id)"
-                                class="flex items-center justify-center w-9 h-9 rounded-lg text-muted hover:text-tp-danger hover:bg-tp-danger/10 transition-all cursor-pointer"
+                                @click.stop="deleteDevice(device.id)"
+                                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-danger hover:bg-tp-danger/10 transition-all cursor-pointer"
                             >
-                                <Trash2 class="w-4 h-4" />
+                                <Trash2 class="w-4 h-4 shrink-0" />
+                                <span>Eliminar dispositivo</span>
                             </button>
                         </div>
                     </div>
