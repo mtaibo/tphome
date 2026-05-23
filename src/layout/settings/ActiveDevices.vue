@@ -53,7 +53,7 @@
 
         <section>
             <div class="flex items-center gap-3 mb-5">
-                <div class="w-2 h-2 rounded-full bg-tp-ok shadow-[0_0_6px_var(--color-tp-ok)]"></div>
+                <div class="w-2 h-2 rounded-full bg-tp-accent shadow-[0_0_6px_var(--color-tp-accent)]"></div>
                 <h2 class="text-sm font-bold uppercase tracking-widest text-muted">
                     Dispositivos
                     <span class="text-tp-accent font-mono ml-1.5">{{ allDevices.length }}</span>
@@ -72,7 +72,6 @@
                 >
                     <!-- Desktop layout -->
                     <div class="hidden md:block">
-                        <!-- Main row (clickable) -->
                         <div
                             class="flex items-center gap-4 px-4 py-3 cursor-pointer select-none"
                             @click="toggleExpanded(device.id)"
@@ -84,19 +83,16 @@
                             />
                             <span class="font-mono text-xs text-muted w-16 shrink-0">{{ device.id }}</span>
                             <span class="text-sm text-white flex-1 truncate">{{ device.name }}</span>
-                            <span
-                                class="text-[10px] font-mono uppercase tracking-wider w-16 shrink-0 text-center px-2 py-0.5 rounded"
-                                :class="device.connection?.online ? 'text-tp-ok bg-tp-ok/10' : 'text-tp-danger bg-tp-danger/10'"
-                            >
-                                {{ device.connection?.online ? 'Online' : 'Offline' }}
-                            </span>
+                            <div
+                                class="w-2 h-2 rounded-full shrink-0"
+                                :class="device.connection?.online ? 'bg-tp-ok shadow-[0_0_6px_var(--color-tp-ok)]' : 'bg-tp-danger'"
+                            ></div>
                             <ChevronDown
                                 class="w-4 h-4 shrink-0 text-muted transition-transform duration-200"
                                 :class="{ 'rotate-180': expandedId === device.id }"
                             />
                         </div>
 
-                        <!-- Expanded actions -->
                         <div
                             v-show="expandedId === device.id"
                             class="border-t border-tp-border/50 px-4 py-2 bg-black/10"
@@ -110,7 +106,7 @@
                             </button>
                             <button
                                 @click.stop="sendPrefsDevice(device.id, device.prefs)"
-                                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-yellow-400 hover:bg-yellow-400/10 transition-all cursor-pointer"
+                                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
                             >
                                 <Braces class="w-4 h-4 shrink-0" />
                                 <span>Mandar preferencias</span>
@@ -134,7 +130,6 @@
 
                     <!-- Mobile layout -->
                     <div class="md:hidden">
-                        <!-- Main row (clickable) -->
                         <div
                             class="flex items-center gap-3 px-4 py-3 cursor-pointer select-none"
                             @click="toggleExpanded(device.id)"
@@ -156,7 +151,6 @@
                             />
                         </div>
 
-                        <!-- Expanded actions -->
                         <div
                             v-show="expandedId === device.id"
                             class="border-t border-tp-border/50 px-4 py-2 bg-black/10"
@@ -170,7 +164,7 @@
                             </button>
                             <button
                                 @click.stop="sendPrefsDevice(device.id, device.prefs)"
-                                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-yellow-400 hover:bg-yellow-400/10 transition-all cursor-pointer"
+                                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
                             >
                                 <Braces class="w-4 h-4 shrink-0" />
                                 <span>Mandar preferencias</span>
