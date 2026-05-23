@@ -94,37 +94,39 @@
                         </div>
 
                         <div
-                            v-show="expandedId === device.id"
-                            class="border-t border-tp-border/50 px-4 py-2 bg-black/10"
+                            class="expand-content"
+                            :class="{ 'expand-open': expandedId === device.id }"
                         >
-                            <button
-                                @click.stop="pingDevice(device.id)"
-                                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
-                            >
-                                <Radio class="w-4 h-4 shrink-0" />
-                                <span>Ping</span>
-                            </button>
-                            <button
-                                @click.stop="sendPrefsDevice(device.id, device.prefs)"
-                                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
-                            >
-                                <Braces class="w-4 h-4 shrink-0" />
-                                <span>Mandar preferencias</span>
-                            </button>
-                            <button
-                                @click.stop="getDeviceInfo(device.id)"
-                                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-blue-400 hover:bg-blue-400/10 transition-all cursor-pointer"
-                            >
-                                <Info class="w-4 h-4 shrink-0" />
-                                <span>Actualizar información</span>
-                            </button>
-                            <button
-                                @click.stop="deleteDevice(device.id)"
-                                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-danger hover:bg-tp-danger/10 transition-all cursor-pointer"
-                            >
-                                <Trash2 class="w-4 h-4 shrink-0" />
-                                <span>Eliminar dispositivo</span>
-                            </button>
+                            <div class="border-t border-tp-border/50 px-4 py-2 bg-black/10">
+                                <button
+                                    @click.stop="pingDevice(device.id)"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                >
+                                    <Radio class="w-4 h-4 shrink-0" />
+                                    <span>Ping</span>
+                                </button>
+                                <button
+                                    @click.stop="sendPrefsDevice(device.id, device.prefs)"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                >
+                                    <Braces class="w-4 h-4 shrink-0" />
+                                    <span>Mandar preferencias</span>
+                                </button>
+                                <button
+                                    @click.stop="getDeviceInfo(device.id)"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-blue-400 hover:bg-blue-400/10 transition-all cursor-pointer"
+                                >
+                                    <Info class="w-4 h-4 shrink-0" />
+                                    <span>Actualizar información</span>
+                                </button>
+                                <button
+                                    @click.stop="deleteDevice(device.id)"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-danger hover:bg-tp-danger/10 transition-all cursor-pointer"
+                                >
+                                    <Trash2 class="w-4 h-4 shrink-0" />
+                                    <span>Eliminar dispositivo</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -152,37 +154,39 @@
                         </div>
 
                         <div
-                            v-show="expandedId === device.id"
-                            class="border-t border-tp-border/50 px-4 py-2 bg-black/10"
+                            class="expand-content"
+                            :class="{ 'expand-open': expandedId === device.id }"
                         >
-                            <button
-                                @click.stop="pingDevice(device.id)"
-                                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
-                            >
-                                <Radio class="w-4 h-4 shrink-0" />
-                                <span>Ping</span>
-                            </button>
-                            <button
-                                @click.stop="sendPrefsDevice(device.id, device.prefs)"
-                                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
-                            >
-                                <Braces class="w-4 h-4 shrink-0" />
-                                <span>Mandar preferencias</span>
-                            </button>
-                            <button
-                                @click.stop="getDeviceInfo(device.id)"
-                                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-blue-400 hover:bg-blue-400/10 transition-all cursor-pointer"
-                            >
-                                <Info class="w-4 h-4 shrink-0" />
-                                <span>Actualizar información</span>
-                            </button>
-                            <button
-                                @click.stop="deleteDevice(device.id)"
-                                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-danger hover:bg-tp-danger/10 transition-all cursor-pointer"
-                            >
-                                <Trash2 class="w-4 h-4 shrink-0" />
-                                <span>Eliminar dispositivo</span>
-                            </button>
+                            <div class="border-t border-tp-border/50 px-4 py-2 bg-black/10">
+                                <button
+                                    @click.stop="pingDevice(device.id)"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                >
+                                    <Radio class="w-4 h-4 shrink-0" />
+                                    <span>Ping</span>
+                                </button>
+                                <button
+                                    @click.stop="sendPrefsDevice(device.id, device.prefs)"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                >
+                                    <Braces class="w-4 h-4 shrink-0" />
+                                    <span>Mandar preferencias</span>
+                                </button>
+                                <button
+                                    @click.stop="getDeviceInfo(device.id)"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-blue-400 hover:bg-blue-400/10 transition-all cursor-pointer"
+                                >
+                                    <Info class="w-4 h-4 shrink-0" />
+                                    <span>Actualizar información</span>
+                                </button>
+                                <button
+                                    @click.stop="deleteDevice(device.id)"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-danger hover:bg-tp-danger/10 transition-all cursor-pointer"
+                                >
+                                    <Trash2 class="w-4 h-4 shrink-0" />
+                                    <span>Eliminar dispositivo</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -192,3 +196,15 @@
     </div>
 
 </template>
+
+<style scoped>
+    .expand-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .expand-open {
+        max-height: 300px;
+    }
+</style>
