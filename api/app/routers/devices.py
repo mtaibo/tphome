@@ -131,6 +131,14 @@ def update_device(id: str, data: Update, session: Session = Depends(get_session)
 def delete_device(id: str, session: Session = Depends(get_session)):
     device = _get_device(id, session)
     reset_mem(id, session)
+    if id[0] == "B":
+        blind = session.exec(select(Blind).where(Blind.id == id)).first()
+        if blind:
+            session.delete(blind)
+    elif id[0] == "L":
+        light = session.exec(select(Light).where(Light.id == id)).first()
+        if light:
+            session.delete(light)
     session.delete(device)
     session.commit()
     return {"deleted": id}
