@@ -1,7 +1,7 @@
 <script setup>
 
     import { ref, computed, onMounted, reactive } from 'vue'
-    import { Lightbulb, Blinds, Save, ChevronDown, Trash2 } from 'lucide-vue-next'
+    import { Lightbulb, Blinds, Save, ChevronDown, Trash2, RotateCcw } from 'lucide-vue-next'
 
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
@@ -101,6 +101,14 @@
 
     function hasChanges(device) {
         return device.dirty
+    }
+
+    function resetDevice(device) {
+        device.name = device.originalName
+        device.mapX = device.originalMapX
+        device.mapY = device.originalMapY
+        device.prefs = JSON.parse(device.originalPrefs)
+        device.dirty = false
     }
 
     async function saveDevice(device) {
@@ -313,13 +321,24 @@
                                     <Save class="w-3.5 h-3.5" />
                                     {{ saving ? 'Guardando...' : 'Guardar' }}
                                 </button>
-                                <button
-                                    @click.stop="deleteDevice(device)"
-                                    class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-muted/50 hover:text-tp-danger hover:bg-tp-danger/10 border border-tp-border/20 transition-all cursor-pointer"
-                                >
-                                    <Trash2 class="w-3.5 h-3.5" />
-                                    Eliminar
-                                </button>
+                                 <button
+                                     @click.stop="resetDevice(device)"
+                                     :disabled="!hasChanges(device)"
+                                     class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+                                     :class="hasChanges(device)
+                                         ? 'text-muted/60 hover:text-muted hover:bg-white/5 border border-tp-border/20'
+                                         : 'text-muted/30 border border-tp-border/20 cursor-not-allowed'"
+                                 >
+                                     <RotateCcw class="w-3.5 h-3.5" />
+                                     Resetear
+                                 </button>
+                                 <button
+                                     @click.stop="deleteDevice(device)"
+                                     class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-muted/50 hover:text-tp-danger hover:bg-tp-danger/10 border border-tp-border/20 transition-all cursor-pointer"
+                                 >
+                                     <Trash2 class="w-3.5 h-3.5" />
+                                     Eliminar
+                                 </button>
                             </div>
                         </div>
                     </div>
