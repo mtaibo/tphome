@@ -1,6 +1,6 @@
 <script setup>
 
-    import { ref } from 'vue'
+    import { ref, onMounted } from 'vue'
     import { X, Check, ArrowLeft } from 'lucide-vue-next'
 
     import { useMap } from '@/config/map'
@@ -21,26 +21,44 @@
 
     const pickedId = ref(null)
     const picking = ref(false)
+    const error = ref(null)
 
     function onPick(id) {
         pickedId.value = id
+        error.value = null
     }
 
     async function confirm() {
         if (!pickedId.value) return
+        error.value = null
         picking.value = true
         try {
+            if (Object.keys(store.storage).length === 0) {
+                await store.setup()
+            }
+
             const category = Object.keys(store.storage).find(cat => pickedId.value in store.storage[cat])
-            if (!category) return
+            if (!category) {
+                error.value = `No se encontró ${pickedId.value} en la configuración`
+                return
+            }
+
             const prefs = store.storage[category][pickedId.value].prefs
-            await api.configurePendingDevice(props.device.mac, pickedId.value, prefs)
+            await api.configurePending(props.device.mac, pickedId.value, prefs)
             emit('done')
-        } catch (error) {
-            console.error('TPHome - Config error:', error)
+        } catch (err) {
+            error.value = `Error al configurar: ${err.message}`
+            console.error('TPHome - Config error:', err)
         } finally {
             picking.value = false
         }
     }
+
+    onMounted(async () => {
+        if (Object.keys(store.storage).length === 0) {
+            await store.setup()
+        }
+    })
 
 </script>
 
@@ -77,6 +95,10 @@
             <!-- Instruction -->
             <div class="px-6 py-3 text-[11px] font-mono uppercase tracking-widest text-muted/50 border-b border-tp-border/50 shrink-0">
                 {{ pickedId ? 'Dispositivo seleccionado: ' + pickedId : 'Haz clic en un dispositivo del plano para asignarlo' }}
+            </div>
+
+            <div v-if="error" class="px-6 py-2 text-xs text-tp-danger bg-tp-danger/10 border-b border-tp-danger/20 shrink-0">
+                {{ error }}
             </div>
 
             <!-- SVG Blueprint -->
