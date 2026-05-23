@@ -1,6 +1,6 @@
 <script setup>
 
-    import { ref, computed, onMounted } from 'vue'
+    import { ref, computed, onMounted, reactive } from 'vue'
     import { Lightbulb, Blinds, Save, ChevronDown, Trash2 } from 'lucide-vue-next'
 
     import { useDevices } from '@/config/devices'
@@ -12,26 +12,27 @@
     const loading = ref(false)
     const saving = ref(false)
     const expandedId = ref(null)
-    const changedIds = ref(new Set())
 
     const allDevices = computed(() => {
         if (!config.value) return []
         const devices = []
         for (const [category, categoryDevices] of Object.entries(config.value)) {
             for (const [id, device] of Object.entries(categoryDevices)) {
-                devices.push({
+                const prefs = { inverted_relays: false, ...device.prefs }
+                devices.push(reactive({
                     id,
                     name: device.name ?? '',
                     category,
                     type: category === 'lights' ? 'Luz' : category === 'blinds' ? 'Persiana' : category,
                     mapX: device.map?.x ?? '',
                     mapY: device.map?.y ?? '',
-                    prefs: { ...device.prefs },
+                    prefs,
                     originalName: device.name ?? '',
                     originalMapX: device.map?.x ?? '',
                     originalMapY: device.map?.y ?? '',
-                    originalPrefs: JSON.stringify(device.prefs)
-                })
+                    originalPrefs: JSON.stringify(prefs),
+                    dirty: false
+                }))
             }
         }
         return devices
@@ -41,7 +42,6 @@
         try {
             loading.value = true
             config.value = await api.getConfig('devices')
-            changedIds.value = new Set()
         } catch (error) {
             console.error('TPHome - Error fetching config:', error)
         } finally {
@@ -55,11 +55,24 @@
 
     function updatePref(device, key, value) {
         device.prefs[key] = value
-        changedIds.value = new Set(changedIds.value).add(device.id)
+        checkDirty(device)
     }
 
-    function markChanged(device) {
-        changedIds.value = new Set(changedIds.value).add(device.id)
+    function markDirty(device) {
+        checkDirty(device)
+    }
+
+    function checkDirty(device) {
+        const originalPrefs = JSON.parse(device.originalPrefs)
+        const prefsChanged = JSON.stringify(device.prefs) !== JSON.stringify(originalPrefs)
+        const nameChanged = device.name !== device.originalName
+        const mapXChanged = device.mapX !== device.originalMapX
+        const mapYChanged = device.mapY !== device.originalMapY
+        device.dirty = prefsChanged || nameChanged || mapXChanged || mapYChanged
+    }
+
+    function hasChanges(device) {
+        return device.dirty
     }
 
     async function saveDevice(device) {
@@ -82,8 +95,8 @@
             device.originalName = device.name
             device.originalMapX = device.mapX
             device.originalMapY = device.mapY
-            device.originalPrefs = JSON.stringify(device.prefs)
-            changedIds.value = new Set([...changedIds.value].filter(id => id !== device.id))
+            device.originalPrefs = JSON.stringify({ ...device.prefs })
+            device.dirty = false
         } catch (error) {
             console.error('TPHome - Error saving config:', error)
         } finally {
@@ -95,7 +108,6 @@
         if (!confirm(`¿Borrar ${device.id} del JSON de configuracion?`)) return
         if (!config.value) return
 
-        changedIds.value = new Set([...changedIds.value].filter(id => id !== device.id))
         delete config.value[device.category][device.id]
 
         try {
@@ -105,10 +117,6 @@
         } catch (error) {
             console.error('TPHome - Error deleting device:', error)
         }
-    }
-
-    function hasChanges(device) {
-        return changedIds.value.has(device.id)
     }
 
     onMounted(fetchConfig)
@@ -169,7 +177,7 @@
                                 <label class="text-xs font-mono text-muted/60 w-24 shrink-0">Nombre</label>
                                 <input
                                     v-model="device.name"
-                                    @input="markChanged(device)"
+                                    @input="markDirty(device)"
                                     class="flex-1 bg-tp-bg text-sm text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50"
                                     placeholder="Nombre del dispositivo"
                                 />
@@ -181,19 +189,19 @@
                                 <div class="flex items-center gap-2">
                                      <div class="flex items-center gap-1.5">
                                          <span class="text-xs font-mono text-muted/40 font-bold">X</span>
-                                         <input
-                                             v-model.number="device.mapX"
-                                             @input="markChanged(device)"
-                                             type="number"
+                                           <input
+                                               v-model.number="device.mapX"
+                                               @input="markDirty(device)"
+                                               type="number"
                                              class="w-20 bg-tp-bg text-sm font-mono text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                          />
                                      </div>
                                      <div class="flex items-center gap-1.5">
                                          <span class="text-xs font-mono text-muted/40 font-bold">Y</span>
-                                         <input
-                                             v-model.number="device.mapY"
-                                             @input="markChanged(device)"
-                                             type="number"
+                                           <input
+                                               v-model.number="device.mapY"
+                                               @input="markDirty(device)"
+                                               type="number"
                                              class="w-20 bg-tp-bg text-sm font-mono text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                          />
                                      </div>
