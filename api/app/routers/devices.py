@@ -159,7 +159,8 @@ def configure_device(data: ConfigureDevice, session: Session = Depends(get_sessi
     session.add(device)
 
     if data.id[0] == "B":
-        blind = Blind(id=data.id, **data.prefs.model_dump())
+        prefs_dict = data.prefs.model_dump() if isinstance(data.prefs, BlindPrefs) else data.prefs
+        blind = Blind(id=data.id, **prefs_dict)
         session.add(blind)
 
     elif data.id[0] == "L":
