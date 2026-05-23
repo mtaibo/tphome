@@ -1,7 +1,7 @@
 <script setup>
 
     import { computed } from 'vue'
-    import { Lightbulb, Blinds, Trash2, Radio, Info, Upload } from 'lucide-vue-next'
+    import { Lightbulb, Blinds, Trash2, Radio, Info, Braces } from 'lucide-vue-next'
 
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
@@ -98,7 +98,7 @@
                             class="flex items-center justify-center w-8 h-8 rounded-lg text-muted hover:text-yellow-400 hover:bg-yellow-400/10 transition-all shrink-0 cursor-pointer"
                             title="Send Prefs"
                         >
-                            <Upload class="w-4 h-4" />
+                            <Braces class="w-4 h-4" />
                         </button>
                         <button
                             @click="deleteDevice(device.id)"
@@ -142,7 +142,7 @@
                                 @click="sendPrefsDevice(device.id, device.prefs)"
                                 class="flex items-center justify-center w-9 h-9 rounded-lg text-muted hover:text-yellow-400 hover:bg-yellow-400/10 transition-all cursor-pointer"
                             >
-                                <Upload class="w-4 h-4" />
+                                <Braces class="w-4 h-4" />
                             </button>
                             <button
                                 @click="deleteDevice(device.id)"
