@@ -48,6 +48,10 @@ export const api = {
         return client.post(path, prefs)
     },
 
+    async getDeviceInfo(id) {
+        return client.post(`/admin/${id}/info`)
+    },
+
     async configurePending(mac, id, prefs) {
         return client.post('/devices/pending/configure', { mac, id, prefs })
     },
