@@ -141,8 +141,8 @@
                                 class="w-4 h-4 shrink-0"
                                 :class="device.type === 'Luz' ? 'text-yellow-400/70' : 'text-tp-accent/70'"
                             />
-                            <span class="text-sm text-white flex-1 truncate">{{ device.name }}</span>
-                            <span class="text-xs font-mono text-muted shrink-0">{{ device.id }}</span>
+                            <span class="text-sm text-white flex-1 truncate min-w-0">{{ device.name }}</span>
+                            <span class="text-xs font-mono text-muted shrink-0 whitespace-nowrap">{{ device.id }}</span>
                             <div
                                 class="w-2 h-2 rounded-full shrink-0"
                                 :class="device.connection?.online ? 'bg-tp-ok shadow-[0_0_6px_var(--color-tp-ok)]' : 'bg-tp-danger'"
@@ -201,7 +201,7 @@
     .expand-content {
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: max-height 0.4s ease-out;
     }
 
     .expand-open {
