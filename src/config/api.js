@@ -52,6 +52,10 @@ export const api = {
         return client.post('/devices/pending/configure', { mac, id, prefs })
     },
 
+    async deleteDevice(id) {
+        return client.delete(`/devices/${id}`)
+    },
+
     async triggerUpdate() {
         return client.post('/update')
     }
