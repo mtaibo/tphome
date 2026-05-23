@@ -18,7 +18,13 @@
         const devices = []
         for (const [category, categoryDevices] of Object.entries(config.value)) {
             for (const [id, device] of Object.entries(categoryDevices)) {
-                const prefs = { inverted_relays: false, ...device.prefs }
+                const rawPrefs = device.prefs ?? {}
+                const prefs = {
+                    inverted_relays: !!rawPrefs.inverted_relays,
+                    up_time: rawPrefs.up_time != null ? formatTime(rawPrefs.up_time) : '',
+                    down_time: rawPrefs.down_time != null ? formatTime(rawPrefs.down_time) : '',
+                    down_pos: rawPrefs.down_pos != null ? formatPosition(rawPrefs.down_pos) : ''
+                }
                 devices.push(reactive({
                     id,
                     name: device.name ?? '',
@@ -37,6 +43,28 @@
         }
         return devices
     })
+
+    function formatTime(raw) {
+        return (raw / 100).toFixed(1)
+    }
+
+    function formatPosition(raw) {
+        return Math.round(raw / 100)
+    }
+
+    function parseTime(value) {
+        if (value === '' || isNaN(value)) return 0
+        return Math.round(Number(String(value).replace(',', '.')) * 100)
+    }
+
+    function parsePosition(value) {
+        if (value === '' || isNaN(value)) return 0
+        return Math.round(Number(String(value).replace(',', '.')) * 100)
+    }
+
+    function normalizeInput(value) {
+        return String(value).replace(',', '.')
+    }
 
     async function fetchConfig() {
         try {
@@ -81,7 +109,12 @@
         if (!config.value[cat]?.[device.id]) return
 
         config.value[cat][device.id].name = device.name
-        config.value[cat][device.id].prefs = { ...device.prefs }
+        config.value[cat][device.id].prefs = {
+            ...device.prefs,
+            up_time: parseTime(device.prefs.up_time),
+            down_time: parseTime(device.prefs.down_time),
+            down_pos: parsePosition(device.prefs.down_pos)
+        }
         config.value[cat][device.id].map = {
             ...config.value[cat][device.id].map,
             x: device.mapX,
@@ -211,45 +244,44 @@
                             <!-- Blinds prefs -->
                             <template v-if="device.category === 'blinds'">
                                 <div class="space-y-1.5">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-xs font-mono text-muted/60 w-36 shrink-0">Tiempo de Subida</span>
-                                        <input
-                                            :value="device.prefs.up_time"
-                                            @input="updatePref(device, 'up_time', Number($event.target.value))"
-                                            type="number"
-                                            min="0"
-                                            step="0.1"
-                                            placeholder="Segundos"
-                                            class="w-24 bg-tp-bg text-sm font-mono text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                        />
-                                        <span class="text-xs text-muted/40 shrink-0">seg</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-xs font-mono text-muted/60 w-36 shrink-0">Tiempo de Bajada</span>
-                                        <input
-                                            :value="device.prefs.down_time"
-                                            @input="updatePref(device, 'down_time', Number($event.target.value))"
-                                            type="number"
-                                            min="0"
-                                            step="0.1"
-                                            placeholder="Segundos"
-                                            class="w-24 bg-tp-bg text-sm font-mono text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                        />
-                                        <span class="text-xs text-muted/40 shrink-0">seg</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-xs font-mono text-muted/60 w-36 shrink-0">Posicion de Bajada</span>
-                                        <input
-                                            :value="device.prefs.down_pos"
-                                            @input="updatePref(device, 'down_pos', Math.min(100, Math.max(0, Number($event.target.value))))"
-                                            type="number"
-                                            min="0"
-                                            max="100"
-                                            placeholder="0-100"
-                                            class="w-24 bg-tp-bg text-sm font-mono text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                        />
-                                        <span class="text-xs text-muted/40 shrink-0">%</span>
-                                    </div>
+                                     <div class="flex items-center gap-2">
+                                         <span class="text-xs font-mono text-muted/60 w-36 shrink-0">Tiempo de Subida</span>
+                                          <input
+                                              :value="device.prefs.up_time"
+                                              @input="updatePref(device, 'up_time', normalizeInput($event.target.value))"
+                                              type="text"
+                                              inputmode="decimal"
+                                              placeholder="Segundos"
+                                              class="w-24 bg-tp-bg text-sm font-mono text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50"
+                                          />
+                                         <span class="text-xs text-muted/40 shrink-0">seg</span>
+                                     </div>
+                                     <div class="flex items-center gap-2">
+                                         <span class="text-xs font-mono text-muted/60 w-36 shrink-0">Tiempo de Bajada</span>
+                                          <input
+                                              :value="device.prefs.down_time"
+                                              @input="updatePref(device, 'down_time', normalizeInput($event.target.value))"
+                                              type="text"
+                                              inputmode="decimal"
+                                              placeholder="Segundos"
+                                              class="w-24 bg-tp-bg text-sm font-mono text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50"
+                                          />
+                                         <span class="text-xs text-muted/40 shrink-0">seg</span>
+                                     </div>
+                                     <div class="flex items-center gap-2">
+                                         <span class="text-xs font-mono text-muted/60 w-36 shrink-0">Posicion de Bajada</span>
+                                         <input
+                                             :value="device.prefs.down_pos"
+                                             @input="updatePref(device, 'down_pos', Math.min(100, Math.max(0, Number($event.target.value))))"
+                                             type="number"
+                                             min="0"
+                                             max="100"
+                                             step="1"
+                                             placeholder="0-100"
+                                             class="w-24 bg-tp-bg text-sm font-mono text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                         />
+                                         <span class="text-xs text-muted/40 shrink-0">%</span>
+                                     </div>
                                     <div class="flex items-center gap-2">
                                         <span class="text-xs font-mono text-muted/60 w-36 shrink-0">Reles Invertidos</span>
                                         <button
