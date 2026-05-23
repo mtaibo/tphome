@@ -1,7 +1,7 @@
 <script setup>
 
     import { ref, computed, onMounted } from 'vue'
-    import { Lightbulb, Blinds, Save, ChevronDown, ChevronRight, Trash2, Plus } from 'lucide-vue-next'
+    import { Lightbulb, Blinds, Save, ChevronDown, Trash2 } from 'lucide-vue-next'
 
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
@@ -11,7 +11,7 @@
     const config = ref(null)
     const loading = ref(false)
     const saving = ref(false)
-    const expandedPrefs = ref({})
+    const expandedId = ref(null)
 
     const allDevices = computed(() => {
         if (!config.value) return []
@@ -44,24 +44,12 @@
         }
     }
 
-    function togglePrefs(id) {
-        expandedPrefs.value[id] = !expandedPrefs.value[id]
+    function toggleExpanded(id) {
+        expandedId.value = expandedId.value === id ? null : id
     }
 
     function updatePref(device, key, value) {
         device.prefs[key] = value
-    }
-
-    function addPref(device) {
-        const key = prompt('Nombre de la preferencia:')
-        if (!key || key in device.prefs) return
-        const value = prompt('Valor:')
-        if (value === null) return
-        device.prefs[key] = value
-    }
-
-    function removePref(device, key) {
-        delete device.prefs[key]
     }
 
     async function saveDevice(device) {
@@ -118,7 +106,7 @@
 
         <section>
             <div class="flex items-center gap-3 mb-5">
-                <div class="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_6px_var(--color-blue-400)]"></div>
+                <div class="w-2 h-2 rounded-full bg-tp-accent shadow-[0_0_6px_var(--color-tp-accent)]"></div>
                 <h2 class="text-sm font-bold uppercase tracking-widest text-muted">
                     JSON de Configuracion
                     <span class="text-tp-accent font-mono ml-1.5">{{ allDevices.length }}</span>
@@ -131,101 +119,146 @@
                 No hay dispositivos en el JSON de configuracion.
             </div>
 
-            <div v-else class="space-y-3">
+            <div v-else class="space-y-2">
                 <div
                     v-for="device in allDevices"
                     :key="device.id"
-                    class="rounded-xl bg-tp-surface border border-tp-border overflow-hidden"
+                    class="rounded-xl bg-tp-surface border border-tp-border hover:border-tp-border/60 transition-colors overflow-hidden"
                 >
-                    <div class="flex items-center gap-4 px-4 py-3">
-                        <button
-                            @click="togglePrefs(device.id)"
-                            class="p-1 rounded hover:bg-tp-border/20 transition-colors cursor-pointer"
-                        >
-                            <ChevronRight v-if="!expandedPrefs[device.id]" class="w-4 h-4 text-muted" />
-                            <ChevronDown v-else class="w-4 h-4 text-muted" />
-                        </button>
-
+                    <!-- Main row (clickable) -->
+                    <div
+                        class="flex items-center gap-4 px-4 py-3 cursor-pointer select-none"
+                        @click="toggleExpanded(device.id)"
+                    >
                         <component
                             :is="device.type === 'Luz' ? Lightbulb : Blinds"
                             class="w-4 h-4 shrink-0"
                             :class="device.type === 'Luz' ? 'text-yellow-400/70' : 'text-tp-accent/70'"
                         />
-
                         <span class="font-mono text-xs text-muted w-16 shrink-0">{{ device.id }}</span>
-
-                        <input
-                            v-model="device.name"
-                            class="flex-1 bg-transparent text-sm text-white border-none outline-none focus:ring-1 focus:ring-tp-accent/30 rounded px-1"
-                            placeholder="Nombre"
+                        <span class="text-sm text-white flex-1 truncate">{{ device.name }}</span>
+                        <ChevronDown
+                            class="w-4 h-4 shrink-0 text-muted transition-transform duration-200"
+                            :class="{ 'rotate-180': expandedId === device.id }"
                         />
-
-                        <span class="text-[10px] font-mono uppercase tracking-wider text-muted/50 w-20 shrink-0">{{ device.type }}</span>
-
-                        <div class="flex items-center gap-1 w-24 shrink-0">
-                            <span class="text-[10px] text-muted/40 mr-1">X:</span>
-                            <input
-                                v-model.number="device.mapX"
-                                type="number"
-                                class="w-12 bg-transparent text-xs font-mono text-muted border border-tp-border/30 rounded px-1 py-0.5 outline-none focus:border-tp-accent/50"
-                            />
-                            <span class="text-[10px] text-muted/40 ml-1 mr-1">Y:</span>
-                            <input
-                                v-model.number="device.mapY"
-                                type="number"
-                                class="w-12 bg-transparent text-xs font-mono text-muted border border-tp-border/30 rounded px-1 py-0.5 outline-none focus:border-tp-accent/50"
-                            />
-                        </div>
-
-                        <button
-                            @click="saveDevice(device)"
-                            :disabled="!hasChanges(device) || saving"
-                            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
-                            :class="hasChanges(device) && !saving
-                                ? 'bg-tp-ok/20 text-tp-ok border border-tp-ok/30 hover:bg-tp-ok/30'
-                                : 'bg-tp-border/10 text-muted/30 border border-tp-border/20 cursor-not-allowed'"
-                        >
-                            <Save class="w-3 h-3" />
-                            {{ saving ? '...' : '' }}
-                        </button>
-
-                        <button
-                            @click="deleteDevice(device)"
-                            class="flex items-center justify-center w-8 h-8 rounded-lg text-muted hover:text-tp-danger hover:bg-tp-danger/10 transition-all shrink-0 cursor-pointer"
-                        >
-                            <Trash2 class="w-4 h-4" />
-                        </button>
                     </div>
 
-                    <div v-if="expandedPrefs[device.id]" class="px-4 pb-3 pt-0 border-t border-tp-border/30">
-                        <div class="flex items-center gap-2 mt-3 mb-2">
-                            <span class="text-[10px] font-mono uppercase tracking-widest text-muted/50">Preferencias</span>
-                            <button
-                                @click="addPref(device)"
-                                class="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono uppercase text-tp-accent/70 hover:text-tp-accent hover:bg-tp-accent/10 transition-colors cursor-pointer"
-                            >
-                                <Plus class="w-3 h-3" />
-                                Anadir
-                            </button>
-                        </div>
-
-                        <div class="space-y-1.5">
-                            <div
-                                v-for="(value, key) in device.prefs"
-                                :key="key"
-                                class="flex items-center gap-2"
-                            >
-                                <span class="text-xs font-mono text-muted/60 w-28 shrink-0 truncate" :title="key">{{ key }}</span>
+                    <!-- Expanded content -->
+                    <div
+                        class="expand-content"
+                        :class="{ 'expand-open': expandedId === device.id }"
+                    >
+                        <div class="border-t border-tp-border/50 px-4 py-4 bg-black/10 space-y-4">
+                            <!-- Name -->
+                            <div class="flex items-center gap-3">
+                                <label class="text-xs font-mono text-muted/60 w-24 shrink-0">Nombre</label>
                                 <input
-                                    :value="value"
-                                    @input="updatePref(device, key, $event.target.value)"
-                                    class="flex-1 bg-tp-bg text-xs font-mono text-white border border-tp-border/30 rounded px-2 py-1 outline-none focus:border-tp-accent/50"
+                                    v-model="device.name"
+                                    class="flex-1 bg-tp-bg text-sm text-white border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50"
+                                    placeholder="Nombre del dispositivo"
                                 />
+                            </div>
+
+                            <!-- Position -->
+                            <div class="flex items-center gap-3">
+                                <label class="text-xs font-mono text-muted/60 w-24 shrink-0">Posicion</label>
+                                <div class="flex items-center gap-2">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-xs font-mono text-muted/40 font-bold">X</span>
+                                        <input
+                                            v-model.number="device.mapX"
+                                            type="number"
+                                            class="w-20 bg-tp-bg text-sm font-mono text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        />
+                                    </div>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-xs font-mono text-muted/40 font-bold">Y</span>
+                                        <input
+                                            v-model.number="device.mapY"
+                                            type="number"
+                                            class="w-20 bg-tp-bg text-sm font-mono text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Preferences -->
+                            <div>
+                                <label class="text-xs font-mono text-muted/60 w-24 shrink-0 block mb-2">Preferencias</label>
+
+                                <div class="space-y-1.5 ml-24">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-mono text-muted/60 w-36 shrink-0">Tiempo de Subida</span>
+                                        <input
+                                            :value="device.prefs.up_time"
+                                            @input="updatePref(device, 'up_time', Number($event.target.value))"
+                                            type="number"
+                                            min="0"
+                                            step="0.1"
+                                            placeholder="Segundos"
+                                            class="flex-1 bg-tp-bg text-sm font-mono text-white border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        />
+                                        <span class="text-xs text-muted/40 shrink-0">seg</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-mono text-muted/60 w-36 shrink-0">Tiempo de Bajada</span>
+                                        <input
+                                            :value="device.prefs.down_time"
+                                            @input="updatePref(device, 'down_time', Number($event.target.value))"
+                                            type="number"
+                                            min="0"
+                                            step="0.1"
+                                            placeholder="Segundos"
+                                            class="flex-1 bg-tp-bg text-sm font-mono text-white border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        />
+                                        <span class="text-xs text-muted/40 shrink-0">seg</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-mono text-muted/60 w-36 shrink-0">Posicion de Bajada</span>
+                                        <input
+                                            :value="device.prefs.down_pos"
+                                            @input="updatePref(device, 'down_pos', Math.min(100, Math.max(0, Number($event.target.value))))"
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            placeholder="0-100"
+                                            class="flex-1 bg-tp-bg text-sm font-mono text-white border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        />
+                                        <span class="text-xs text-muted/40 shrink-0">%</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-mono text-muted/60 w-36 shrink-0">Reles Invertidos</span>
+                                        <select
+                                            :value="device.prefs.inverted_relays"
+                                            @change="updatePref(device, 'inverted_relays', $event.target.value === 'true')"
+                                            class="flex-1 bg-tp-bg text-sm font-mono text-white border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50"
+                                        >
+                                            <option :value="true">true</option>
+                                            <option :value="false">false</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="flex items-center gap-2 pt-2">
                                 <button
-                                    @click="removePref(device, key)"
-                                    class="p-1 rounded text-muted/40 hover:text-tp-danger hover:bg-tp-danger/10 transition-colors cursor-pointer"
+                                    @click.stop="saveDevice(device)"
+                                    :disabled="!hasChanges(device) || saving"
+                                    class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+                                    :class="hasChanges(device) && !saving
+                                        ? 'bg-tp-ok/20 text-tp-ok border border-tp-ok/30 hover:bg-tp-ok/30'
+                                        : 'bg-tp-border/10 text-muted/30 border border-tp-border/20 cursor-not-allowed'"
                                 >
-                                    <Trash2 class="w-3 h-3" />
+                                    <Save class="w-3.5 h-3.5" />
+                                    {{ saving ? 'Guardando...' : 'Guardar' }}
+                                </button>
+                                <button
+                                    @click.stop="deleteDevice(device)"
+                                    class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-muted/50 hover:text-tp-danger hover:bg-tp-danger/10 border border-tp-border/20 transition-all cursor-pointer"
+                                >
+                                    <Trash2 class="w-3.5 h-3.5" />
+                                    Eliminar
                                 </button>
                             </div>
                         </div>
@@ -237,3 +270,15 @@
     </div>
 
 </template>
+
+<style scoped>
+    .expand-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease-out;
+    }
+
+    .expand-open {
+        max-height: 800px;
+    }
+</style>
