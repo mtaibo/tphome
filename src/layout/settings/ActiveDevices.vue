@@ -14,12 +14,10 @@
         return [...blinds, ...lights]
     })
 
-    async function deleteDevice(category, id) {
+    async function deleteDevice(id) {
         if (!confirm(`¿Borrar ${id}?`)) return
         try {
-            const config = await api.getConfig('devices')
-            delete config[category][id]
-            await api.postConfig('devices', config)
+            await api.deleteDevice(id)
             await store.setup()
         } catch (error) {
             console.error('TPHome - Error deleting device:', error)
@@ -58,7 +56,6 @@
                     />
                     <span class="font-mono text-xs text-muted w-16 shrink-0">{{ device.id }}</span>
                     <span class="text-sm text-white flex-1 truncate">{{ device.name }}</span>
-                    <span class="text-[10px] font-mono uppercase tracking-wider text-muted/50 w-20 shrink-0">{{ device.type }}</span>
                     <span
                         class="text-[10px] font-mono uppercase tracking-wider w-16 shrink-0 text-center px-2 py-0.5 rounded"
                         :class="device.connection?.online ? 'text-tp-ok bg-tp-ok/10' : 'text-tp-danger bg-tp-danger/10'"
@@ -66,7 +63,7 @@
                         {{ device.connection?.online ? 'Online' : 'Offline' }}
                     </span>
                     <button
-                        @click="deleteDevice(device.category, device.id)"
+                        @click="deleteDevice(device.id)"
                         class="flex items-center justify-center w-8 h-8 rounded-lg text-muted hover:text-tp-danger hover:bg-tp-danger/10 transition-all shrink-0 cursor-pointer"
                     >
                         <Trash2 class="w-4 h-4" />
