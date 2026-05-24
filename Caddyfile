@@ -12,6 +12,10 @@
         reverse_proxy tphome-api:8000
     }
 
+    handle /firmware {
+        reverse_proxy tphome-api:8000
+    }
+
     handle {
         reverse_proxy tphome-frontend:80
     }

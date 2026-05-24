@@ -62,5 +62,33 @@ export const api = {
 
     async triggerUpdate() {
         return client.post('/update')
+    },
+
+    async uploadFirmware(file, metadata) {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('name', metadata.name)
+        formData.append('chip', metadata.chip)
+        formData.append('target', metadata.target)
+        formData.append('version', metadata.version)
+        formData.append('notes', metadata.notes || '')
+
+        const response = await client.post('/firmware/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        return response.data
+    },
+
+    async getFirmwares() {
+        const response = await client.get('/firmware')
+        return response.data
+    },
+
+    async activateFirmware(id) {
+        return client.post(`/firmware/${id}/activate`)
+    },
+
+    async deleteFirmware(id) {
+        return client.delete(`/firmware/${id}`)
     }
 }

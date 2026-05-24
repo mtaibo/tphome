@@ -2,7 +2,7 @@
 
     import { ref, computed } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
-    import { LayoutDashboard, Blinds, Lightbulb, Settings, PanelLeftClose, PanelLeftOpen, Smartphone, ArrowLeft, Clock, Code } from 'lucide-vue-next'
+    import { LayoutDashboard, Blinds, Lightbulb, Settings, PanelLeftClose, PanelLeftOpen, Smartphone, ArrowLeft, Clock, Code, Cpu } from 'lucide-vue-next'
 
     import Header from '@/components/sidebar/Header.vue'
     import NavButton from '@/components/sidebar/NavButton.vue'
@@ -20,9 +20,10 @@
     ]
 
     const settingsItems = [
-        { id: 'active',  name: 'Dispositivos', icon: Smartphone },
-        { id: 'pending', name: 'Pendientes',   icon: Clock },
-        { id: 'json',    name: 'JSON',         icon: Code }
+        { id: 'active',    name: 'Dispositivos', icon: Smartphone },
+        { id: 'pending',   name: 'Pendientes',   icon: Clock },
+        { id: 'json',      name: 'JSON',         icon: Code },
+        { id: 'firmware',  name: 'Firmware',     icon: Cpu }
     ]
 
     const router = useRouter()

@@ -7,6 +7,7 @@
     import ActiveDevices from '@/layout/settings/ActiveDevices.vue'
     import PendingDevices from '@/layout/settings/PendingDevices.vue'
     import JsonEditor from '@/layout/settings/JsonEditor.vue'
+    import FirmwareManager from '@/layout/settings/FirmwareManager.vue'
 
     const activeItem = ref('active')
 
@@ -22,6 +23,7 @@
             <ActiveDevices v-if="activeItem === 'active'" />
             <PendingDevices v-else-if="activeItem === 'pending'" />
             <JsonEditor v-else-if="activeItem === 'json'" />
+            <FirmwareManager v-else-if="activeItem === 'firmware'" />
         </main>
 
         <SettingsBottomBar v-model:activeItem="activeItem" />
