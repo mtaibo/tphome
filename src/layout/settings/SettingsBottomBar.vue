@@ -1,7 +1,7 @@
 <script setup>
 
     import { useRouter } from 'vue-router'
-    import { Smartphone, Clock, Code, ArrowLeft } from 'lucide-vue-next'
+    import { Smartphone, Clock, Code, Cpu, ArrowLeft } from 'lucide-vue-next'
 
     const props = defineProps({
         activeItem: { type: String, default: 'active' }
@@ -11,9 +11,10 @@
     const router = useRouter()
 
     const navItems = [
-        { id: 'active',  name: 'Dispositivos', icon: Smartphone },
-        { id: 'pending', name: 'Pendientes',   icon: Clock },
-        { id: 'json',    name: 'JSON',         icon: Code },
+        { id: 'active',    name: 'Dispositivos', icon: Smartphone },
+        { id: 'pending',   name: 'Pendientes',   icon: Clock },
+        { id: 'json',      name: 'JSON',         icon: Code },
+        { id: 'firmware',  name: 'Firmware',     icon: Cpu },
     ]
 
     function setActive(id) {
