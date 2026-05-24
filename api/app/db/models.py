@@ -44,3 +44,14 @@ class Blind(SQLModel, table=True):
 class Light(SQLModel, table=True):
     id: str = Field(foreign_key="device.id", primary_key=True)
     on: bool = False
+
+
+class FirmwareInfo(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)
+    name: str
+    chip: str
+    target: str
+    version: str
+    notes: str = ""
+    uploaded_at: str
+    active: bool = False

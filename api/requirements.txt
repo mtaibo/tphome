@@ -2,3 +2,4 @@ fastapi
 uvicorn[standard]
 sqlmodel
 paho-mqtt
+python-multipart
