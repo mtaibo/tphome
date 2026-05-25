@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from fastapi.responses import FileResponse
 from sqlmodel import Session, select
+from sqlalchemy import update
 from db.database import get_session
 from db.models import FirmwareInfo
 import os
@@ -85,7 +86,7 @@ def list_firmware(session: Session = Depends(get_session)):
 def activate_firmware(fw_id: int, session: Session = Depends(get_session)):
     fw = _get_firmware(fw_id, session)
 
-    session.exec(select(FirmwareInfo).where(FirmwareInfo.active == True).update({"active": False}, synchronize_session=False))
+    session.exec(update(FirmwareInfo).where(FirmwareInfo.active == True).values(active=False))
     fw.active = True
     session.add(fw)
     session.commit()
