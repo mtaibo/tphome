@@ -19,7 +19,7 @@ def _get_firmware(id: int, session: Session) -> FirmwareInfo:
     return fw
 
 
-@router.post("/api/firmware/upload")
+@router.post("/firmware/upload")
 async def upload_firmware(
     file: UploadFile = File(...),
     name: str = Form(...),
@@ -63,7 +63,7 @@ async def upload_firmware(
     }
 
 
-@router.get("/api/firmware")
+@router.get("/firmware/list")
 def list_firmware(session: Session = Depends(get_session)):
     firmwares = session.exec(select(FirmwareInfo).order_by(FirmwareInfo.uploaded_at.desc())).all()
     return [
@@ -81,7 +81,7 @@ def list_firmware(session: Session = Depends(get_session)):
     ]
 
 
-@router.post("/api/firmware/{fw_id}/activate")
+@router.post("/firmware/{fw_id}/activate")
 def activate_firmware(fw_id: int, session: Session = Depends(get_session)):
     fw = _get_firmware(fw_id, session)
 
@@ -93,7 +93,7 @@ def activate_firmware(fw_id: int, session: Session = Depends(get_session)):
     return {"id": fw.id, "name": fw.name, "active": True}
 
 
-@router.delete("/api/firmware/{fw_id}")
+@router.delete("/firmware/{fw_id}")
 def delete_firmware(fw_id: int, session: Session = Depends(get_session)):
     fw = _get_firmware(fw_id, session)
 
