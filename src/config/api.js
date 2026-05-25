@@ -80,7 +80,7 @@ export const api = {
     },
 
     async getFirmwares() {
-        const response = await client.get('/firmware')
+        const response = await client.get('/firmware/list')
         return response.data
     },
 
