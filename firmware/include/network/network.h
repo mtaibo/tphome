@@ -13,7 +13,7 @@ namespace Network {
         Wifi::setup();
         Mqtt::setup();
         Mqtt::setCallback(Commands::callback);
-        Mode::set(Mode::CONNECTION);
+        Mode::set(Mode::NORMAL);
     }
 
     bool inline isConnected() {
@@ -24,13 +24,11 @@ namespace Network {
         Wifi::update();
         if (Wifi::isConnected()) Mqtt::update();
 
-        // Leds on normal mode
         if (Mode::is(Mode::Value::NORMAL)) {
-            if (Wifi::isOnTimeout() || Mqtt::isOnTimeout()) Leds::set(Pins::LED_GREEN, Leds::ON);
-            else Leds::set(Pins::LED_GREEN, Leds::OFF);
+            if (Wifi::isConnected() && Mqtt::isConnected()) Leds::set(Pins::LED_GREEN, Leds::OFF);
+            else Leds::set(Pins::LED_GREEN, Leds::ON);
         }
 
-        // Leds on connection mode
         if (Mode::is(Mode::Value::CONNECTION)) {
             if (Wifi::isConnected()) Leds::set(Pins::LED_MID, Leds::BLUE);
             else Leds::set(Pins::LED_MID, Leds::RED);
@@ -38,11 +36,6 @@ namespace Network {
             if (Mqtt::isConnected()) Leds::set(Pins::LED_BTM, Leds::BLUE);
             else Leds::set(Pins::LED_BTM, Leds::RED);
         }
-    }
-
-    void inline reconnect() {
-        if (!Wifi::isConnected()) Wifi::reconnect();
-        else if (!Mqtt::isConnected()) Mqtt::reconnect();
     }
 }
 
