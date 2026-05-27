@@ -60,6 +60,10 @@ export const api = {
         return client.delete(`/devices/${id}`)
     },
 
+    async sendOTA(id, version) {
+        return client.post(`/admin/${id}/ota`, null, { params: { version } })
+    },
+
     async triggerUpdate() {
         return client.post('/update')
     },
