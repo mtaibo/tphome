@@ -1,7 +1,7 @@
 <script setup>
 
     import { ref, computed } from 'vue'
-    import { Lightbulb, Blinds, Trash2, Radio, Info, Braces, ChevronDown } from 'lucide-vue-next'
+    import { Lightbulb, Blinds, Trash2, Radio, Info, Braces, ChevronDown, Download } from 'lucide-vue-next'
 
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
@@ -43,6 +43,20 @@
         } catch (error) {
             console.error('TPHome - Error deleting device:', error)
         }
+    }
+
+    async function updateFirmware(id) {
+        if (!confirm(`¿Actualizar firmware de ${id}? El dispositivo descargará el firmware activo.`)) return
+        try {
+            const firmwares = await api.getFirmwares()
+            const activeFw = firmwares.find(fw => fw.active)
+            if (!activeFw) {
+                alert('No hay firmware activo. Activa uno primero.')
+                return
+            }
+            await api.sendOTA(id, activeFw.version)
+        }
+        catch (error) { console.error('TPHome - OTA error:', error) }
     }
 
 </script>
@@ -113,6 +127,13 @@
                                     <span>Mandar preferencias</span>
                                 </button>
                                 <button
+                                    @click.stop="updateFirmware(device.id)"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                >
+                                    <Download class="w-4 h-4 shrink-0" />
+                                    <span>Cambiar firmware</span>
+                                </button>
+                                <button
                                     @click.stop="getDeviceInfo(device.id)"
                                     class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-blue-400 hover:bg-blue-400/10 transition-all cursor-pointer"
                                 >
@@ -171,6 +192,13 @@
                                 >
                                     <Braces class="w-4 h-4 shrink-0" />
                                     <span>Mandar preferencias</span>
+                                </button>
+                                <button
+                                    @click.stop="updateFirmware(device.id)"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                >
+                                    <Download class="w-4 h-4 shrink-0" />
+                                    <span>Cambiar firmware</span>
                                 </button>
                                 <button
                                     @click.stop="getDeviceInfo(device.id)"
