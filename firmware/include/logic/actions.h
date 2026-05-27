@@ -23,10 +23,7 @@ namespace Actions {
             if (Mode::is(Mode::Value::CONNECTION)) {
 
                 if (auto action = Buttons::getAction(Pins::BTN_TOP)) {
-                    if (action == Buttons::SHORT) {
-                        if(!Network::isConnected()) Network::reconnect();
-                        else Mode::set(Mode::Value::NORMAL);
-                    }
+                    if (action == Buttons::SHORT) Mode::set(Mode::Value::NORMAL);
                     else if (action == Buttons::MEDIUM) {}
                     else if (action == Buttons::LONG) {}
                 }
@@ -43,7 +40,7 @@ namespace Actions {
                     else if (action == Buttons::LONG) {}
                 }
 
-            } else { // NORMAL BLIND MODE
+            } else {
 
                 if (auto action = Buttons::getAction(Pins::BTN_TOP)) {
                     if (action == Buttons::SHORT) Blinds::Position::set(10000);
