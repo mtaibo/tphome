@@ -89,8 +89,6 @@ The following table summarises the LED states the firmware uses across all modes
 
 | Situation | LED | State |
 |---|---|---|
-| WiFi connecting | Green | Fast blink |
-| MQTT connecting | Green | Slow blink |
 | Connected (normal mode) | Green | Off |
 | Disconnected timeout (normal mode) | Green | On (solid) |
 | CONNECTION mode active | Top | Slow blink |
