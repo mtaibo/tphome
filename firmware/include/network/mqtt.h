@@ -13,7 +13,6 @@ namespace Mqtt {
     struct State {
         uint32_t lastTime = 0;
         bool isConnected = false;
-        bool ledOn = false;
     };
 
     struct Topics {
@@ -82,11 +81,6 @@ namespace Mqtt {
 
             if (now - _state.lastTime > RECONNECT_INTERVAL) {
 
-                if (_state.ledOn == false) {
-                    Leds::set(Pins::LED_GREEN, Leds::BLINK, Leds::SLOW);
-                    _state.ledOn = true;
-                }
-
                 const char offlineByte = 0xFF;
 
                 _client.disconnect();
@@ -103,9 +97,7 @@ namespace Mqtt {
                 }
             }
 
-        } else if (_state.ledOn) {Leds::set(Pins::LED_GREEN, Leds::OFF); _state.ledOn = false;}
-        
-        else {
+        } else {
             _state.isConnected = true;
             _state.lastTime = now;
 

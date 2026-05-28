@@ -2,7 +2,6 @@
 #define WIFI_H
 
 #include "settings.h"
-#include "leds.h"
 
 #if defined(DEVICE_HARDWARE_ESP8266)
     #include "hardware/esp8266/driver_wifi.h"
@@ -17,7 +16,6 @@ namespace Wifi {
     struct State {
         uint32_t lastTime = 0;
         bool isConnected = false;
-        bool ledOn = false;
     };
 
     inline static State _state;
@@ -31,9 +29,7 @@ namespace Wifi {
         Hardware::Wifi::setup(Settings::config.deviceID);
 
         Hardware::Wifi::begin(Settings::config.wifiSSID, Settings::config.wifiPass);
-        Leds::set(Pins::LED_GREEN, Leds::BLINK, Leds::FAST);
         _state.lastTime = millis();
-        _state.ledOn = true;
     }
 
     inline void update() {
@@ -62,7 +58,6 @@ namespace Wifi {
         } 
         
         else {
-            if (_state.ledOn) {Leds::set(Pins::LED_GREEN, Leds::OFF); _state.ledOn = false;}
             _state.isConnected = true;
             _state.lastTime = now;
         }
