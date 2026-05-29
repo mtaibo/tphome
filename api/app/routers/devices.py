@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from typing import Union
 from routers.admin import reset_mem
 import mqtt
+import struct
 
 router = APIRouter(tags=["Devices"])
 
@@ -176,7 +177,19 @@ def configure_device(data: ConfigureDevice, session: Session = Depends(get_sessi
         session.rollback()
         raise HTTPException(status_code=500, detail=f"Database error during configuration: {e}")
 
-    # Send new ID to device via MQTT
-    mqtt.publish(f"def/{data.mac}/a", _encode_device_id(data.id))
+    # Send new ID + prefs to device via MQTT
+    device_id_bytes = _encode_device_id(data.id)
+
+    if data.id[0] == "B":
+        prefs = data.prefs if isinstance(data.prefs, dict) else data.prefs.model_dump()
+        prefs_payload = struct.pack('<HHH?',
+            prefs['up_time'],
+            prefs['down_time'],
+            prefs['down_pos'],
+            prefs['inverted_relays']
+        )
+        mqtt.publish(f"def/{data.mac}/a", device_id_bytes + prefs_payload)
+    else:
+        mqtt.publish(f"def/{data.mac}/a", device_id_bytes)
 
     return {"configured": { "id": data.id, "mac": data.mac}}
