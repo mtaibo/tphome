@@ -179,6 +179,7 @@ def configure_device(data: ConfigureDevice, session: Session = Depends(get_sessi
 
     # Send new ID + prefs to device via MQTT
     device_id_bytes = _encode_device_id(data.id)
+    mac4 = data.mac.replace(":", "").upper()[-4:]
 
     if data.id[0] == "B":
         prefs = data.prefs if isinstance(data.prefs, dict) else data.prefs.model_dump()
@@ -188,8 +189,8 @@ def configure_device(data: ConfigureDevice, session: Session = Depends(get_sessi
             prefs['down_pos'],
             prefs['inverted_relays']
         )
-        mqtt.publish(f"def/{data.mac}/a", device_id_bytes + prefs_payload)
+        mqtt.publish(f"def/{mac4}/a", device_id_bytes + prefs_payload)
     else:
-        mqtt.publish(f"def/{data.mac}/a", device_id_bytes)
+        mqtt.publish(f"def/{mac4}/a", device_id_bytes)
 
     return {"configured": { "id": data.id, "mac": data.mac}}
