@@ -48,6 +48,10 @@ export const api = {
         return client.post(path, prefs)
     },
 
+    async resetPosition(id) {
+        return client.post(`/admin/${id}/set/50`)
+    },
+
     async getDeviceInfo(id) {
         return client.post(`/admin/${id}/info`)
     },

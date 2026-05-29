@@ -1,7 +1,7 @@
 <script setup>
 
     import { ref, computed } from 'vue'
-    import { Lightbulb, Blinds, Trash2, Radio, Info, Braces, ChevronDown, Download } from 'lucide-vue-next'
+    import { Lightbulb, Blinds, Trash2, Radio, Info, Braces, ChevronDown, Download, Crosshair } from 'lucide-vue-next'
 
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
@@ -33,6 +33,12 @@
     async function sendPrefsDevice(id, prefs) {
         try { await api.sendPrefs(id, prefs) }
         catch (error) { console.error('TPHome - Prefs error:', error) }
+    }
+
+    async function resetPosition(id) {
+        if (!confirm(`¿Reiniciar posición de ${id} al 50%?`)) return
+        try { await api.resetPosition(id) }
+        catch (error) { console.error('TPHome - Reset position error:', error) }
     }
 
     async function deleteDevice(id) {
@@ -141,6 +147,14 @@
                                     <span>Actualizar información</span>
                                 </button>
                                 <button
+                                    v-if="device.type === 'Persiana'"
+                                    @click.stop="resetPosition(device.id)"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                >
+                                    <Crosshair class="w-4 h-4 shrink-0" />
+                                    <span>Reiniciar posición</span>
+                                </button>
+                                <button
                                     @click.stop="deleteDevice(device.id)"
                                     class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-danger hover:bg-tp-danger/10 transition-all cursor-pointer"
                                 >
@@ -206,6 +220,14 @@
                                 >
                                     <Info class="w-4 h-4 shrink-0" />
                                     <span>Actualizar información</span>
+                                </button>
+                                <button
+                                    v-if="device.type === 'Persiana'"
+                                    @click.stop="resetPosition(device.id)"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                >
+                                    <Crosshair class="w-4 h-4 shrink-0" />
+                                    <span>Reiniciar posición</span>
                                 </button>
                                 <button
                                     @click.stop="deleteDevice(device.id)"
