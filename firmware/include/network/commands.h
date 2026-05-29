@@ -42,6 +42,12 @@ namespace Commands {
         uint8_t device;
     };
 
+    /* Combined deviceID + preferences for initial provisioning */
+    struct __attribute__((packed)) ProvisionData {
+        DeviceID id;
+        Settings::Prefs prefs;
+    };
+
     /* Get, if the device is connected, a 1 */
     void ping() {
         uint8_t payload = 1;
@@ -181,12 +187,13 @@ namespace Commands {
         if (strlen(Settings::config.deviceID) == 4) {
 
             if (strcmp(topic, Mqtt::topics.def) != 0) return; // Check topic
-            if (length != sizeof(DeviceID))           return; // Check length
+            if (length != sizeof(ProvisionData))            return; // Check length
 
-            /* Build new deviceID */
-            const auto* id = reinterpret_cast<const DeviceID*>(payload);
+            /* Build new deviceID and apply preferences */
+            const auto* prov = reinterpret_cast<const ProvisionData*>(payload);
             snprintf(Settings::config.deviceID, 6, "%c%02d%02d",
-                     id->type, id->zone % 100, id->device % 100);
+                     prov->id.type, prov->id.zone % 100, prov->id.device % 100);
+            Settings::prefs = prov->prefs;
 
             /* Reboot with new deviceID to build new topics */
             Settings::save();
