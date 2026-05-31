@@ -31,7 +31,7 @@ export const api = {
     /* Function to publish the devices or the map new config json file */
     async postConfig(subject, newConfig) {
         let path = `/config/${subject}`
-        return client.post(path, newConfig)
+        return client.put(path, newConfig)
     },
 
     /* Function to build commands requests */

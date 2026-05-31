@@ -90,7 +90,7 @@ tphome/
 |---|---|---|
 | GET | `/api/devices` | List all devices with current state |
 | GET | `/api/config/{subject}` | Get config JSON (devices or map) |
-| POST | `/api/config/{subject}` | Update config JSON |
+| PUT | `/api/config/{subject}` | Update config JSON |
 | POST | `/commands/{id}/{action}` | Send command to device |
 | POST | `/commands/{id}/set/{value}` | Set blind position |
 | POST | `/admin/{id}/prefs` | Update device preferences |
