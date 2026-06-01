@@ -26,6 +26,9 @@
 
     <div class="flex flex-col md:flex-row h-full w-full overflow-hidden">
 
+        <!-- Dot background - top-20 to not be shown below topbar due to its oppacity -->
+        <div class="fixed inset-0 md:top-20 bg-grid-dots pointer-events-none z-0"></div>
+
         <!-- Blueprint itself -->
         <div class="flex-1 flex items-center justify-center p-4 md:p-12 transition-all duration-500 ease-in-out min-h-0">
             <svg :viewBox="map.storage.viewBox ?? '0 0 0 0'" class="w-full h-auto max-w-3xl drop-shadow-2xl" xmlns="http://www.w3.org/2000/svg">
