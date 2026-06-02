@@ -22,7 +22,7 @@
 
 <template>
 
-        <header class="h-20 z-10 hidden md:flex items-center justify-between px-10 bg-tp-surface/60 border-b border-tp-border">
+    <header class="fixed top-0 right-0 left-0 md:left-64 h-20 z-20 hidden md:flex items-center justify-between px-10 bg-tp-surface/60 border-b border-tp-border backdrop-blur-md">
 
         <div class="flex items-center gap-6"> 
             
