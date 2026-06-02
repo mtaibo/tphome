@@ -11,7 +11,7 @@
     const store = useDevices()
     const map = useMap()
 
-    const activeItem = ref('blueprint')
+    const activeSection = ref('blueprint')
     const navItems = [
         { id: 'blueprint', name: 'Plano',     icon: LayoutDashboard },
         { id: 'lights',    name: 'Luces',     icon: Lightbulb       },
@@ -35,9 +35,9 @@
             <button
                 v-for="item in navItems"
                 :key="item.id"
-                @click="activeItem = item.id"
+                @click="activeSection = item.id"
                 class="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer"
-                :class="activeItem === item.id
+                :class="activeSection === item.id
                     ? 'text-tp-accent bg-tp-accent/10'
                     : 'text-muted hover:text-white hover:bg-tp-border/20'"
             >
@@ -57,7 +57,7 @@
             <RouterLink
                 to="/settings"
                 class="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95"
-                :class="activeItem === 'settings'
+                :class="activeSection === 'settings'
                     ? 'text-tp-accent bg-tp-accent/10'
                     : 'text-muted hover:text-white hover:bg-tp-border/20'"
             >

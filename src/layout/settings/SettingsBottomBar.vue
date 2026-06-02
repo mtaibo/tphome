@@ -4,9 +4,9 @@
     import { Smartphone, Clock, Code, Cpu, ArrowLeft } from 'lucide-vue-next'
 
     const props = defineProps({
-        activeItem: { type: String, default: 'active' }
+        activeSection: { type: String, default: 'active' }
     })
-    const emit = defineEmits(['update:activeItem'])
+    const emit = defineEmits(['update:activeSection'])
 
     const router = useRouter()
 
@@ -18,7 +18,7 @@
     ]
 
     function setActive(id) {
-        emit('update:activeItem', id)
+        emit('update:activeSection', id)
     }
 
 </script>
@@ -33,7 +33,7 @@
                 :key="item.id"
                 @click="setActive(item.id)"
                 class="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer"
-                :class="activeItem === item.id
+                :class="activeSection === item.id
                     ? 'text-tp-accent bg-tp-accent/10'
                     : 'text-muted hover:text-white hover:bg-tp-border/20'"
             >

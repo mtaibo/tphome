@@ -9,7 +9,7 @@
     import JsonEditor from '@/layout/settings/JsonEditor.vue'
     import FirmwareManager from '@/layout/settings/FirmwareManager.vue'
 
-    const activeItem = ref('active')
+    const activeSection = ref('active')
 
 </script>
 
@@ -17,16 +17,16 @@
 
     <div class="flex h-screen w-screen overflow-hidden font-sans bg-tp-bg text-slate-200">
 
-        <Sidebar v-model:activeItem="activeItem" />
+        <Sidebar v-model:activeSection="activeSection" />
 
         <main class="flex-1 overflow-hidden pb-18 md:pb-0">
-            <ActiveDevices   v-if      = " activeItem === 'active'   " />
-            <PendingDevices  v-else-if = " activeItem === 'pending'  " />
-            <JsonEditor      v-else-if = " activeItem === 'json'     " />
-            <FirmwareManager v-else-if = " activeItem === 'firmware' " />
+            <ActiveDevices   v-if      = " activeSection === 'active'   " />
+            <PendingDevices  v-else-if = " activeSection === 'pending'  " />
+            <JsonEditor      v-else-if = " activeSection === 'json'     " />
+            <FirmwareManager v-else-if = " activeSection === 'firmware' " />
         </main>
 
-        <SettingsBottomBar v-model:activeItem="activeItem" />
+        <SettingsBottomBar v-model:activeSection="activeSection" />
 
     </div>
 

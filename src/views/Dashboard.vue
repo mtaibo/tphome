@@ -1,17 +1,21 @@
 <script setup>
 
-    /* Fixed layout */
     import Sidebar from '@/layout/Sidebar.vue';
-    import BottomBar from '@/layout/dashboard/BottomBar.vue';
-
-    /* Custom layout */
+    import Bottombar from '@/layout/BottomBar.vue';
     import Topbar from '@/layout/dashboard/Topbar.vue';
 
     /* Content */
     import Blueprint from '@/layout/dashboard/Blueprint.vue';
 
-    import { ref } from 'vue'
+    import { ref, computed } from 'vue'
     const activeSection = ref('blueprint')
+
+    const currentComponent = computed(() => {
+        const sections = {
+            blueprint: Blueprint
+        }
+        return sections[activeSection.value]
+    })
 
 </script>
 
@@ -19,17 +23,14 @@
 
     <div class="flex h-screen w-screen overflow-clip font-sans bg-tp-bg text-slate-200">
     
-        <Sidebar v-model:activeItem="activeSection" />
-        <BottomBar />
-
+        <!-- LAYOUT -->
         <Topbar />
+        <Bottombar />
+        <Sidebar v-model:activeSection="activeSection" />
 
-        <main class="flex flex-1 relative overflow-hidden pb-18 md:pb-0 pt-20 z-10">
-
-            <section class="flex-1 relative overflow-hidden">
-                <Blueprint v-if="activeSection === 'blueprint'" />
-            </section>
-
+        <!-- CONTENT -->
+        <main class="flex-1 relative overflow-hidden pb-18 md:pb-0 pt-20 z-10">
+            <component :is="currentComponent" class="w-full h-full"/>
         </main>
 
     </div>
