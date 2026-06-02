@@ -20,10 +20,10 @@
         <Sidebar v-model:activeItem="activeItem" />
 
         <main class="flex-1 overflow-hidden pb-18 md:pb-0">
-            <ActiveDevices v-if="activeItem === 'active'" />
-            <PendingDevices v-else-if="activeItem === 'pending'" />
-            <JsonEditor v-else-if="activeItem === 'json'" />
-            <FirmwareManager v-else-if="activeItem === 'firmware'" />
+            <ActiveDevices   v-if      = " activeItem === 'active'   " />
+            <PendingDevices  v-else-if = " activeItem === 'pending'  " />
+            <JsonEditor      v-else-if = " activeItem === 'json'     " />
+            <FirmwareManager v-else-if = " activeItem === 'firmware' " />
         </main>
 
         <SettingsBottomBar v-model:activeItem="activeItem" />
