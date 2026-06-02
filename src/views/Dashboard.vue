@@ -20,6 +20,8 @@
     <div class="flex h-screen w-screen overflow-clip font-sans bg-tp-bg text-slate-200">
     
         <Sidebar v-model:activeItem="activeSection" />
+        <BottomBar />
+
         <Topbar />
 
         <main class="flex flex-1 relative overflow-hidden pb-18 md:pb-0 pt-20 z-10">
@@ -29,8 +31,6 @@
             </section>
 
         </main>
-
-        <BottomBar />
 
     </div>
 
