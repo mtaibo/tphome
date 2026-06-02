@@ -9,9 +9,9 @@
     import UserCard from '@/components/sidebar/UserCard.vue'
 
     const props = defineProps({
-        activeItem: { type: String, default: 'blueprint' }
+        activeSection: { type: String, default: 'blueprint' }
     })
-    const emit = defineEmits(['update:activeItem'])
+    const emit = defineEmits(['update:activeSection'])
 
     const dashboardItems = [
         { id: 'blueprint', name: 'Plano',     icon: LayoutDashboard },
@@ -36,7 +36,7 @@
     const toggle = () => { collapsed.value = !collapsed.value }
 
     function setActive(id) {
-        emit('update:activeItem', id)
+        emit('update:activeSection', id)
     }
 
 </script>
@@ -56,7 +56,7 @@
                 :key="item.id"
                 :icon="item.icon"
                 :label="item.name"
-                :active="props.activeItem === item.id"
+                :active="props.activeSection === item.id"
                 :collapsed="collapsed"
                 :nav-item="true"
                 @click="setActive(item.id)"
