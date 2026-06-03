@@ -6,7 +6,7 @@
 
     import Sidebar from '@/layout/Sidebar.vue';
     import Bottombar from '@/layout/Bottombar.vue';
-    import Topbar from '@/layout/dashboard/Topbar.vue';
+    import Topbar from '@/layout/Topbar.vue';
 
     import Blueprint from '@/layout/dashboard/Blueprint.vue';
 

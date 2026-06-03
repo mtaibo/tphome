@@ -68,7 +68,7 @@
 
             <button
                 @click="router.push('/settings')"
-                class="items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95"
+                class="items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer text-muted hover:text-tp-accent hover:bg-tp-border/20"
                 :class="isDashboard ? 'flex' : 'hidden'"
             >
                 <Settings class="w-4 h-4" />
