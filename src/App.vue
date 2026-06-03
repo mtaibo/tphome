@@ -15,6 +15,4 @@
 
 </script>
 
-<template>
-    <RouterView class="flex h-screen w-screen overflow-clip font-sans bg-tp-bg text-slate-200"/>
-</template>
+<template><RouterView /></template>

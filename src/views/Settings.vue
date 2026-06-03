@@ -2,6 +2,8 @@
 
     import { ref, computed } from 'vue'
 
+    import PageLayout from '@/layout/PageLayout.vue'
+
     import Sidebar from '@/layout/Sidebar.vue'
     import Bottombar from '@/layout/Bottombar.vue'
 
@@ -27,8 +29,12 @@
 
 <template>
 
-    <Sidebar v-model:activeSection="activeSection" />
-    <main> <component  :is="activeComponent" /> </main>
-    <Bottombar v-model:activeSection="activeSection" />
+    <PageLayout>
+
+        <Sidebar v-model:activeSection="activeSection" />
+        <main> <component  :is="activeComponent" /> </main>
+        <Bottombar v-model:activeSection="activeSection" />
+
+    </PageLayout>
 
 </template>
