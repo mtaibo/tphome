@@ -2,24 +2,23 @@
 
     import { ref, computed } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
+
     import { LayoutDashboard, Blinds, Lightbulb, Settings, PanelLeftClose, PanelLeftOpen, Smartphone, ArrowLeft, Clock, Code, Cpu } from 'lucide-vue-next'
 
     import Header from '@/components/sidebar/Header.vue'
     import NavButton from '@/components/sidebar/NavButton.vue'
     import UserCard from '@/components/sidebar/UserCard.vue'
 
-    const props = defineProps({
-        activeSection: { type: String, default: 'blueprint' }
-    })
+    const props = defineProps({ activeSection: { type: String } })
     const emit = defineEmits(['update:activeSection'])
 
-    const dashboardItems = [
+    const dashboardSections = [
         { id: 'blueprint', name: 'Plano',     icon: LayoutDashboard },
         { id: 'lights',    name: 'Luces',     icon: Lightbulb       },
         { id: 'blinds',    name: 'Persianas', icon: Blinds          },
     ]
 
-    const settingsItems = [
+    const settingsSections = [
         { id: 'active',    name: 'Dispositivos', icon: Smartphone },
         { id: 'pending',   name: 'Pendientes',   icon: Clock },
         { id: 'json',      name: 'JSON',         icon: Code },
@@ -30,7 +29,7 @@
     const route = useRoute()
 
     const isDashboard = computed(() => route.path === '/')
-    const navItems = computed(() => isDashboard.value ? dashboardItems : settingsItems)
+    const navSections = computed(() => isDashboard.value ? dashboardSections : settingsSections)
 
     const collapsed = ref(false)
     const toggle = () => { collapsed.value = !collapsed.value }
@@ -52,7 +51,7 @@
 
         <nav class="flex-1 p-3 space-y-2">
             <NavButton
-                v-for="item in navItems"
+                v-for="item in navSections"
                 :key="item.id"
                 :icon="item.icon"
                 :label="item.name"
