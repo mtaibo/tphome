@@ -6,7 +6,7 @@
 
     import { LayoutDashboard, Blinds, Lightbulb, Settings, RefreshCw, Smartphone, ArrowLeft, Clock, Code, Cpu } from 'lucide-vue-next'
 
-    import { NavButton } from '@/components/bottombar/NavButton.vue'
+    //import { NavButton } from '@/components/bottombar/NavButton.vue'
 
     const props = defineProps({ activeSection: { type: String } })
     const emit = defineEmits(['update:activeSection'])
