@@ -33,7 +33,7 @@
             <component :is="activeComponent" />
         </main>
 
-        <Bottombar />
+        <Bottombar v-model:activeSection="activeSection" />
 
     </PageLayout>
 
