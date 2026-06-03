@@ -1,28 +1,39 @@
 <script setup>
 
-    import { ref } from 'vue'
-    import { LayoutDashboard, Lightbulb, Blinds, Settings, RefreshCw } from 'lucide-vue-next'
+    import { ref, computed } from 'vue'
+    //import { useUpdate } from '@/config/update'
+    import { useRouter, useRoute } from 'vue-router'
 
-    import { useDevices } from '@/config/devices'
-    import { useMap } from '@/config/map'
-    import { socket_manager } from '@/config/socket'
-    import { api } from '@/config/api'
+    import { LayoutDashboard, Blinds, Lightbulb, Settings, RefreshCw, Smartphone, ArrowLeft, Clock, Code, Cpu } from 'lucide-vue-next'
 
-    const store = useDevices()
-    const map = useMap()
+    import { NavButton } from '@/components/bottombar/NavButton.vue'
 
-    const activeSection = ref('blueprint')
-    const navItems = [
+    const props = defineProps({ activeSection: { type: String } })
+    const emit = defineEmits(['update:activeSection'])
+
+    const dashboardSections = [
         { id: 'blueprint', name: 'Plano',     icon: LayoutDashboard },
         { id: 'lights',    name: 'Luces',     icon: Lightbulb       },
         { id: 'blinds',    name: 'Persianas', icon: Blinds          },
     ]
 
-    const handleUpdate = async () => {
-        await api.triggerUpdate()
-        await store.setup()
-        await map.setup()
-        socket_manager.reconnect()
+    const settingsSections = [
+        { id: 'active',    name: 'Dispositivos', icon: Smartphone },
+        { id: 'pending',   name: 'Pendientes',   icon: Clock },
+        { id: 'json',      name: 'JSON',         icon: Code },
+        { id: 'firmware',  name: 'Firmware',     icon: Cpu }
+    ]
+
+    const router = useRouter()
+    const route = useRoute()
+
+    const isDashboard = computed(() => route.path === '/')
+    const navSections = computed(() => isDashboard.value ? dashboardSections : settingsSections)
+
+    const update = () => {}
+
+    function setActive(id) {
+        emit('update:activeSection', id)
     }
 
 </script>
@@ -33,9 +44,9 @@
 
         <div class="flex items-center gap-4">
             <button
-                v-for="item in navItems"
+                v-for="item in navSections"
                 :key="item.id"
-                @click="activeSection = item.id"
+                @click="setActive(item.id)"
                 class="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer"
                 :class="activeSection === item.id
                     ? 'text-tp-accent bg-tp-accent/10'
@@ -48,21 +59,28 @@
         <div class="flex items-center gap-4">
 
             <button
-                @click="handleUpdate"
-                class="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer text-muted hover:text-tp-accent hover:bg-tp-border/20"
+                @click="update"
+                :class="isDashboard ? 'flex' : 'hidden'"
+                class="items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer text-muted hover:text-tp-accent hover:bg-tp-border/20"
             >
                 <RefreshCw class="w-3.5 h-3.5" />
             </button>
 
-            <RouterLink
-                to="/settings"
-                class="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95"
-                :class="activeSection === 'settings'
-                    ? 'text-tp-accent bg-tp-accent/10'
-                    : 'text-muted hover:text-white hover:bg-tp-border/20'"
+            <button
+                @click="router.push('/settings')"
+                class="items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95"
+                :class="isDashboard ? 'flex' : 'hidden'"
             >
                 <Settings class="w-4 h-4" />
-            </RouterLink>
+            </button>
+
+            <button
+                @click="router.push('/')"
+                class="items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95"
+                :class="isDashboard ? 'hidden' : 'flex'"
+            >
+                <ArrowLeft class="w-4 h-4" />
+            </button>
 
         </div>
 
