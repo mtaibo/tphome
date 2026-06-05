@@ -166,7 +166,7 @@
 
 <template>
 
-    <div class="h-full flex flex-col p-8 gap-8 overflow-y-auto">
+    <div class="h-full flex flex-col p-4 md:p-8 gap-4 md:gap-8 overflow-y-auto">
 
         <section>
             <div class="flex items-center gap-3 mb-5">
@@ -191,7 +191,7 @@
                 >
                     <!-- Main row (clickable) -->
                     <div
-                        class="flex items-center gap-4 px-4 py-3 cursor-pointer select-none"
+                        class="flex items-center gap-2 md:gap-4 px-3 md:px-4 py-3 cursor-pointer select-none"
                         @click="toggleExpanded(device.id)"
                     >
                         <component
@@ -212,21 +212,21 @@
                         class="expand-content"
                         :class="{ 'expand-open': expandedId === device.id }"
                     >
-                        <div class="border-t border-tp-border/50 px-4 py-4 bg-black/10 space-y-4">
+                        <div class="border-t border-tp-border/50 px-3 md:px-4 py-4 bg-black/10 space-y-4">
                             <!-- Name -->
-                            <div class="flex items-center gap-3">
-                                <label class="text-xs font-mono text-muted/60 w-24 shrink-0">Nombre</label>
+                            <div class="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-3">
+                                <label class="text-xs font-mono text-muted/60 w-full md:w-24 shrink-0">Nombre</label>
                                 <input
                                     v-model="device.name"
                                     @input="markDirty(device)"
-                                    class="flex-1 bg-tp-bg text-sm text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50"
+                                    class="w-full bg-tp-bg text-sm text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50"
                                     placeholder="Nombre del dispositivo"
                                 />
                             </div>
 
                             <!-- Position -->
-                            <div class="flex items-center gap-3">
-                                <label class="text-xs font-mono text-muted/60 w-24 shrink-0">Posicion</label>
+                            <div class="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-3">
+                                <label class="text-xs font-mono text-muted/60 w-full md:w-24 shrink-0">Posicion</label>
                                 <div class="flex items-center gap-2">
                                      <div class="flex items-center gap-1.5">
                                          <span class="text-xs font-mono text-muted/40 font-bold">X</span>
@@ -251,9 +251,9 @@
 
                             <!-- Blinds prefs -->
                             <template v-if="device.category === 'blinds'">
-                                <div class="space-y-1.5">
-                                     <div class="flex items-center gap-2">
-                                         <span class="text-xs font-mono text-muted/60 w-36 shrink-0">Tiempo de Subida</span>
+                                <div class="space-y-3">
+                                     <div class="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-2">
+                                         <span class="text-xs font-mono text-muted/60 w-full md:w-36 shrink-0">Tiempo de Subida</span>
                                           <input
                                               :value="device.prefs.up_time"
                                               @input="updatePref(device, 'up_time', normalizeInput($event.target.value))"
@@ -264,8 +264,8 @@
                                           />
                                          <span class="text-xs text-muted/40 shrink-0">seg</span>
                                      </div>
-                                     <div class="flex items-center gap-2">
-                                         <span class="text-xs font-mono text-muted/60 w-36 shrink-0">Tiempo de Bajada</span>
+                                     <div class="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-2">
+                                         <span class="text-xs font-mono text-muted/60 w-full md:w-36 shrink-0">Tiempo de Bajada</span>
                                           <input
                                               :value="device.prefs.down_time"
                                               @input="updatePref(device, 'down_time', normalizeInput($event.target.value))"
@@ -276,8 +276,8 @@
                                           />
                                          <span class="text-xs text-muted/40 shrink-0">seg</span>
                                      </div>
-                                     <div class="flex items-center gap-2">
-                                         <span class="text-xs font-mono text-muted/60 w-36 shrink-0">Posicion de Bajada</span>
+                                     <div class="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-2">
+                                         <span class="text-xs font-mono text-muted/60 w-full md:w-36 shrink-0">Posicion de Bajada</span>
                                          <input
                                              :value="device.prefs.down_pos"
                                              @input="updatePref(device, 'down_pos', Math.min(100, Math.max(0, Number($event.target.value))))"
@@ -290,8 +290,8 @@
                                          />
                                          <span class="text-xs text-muted/40 shrink-0">%</span>
                                      </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-xs font-mono text-muted/60 w-36 shrink-0">Reles Invertidos</span>
+                                    <div class="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-2">
+                                        <span class="text-xs font-mono text-muted/60 w-full md:w-36 shrink-0">Reles Invertidos</span>
                                         <button
                                             type="button"
                                             @click.stop="updatePref(device, 'inverted_relays', !device.prefs.inverted_relays)"
@@ -309,7 +309,7 @@
                             </template>
 
                             <!-- Actions -->
-                            <div class="flex items-center gap-2 pt-2">
+                            <div class="flex flex-wrap items-center gap-2 pt-2">
                                 <button
                                     @click.stop="saveDevice(device)"
                                     :disabled="!hasChanges(device) || saving"
