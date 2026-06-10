@@ -8,7 +8,7 @@
 <template>
 
     <!-- Rooms -->
-    <g class="fill-tp-surface/30 stroke-tp-border stroke-2">
+    <g class="fill-tp-surface/50 stroke-tp-border/80 stroke-2">
         <rect
             v-for="room in map.storage.rooms"
             :key="room.id"
