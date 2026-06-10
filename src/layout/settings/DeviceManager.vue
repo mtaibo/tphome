@@ -128,10 +128,10 @@
                     <component
                         :is="device.type === 'Luz' ? Lightbulb : Blinds"
                         class="w-4 h-4 shrink-0"
-                        :class="device.type === 'Luz' ? 'text-yellow-400/70' : 'text-tp-accent/70'"
+                        :class="device.type === 'Luz' ? 'text-tp-light-on/70' : 'text-tp-accent/70'"
                     />
                     <span class="font-mono text-xs text-muted w-16 shrink-0">{{ device.id }}</span>
-                    <span class="text-sm text-white flex-1 truncate">{{ device.name }}</span>
+                    <span class="text-sm text-tp-text-primary flex-1 truncate">{{ device.name }}</span>
                     <span class="text-[10px] font-mono uppercase tracking-wider text-muted/50 w-16 shrink-0">{{ device.type }}</span>
                     <button
                         @click="deleteDevice(device.type === 'Persiana' ? 'blinds' : 'lights', device.id)"

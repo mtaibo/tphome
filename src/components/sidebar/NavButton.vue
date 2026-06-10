@@ -19,8 +19,8 @@
 
         let stateClass
         if (props.navItem && props.active) stateClass = 'bg-tp-accent/10 text-tp-accent font-semibold'
-        else if (props.navItem) stateClass = 'text-muted bg-transparent hover:bg-tp-border/20 hover:text-white'
-        else stateClass = 'text-muted bg-transparent hover:text-white'
+        else if (props.navItem) stateClass = 'text-muted bg-transparent hover:bg-tp-border/20 hover:text-tp-text-primary'
+        else stateClass = 'text-muted bg-transparent hover:text-tp-text-primary'
 
         return `${base} ${padding} ${stateClass}`
     })

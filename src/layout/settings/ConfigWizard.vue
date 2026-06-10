@@ -72,20 +72,20 @@
                 <div class="flex items-center gap-4">
                     <button
                         @click="emit('cancel')"
-                        class="flex items-center gap-2 text-muted hover:text-white transition-colors text-sm cursor-pointer"
+                        class="flex items-center gap-2 text-muted hover:text-tp-text-primary transition-colors text-sm cursor-pointer"
                     >
                         <ArrowLeft class="w-4 h-4" />
                         Volver
                     </button>
                     <div class="h-5 w-px bg-tp-border"></div>
-                    <span class="text-sm text-white font-medium">Asignar dispositivo</span>
+                    <span class="text-sm text-tp-text-primary font-medium">Asignar dispositivo</span>
                 </div>
 
                 <div class="flex items-center gap-3">
                     <span class="font-mono text-[10px] text-muted/60 truncate max-w-40">{{ device.mac }}</span>
                     <button
                         @click="emit('cancel')"
-                        class="p-1.5 rounded-lg text-muted hover:text-white hover:bg-tp-border/20 transition-colors cursor-pointer"
+                        class="p-1.5 rounded-lg text-muted hover:text-tp-text-primary hover:bg-tp-border/20 transition-colors cursor-pointer"
                     >
                         <X class="w-4 h-4" />
                     </button>
@@ -119,7 +119,7 @@
             <footer class="h-16 px-6 flex items-center justify-end gap-3 shrink-0 border-t border-tp-border">
                 <button
                     @click="emit('cancel')"
-                    class="px-4 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-tp-border/20 transition-colors cursor-pointer"
+                    class="px-4 py-2 rounded-lg text-sm text-muted hover:text-tp-text-primary hover:bg-tp-border/20 transition-colors cursor-pointer"
                 >
                     Cancelar
                 </button>

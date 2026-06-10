@@ -50,7 +50,7 @@
                 class="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer"
                 :class="activeSection === item.id
                     ? 'text-tp-accent bg-tp-accent/10'
-                    : 'text-muted hover:text-white hover:bg-tp-border/20'"
+                    : 'text-muted hover:text-tp-text-primary hover:bg-tp-border/20'"
             >
                 <component :is="item.icon" class="w-4 h-4" />
             </button>
