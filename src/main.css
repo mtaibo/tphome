@@ -3,26 +3,26 @@
 @theme {
 
   /* Surfaces */
-  --color-tp-bg: #0A090C;          /* Deep black - main background */
-  --color-tp-surface: #12111a;     /* Near black - cards, panels */
-  --color-tp-border: #666B6A;      /* Mid gray - borders */
+  --color-tp-bg: #000000;          /* Pure black */
+  --color-tp-surface: #0a0a0a;     /* Cards, panels */
+  --color-tp-border: #1c1c1c;      /* Subtle borders */
 
   /* Text */
-  --color-tp-text: #666B6A;        /* Mid gray - secondary text */
-  --color-tp-text-primary: #F8F4E3; /* Cream - primary text */
-  --color-muted: #4a4d4c;          /* Dark gray - disabled / placeholders */
+  --color-tp-text: #a0a0a0;        /* Secondary text */
+  --color-tp-text-primary: #e8e8e8; /* Primary text */
+  --color-muted: #505050;          /* Disabled */
 
   /* Accent */
-  --color-tp-accent: #83BCFF;      /* Sky blue - active, selection */
+  --color-tp-accent: #d0d0d0;      /* Active, selection */
 
   /* Status */
-  --color-tp-ok: #4ade80;          /* Bright green - LEDs, online */
-  --color-tp-danger: #95190C;      /* Dark red - offline, errors */
+  --color-tp-ok: #30c060;          /* Online */
+  --color-tp-danger: #e04040;      /* Offline, errors */
 
   /* Functional */
-  --color-tp-light-on: #F8F4E3;    /* Cream - light on indicator */
-  --color-tp-stop: #95190C;        /* Dark red - blind stop button */
-  --color-tp-overlay: #0A090C;     /* Deep black - overlays, tracks */
+  --color-tp-light-on: #d0d0d0;    /* Light on */
+  --color-tp-stop: #e04040;        /* Blind stop */
+  --color-tp-overlay: #000000;     /* Overlays */
   
   /* Fonts */
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
