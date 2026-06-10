@@ -3,26 +3,26 @@
 @theme {
 
   /* Surfaces */
-  --color-tp-bg: #000000;        /* Pure black - main background */
-  --color-tp-surface: #0a0a0a;   /* Near black - cards, panels, sidebars */
-  --color-tp-border: #1a1a1a;    /* Dark gray - subtle borders */
+  --color-tp-bg: #0f0f0f;        /* Dark charcoal - main background */
+  --color-tp-surface: #1a1a1a;   /* Elevated surfaces - cards, panels */
+  --color-tp-border: #2a2a2a;    /* Visible dark gray - borders */
 
   /* Text */
-  --color-tp-text: #a1a1aa;       /* Cool gray - secondary text */
-  --color-tp-text-primary: #fafafa; /* Near white - primary text */
-  --color-muted: #52525b;         /* Zinc - disabled / placeholders */
+  --color-tp-text: #d4d4d8;       /* Light zinc - secondary text */
+  --color-tp-text-primary: #ffffff; /* White - primary text */
+  --color-muted: #71717a;         /* Mid zinc - disabled / placeholders */
 
   /* Accent */
-  --color-tp-accent: #a1a1aa;     /* Cool gray - active, selection */
+  --color-tp-accent: #e4e4e7;     /* Bright zinc - active, selection */
 
   /* Status */
-  --color-tp-ok: #22c55e;         /* Green - LEDs, online */
-  --color-tp-danger: #ef4444;     /* Red - offline, errors */
+  --color-tp-ok: #4ade80;         /* Bright green - LEDs, online */
+  --color-tp-danger: #f87171;     /* Soft red - offline, errors */
 
   /* Functional */
-  --color-tp-light-on: #eab308;   /* Gold - light on indicator */
-  --color-tp-stop: #dc2626;       /* Red - blind stop button */
-  --color-tp-overlay: #000000;    /* Black - overlays, tracks */
+  --color-tp-light-on: #fbbf24;   /* Warm gold - light on indicator */
+  --color-tp-stop: #f87171;       /* Soft red - blind stop button */
+  --color-tp-overlay: #0a0a0a;    /* Near black - overlays, tracks */
   
   /* Fonts */
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
