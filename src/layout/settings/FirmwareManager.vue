@@ -122,7 +122,7 @@
                             v-model="form.name"
                             type="text"
                             placeholder="Persiana v2.1"
-                            class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-white placeholder:text-muted/40 focus:outline-none focus:border-tp-accent/50 transition-colors"
+                            class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-tp-text-primary placeholder:text-muted/40 focus:outline-none focus:border-tp-accent/50 transition-colors"
                         />
                     </div>
                     <div>
@@ -131,7 +131,7 @@
                             v-model="form.version"
                             type="text"
                             placeholder="2.1.0"
-                            class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-white placeholder:text-muted/40 focus:outline-none focus:border-tp-accent/50 transition-colors"
+                            class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-tp-text-primary placeholder:text-muted/40 focus:outline-none focus:border-tp-accent/50 transition-colors"
                         />
                     </div>
                     <div>
@@ -140,14 +140,14 @@
                             v-model="form.chip"
                             type="text"
                             placeholder="BK7231N"
-                            class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-white placeholder:text-muted/40 focus:outline-none focus:border-tp-accent/50 transition-colors"
+                            class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-tp-text-primary placeholder:text-muted/40 focus:outline-none focus:border-tp-accent/50 transition-colors"
                         />
                     </div>
                     <div>
                         <label class="block text-xs text-muted mb-1.5">Target</label>
                         <select
                             v-model="form.target"
-                            class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-white focus:outline-none focus:border-tp-accent/50 transition-colors"
+                            class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-tp-text-primary focus:outline-none focus:border-tp-accent/50 transition-colors"
                         >
                             <option value="blinds">Persianas</option>
                             <option value="lights">Luces</option>
@@ -162,7 +162,7 @@
                         v-model="form.notes"
                         placeholder="Changelog o notas..."
                         rows="2"
-                        class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-white placeholder:text-muted/40 focus:outline-none focus:border-tp-accent/50 transition-colors resize-none"
+                        class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-tp-text-primary placeholder:text-muted/40 focus:outline-none focus:border-tp-accent/50 transition-colors resize-none"
                     />
                 </div>
 
@@ -211,7 +211,7 @@
                             @click="toggleExpanded(fw.id)"
                         >
                             <Cpu class="w-4 h-4 shrink-0 text-tp-accent/70" />
-                            <span class="text-sm text-white flex-1 truncate">{{ fw.name }}</span>
+                            <span class="text-sm text-tp-text-primary flex-1 truncate">{{ fw.name }}</span>
                             <span class="text-xs font-mono text-muted">{{ fw.version }}</span>
                             <span class="text-xs font-mono text-muted hidden lg:block">{{ fw.chip }}</span>
 
@@ -266,7 +266,7 @@
                             @click="toggleExpanded(fw.id)"
                         >
                             <Cpu class="w-4 h-4 shrink-0 text-tp-accent/70" />
-                            <span class="text-sm text-white flex-1 truncate min-w-0">{{ fw.name }}</span>
+                            <span class="text-sm text-tp-text-primary flex-1 truncate min-w-0">{{ fw.name }}</span>
                             <span class="text-xs font-mono text-muted shrink-0 whitespace-nowrap">{{ fw.version }}</span>
                             <div v-if="fw.active" class="shrink-0">
                                 <Check class="w-3.5 h-3.5 text-tp-ok" />

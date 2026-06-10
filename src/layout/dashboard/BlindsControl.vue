@@ -72,9 +72,9 @@
                 <div class="shrink-0 p-2 bg-tp-accent/10 rounded-lg">
                     <Blinds class="text-tp-accent w-5 h-5" />
                 </div>
-                <h2 class="text-lg font-bold tracking-tight text-white">{{ device.name }}</h2>
+                <h2 class="text-lg font-bold tracking-tight text-tp-text-primary">{{ device.name }}</h2>
             </div>
-            <button @click="emit('close')" class="p-2 hover:bg-tp-border/30 rounded-lg transition-colors cursor-pointer text-muted hover:text-white">
+            <button @click="emit('close')" class="p-2 hover:bg-tp-border/30 rounded-lg transition-colors cursor-pointer text-muted hover:text-tp-text-primary">
                 <X class="w-5 h-5" />
             </button>
         </header>
@@ -95,7 +95,7 @@
                     </div>
                 </div>
                 <div class="flex items-baseline gap-1">
-                    <span class="text-2xl font-mono font-bold text-white">{{ tempPosition }}</span>
+                    <span class="text-2xl font-mono font-bold text-tp-text-primary">{{ tempPosition }}</span>
                     <span class="text-sm font-bold text-tp-accent">%</span>
                 </div>
             </div>
@@ -104,8 +104,8 @@
                 <button @click="handleUp" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl hover:bg-tp-accent/10 hover:border-tp-accent/50 group cursor-pointer transition-all">
                     <ChevronUp class="w-6 h-6 text-muted group-hover:text-tp-accent" />
                 </button>
-                <button @click="handleStop" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl cursor-pointer hover:bg-red-500/10 hover:border-red-500/50 group transition-all">
-                    <Square class="w-4 h-4 text-muted group-hover:text-red-500 fill-current" />
+                <button @click="handleStop" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl cursor-pointer hover:bg-tp-stop/10 hover:border-tp-stop/50 group transition-all">
+                    <Square class="w-4 h-4 text-muted group-hover:text-tp-stop fill-current" />
                 </button>
                 <button @click="handleDown" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl hover:bg-tp-accent/10 hover:border-tp-accent/50 group cursor-pointer transition-all">
                     <ChevronDown class="w-6 h-6 text-muted group-hover:text-tp-accent" />
@@ -129,7 +129,7 @@
                     </div>
                 </div>
                 <div class="flex items-baseline gap-1">
-                    <span class="text-3xl font-mono font-bold text-white">{{ tempPosition }}</span>
+                    <span class="text-3xl font-mono font-bold text-tp-text-primary">{{ tempPosition }}</span>
                     <span class="text-sm font-bold text-tp-accent">%</span>
                 </div>
             </div>
@@ -139,8 +139,8 @@
                     <button @click="handleUp" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl transition-all cursor-pointer hover:bg-tp-accent/10 hover:border-tp-accent/50 group">
                         <ChevronUp class="w-6 h-6 text-muted group-hover:text-tp-accent" />
                     </button>
-                    <button @click="handleStop" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl transition-all cursor-pointer hover:bg-red-500/10 hover:border-red-500/50 group">
-                        <Square class="w-4 h-4 text-muted group-hover:text-red-500 fill-current" />
+                    <button @click="handleStop" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl transition-all cursor-pointer hover:bg-tp-stop/10 hover:border-tp-stop/50 group">
+                        <Square class="w-4 h-4 text-muted group-hover:text-tp-stop fill-current" />
                     </button>
                     <button @click="handleDown" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl transition-all cursor-pointer hover:bg-tp-accent/10 hover:border-tp-accent/50 group">
                         <ChevronDown class="w-6 h-6 text-muted group-hover:text-tp-accent" />
@@ -151,7 +151,7 @@
                     <div class="flex-1 bg-tp-bg/50 border border-tp-border rounded-xl flex items-center px-4 focus-within:border-tp-accent/50 transition-colors">
                         <input type="number" v-model.number="tempPosition" @keyup.enter="updatePosition(tempPosition)"
                                placeholder="0-100"
-                               class="w-full bg-transparent border-none text-sm font-mono text-white focus:outline-none [appearance:textfield]"
+                               class="w-full bg-transparent border-none text-sm font-mono text-tp-text-primary focus:outline-none [appearance:textfield]"
                         />
                         <span class="text-muted/30 font-mono text-lg">%</span>
                     </div>

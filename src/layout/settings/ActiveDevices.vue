@@ -99,10 +99,10 @@
                             <component
                                 :is="device.type === 'Luz' ? Lightbulb : Blinds"
                                 class="w-4 h-4 shrink-0"
-                                :class="device.type === 'Luz' ? 'text-yellow-400/70' : 'text-tp-accent/70'"
+                                :class="device.type === 'Luz' ? 'text-tp-light-on/70' : 'text-tp-accent/70'"
                             />
                             <span class="font-mono text-xs text-muted w-16 shrink-0">{{ device.id }}</span>
-                            <span class="text-sm text-white flex-1 truncate">{{ device.name }}</span>
+                            <span class="text-sm text-tp-text-primary flex-1 truncate">{{ device.name }}</span>
                             <div
                                 class="w-2 h-2 rounded-full shrink-0"
                                 :class="device.connection?.online ? 'bg-tp-ok shadow-[0_0_6px_var(--color-tp-ok)]' : 'bg-tp-danger'"
@@ -141,7 +141,7 @@
                                 </button>
                                 <button
                                     @click.stop="getDeviceInfo(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-blue-400 hover:bg-blue-400/10 transition-all cursor-pointer"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
                                 >
                                     <Info class="w-4 h-4 shrink-0" />
                                     <span>Actualizar información</span>
@@ -174,9 +174,9 @@
                             <component
                                 :is="device.type === 'Luz' ? Lightbulb : Blinds"
                                 class="w-4 h-4 shrink-0"
-                                :class="device.type === 'Luz' ? 'text-yellow-400/70' : 'text-tp-accent/70'"
+                                :class="device.type === 'Luz' ? 'text-tp-light-on/70' : 'text-tp-accent/70'"
                             />
-                            <span class="text-sm text-white flex-1 truncate min-w-0">{{ device.name }}</span>
+                            <span class="text-sm text-tp-text-primary flex-1 truncate min-w-0">{{ device.name }}</span>
                             <span class="text-xs font-mono text-muted shrink-0 whitespace-nowrap">{{ device.id }}</span>
                             <div
                                 class="w-2 h-2 rounded-full shrink-0"
@@ -216,7 +216,7 @@
                                 </button>
                                 <button
                                     @click.stop="getDeviceInfo(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-blue-400 hover:bg-blue-400/10 transition-all cursor-pointer"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
                                 >
                                     <Info class="w-4 h-4 shrink-0" />
                                     <span>Actualizar información</span>

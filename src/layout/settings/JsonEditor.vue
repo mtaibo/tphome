@@ -197,10 +197,10 @@
                         <component
                             :is="device.type === 'Luz' ? Lightbulb : Blinds"
                             class="w-4 h-4 shrink-0"
-                            :class="device.type === 'Luz' ? 'text-yellow-400/70' : 'text-tp-accent/70'"
+                            :class="device.type === 'Luz' ? 'text-tp-light-on/70' : 'text-tp-accent/70'"
                         />
                         <span class="font-mono text-xs text-muted w-16 shrink-0">{{ device.id }}</span>
-                        <span class="text-sm text-white flex-1 truncate">{{ device.name }}</span>
+                        <span class="text-sm text-tp-text-primary flex-1 truncate">{{ device.name }}</span>
                         <ChevronDown
                             class="w-4 h-4 shrink-0 text-muted transition-transform duration-200"
                             :class="{ 'rotate-180': expandedId === device.id }"
@@ -300,7 +300,7 @@
                                                 ? 'bg-tp-accent border-tp-accent'
                                                 : 'bg-tp-bg border-tp-border/50'"
                                         >
-                                            <svg v-if="device.prefs.inverted_relays" class="w-3 h-3 text-white" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <svg v-if="device.prefs.inverted_relays" class="w-3 h-3 text-tp-text-primary" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                                 <polyline points="2.5 7 5.5 10.5 11.5 3.5" />
                                             </svg>
                                         </button>
@@ -326,7 +326,7 @@
                                      :disabled="!hasChanges(device)"
                                      class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
                                      :class="hasChanges(device)
-                                         ? 'text-muted/60 hover:text-muted hover:bg-white/5 border border-tp-border/20'
+                                         ? 'text-muted/60 hover:text-muted hover:bg-tp-text-primary/5 border border-tp-border/20'
                                          : 'text-muted/30 border border-tp-border/20 cursor-not-allowed'"
                                  >
                                      <RotateCcw class="w-3.5 h-3.5" />
