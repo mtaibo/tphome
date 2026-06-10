@@ -32,7 +32,11 @@
     <PageLayout>
 
         <Sidebar v-model:activeSection="activeSection" />
-        <main class="flex-1"> <component  :is="activeComponent" /> </main>
+
+        <main class="flex-1"> 
+            <component  :is="activeComponent" />
+        </main>
+
         <Bottombar v-model:activeSection="activeSection" />
 
     </PageLayout>
