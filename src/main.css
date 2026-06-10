@@ -4,24 +4,24 @@
 
   /* Surfaces */
   --color-tp-bg: #000000;          /* Pure black */
-  --color-tp-surface: #0a0a0a;     /* Cards, panels */
-  --color-tp-border: #1c1c1c;      /* Subtle borders */
+  --color-tp-surface: #0c0c0c;     /* Cards, panels */
+  --color-tp-border: #222222;      /* Subtle borders */
 
   /* Text */
-  --color-tp-text: #a0a0a0;        /* Secondary text */
-  --color-tp-text-primary: #e8e8e8; /* Primary text */
-  --color-muted: #505050;          /* Disabled */
+  --color-tp-text: #b0b0b0;        /* Secondary text */
+  --color-tp-text-primary: #f0f0f0; /* Primary text */
+  --color-muted: #5a5a5a;          /* Disabled */
 
   /* Accent */
-  --color-tp-accent: #d0d0d0;      /* Active, selection */
+  --color-tp-accent: #d8d8d8;      /* Active, selection */
 
   /* Status */
-  --color-tp-ok: #30c060;          /* Online */
-  --color-tp-danger: #e04040;      /* Offline, errors */
+  --color-tp-ok: #34d868;          /* Online */
+  --color-tp-danger: #e84848;      /* Offline, errors */
 
   /* Functional */
-  --color-tp-light-on: #d0d0d0;    /* Light on */
-  --color-tp-stop: #e04040;        /* Blind stop */
+  --color-tp-light-on: #d8d8d8;    /* Light on */
+  --color-tp-stop: #e84848;        /* Blind stop */
   --color-tp-overlay: #000000;     /* Overlays */
   
   /* Fonts */
