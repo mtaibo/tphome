@@ -5,11 +5,15 @@
 
     const map = useMap()
 
+    const viewBox = computed(() => {
+        const parts = map.storage.viewBox.split(' ')
+        return { w: +parts[2], h: +parts[3] }
+    })
+
+    // Compute wall segments: merge shared walls, keep single thickness
     const wallSegments = computed(() => {
         const rooms = map.storage.rooms
-        const doors = map.storage.doors
 
-        // Collect all wall segments from all rooms
         const allWalls = []
         for (const room of rooms) {
             allWalls.push({ x1: room.x, y1: room.y, x2: room.x + room.w, y2: room.y })
@@ -18,7 +22,6 @@
             allWalls.push({ x1: room.x, y1: room.y, x2: room.x, y2: room.y + room.h })
         }
 
-        // Normalize segments (ensure x1<=x2, y1<=y2)
         const normalized = allWalls.map(w => ({
             x1: Math.min(w.x1, w.x2),
             y1: Math.min(w.y1, w.y2),
@@ -26,7 +29,6 @@
             y2: Math.max(w.y1, w.y2)
         }))
 
-        // Group by line (same x for vertical, same y for horizontal)
         const groups = {}
         for (const wall of normalized) {
             const key = wall.x1 === wall.x2 ? `v${wall.x1}` : `h${wall.y1}`
@@ -34,7 +36,6 @@
             groups[key].push(wall)
         }
 
-        // Merge overlapping/adjacent segments within each group
         const merged = []
         for (const key in groups) {
             const walls = groups[key].sort((a, b) => a.x1 - b.x1 || a.y1 - b.y1)
@@ -61,67 +62,28 @@
             merged.push(current)
         }
 
-        // Normalize doors for comparison
-        const normDoors = doors.map(d => ({
-            x1: Math.min(d.x1, d.x2),
-            y1: Math.min(d.y1, d.y2),
-            x2: Math.max(d.x1, d.x2),
-            y2: Math.max(d.y1, d.y2)
-        }))
-
-        // Subtract door segments from walls
-        const result = []
-        for (const wall of merged) {
-            const isVertical = wall.x1 === wall.x2
-            const overlappingDoors = normDoors.filter(door => {
-                const doorIsVertical = door.x1 === door.x2
-                if (isVertical !== doorIsVertical) return false
-                if (isVertical) {
-                    return door.x1 === wall.x1 && door.y1 < wall.y2 && door.y2 > wall.y1
-                } else {
-                    return door.y1 === wall.y1 && door.x1 < wall.x2 && door.x2 > wall.x1
-                }
-            })
-
-            if (overlappingDoors.length === 0) {
-                result.push(wall)
-                continue
-            }
-
-            // Split wall at door boundaries
-            let segments = [{ ...wall }]
-            for (const door of overlappingDoors) {
-                const newSegments = []
-                for (const seg of segments) {
-                    if (isVertical) {
-                        if (door.y1 > seg.y1 + 0.5) {
-                            newSegments.push({ x1: seg.x1, y1: seg.y1, x2: seg.x2, y2: door.y1 })
-                        }
-                        if (door.y2 < seg.y2 - 0.5) {
-                            newSegments.push({ x1: seg.x1, y1: door.y2, x2: seg.x2, y2: seg.y2 })
-                        }
-                    } else {
-                        if (door.x1 > seg.x1 + 0.5) {
-                            newSegments.push({ x1: seg.x1, y1: seg.y1, x2: door.x1, y2: seg.y2 })
-                        }
-                        if (door.x2 < seg.x2 - 0.5) {
-                            newSegments.push({ x1: door.x2, y1: seg.y1, x2: seg.x2, y2: seg.y2 })
-                        }
-                    }
-                }
-                segments = newSegments
-            }
-            result.push(...segments)
-        }
-
-        return result
+        return merged
     })
 
 </script>
 
 <template>
 
-    <!-- Rooms (fill only, no stroke) -->
+    <defs>
+        <mask id="door-mask">
+            <rect :width="viewBox.w" :height="viewBox.h" fill="white"/>
+            <line
+                v-for="(door, i) in map.storage.doors"
+                :key="i"
+                :x1="door.x1" :y1="door.y1"
+                :x2="door.x2" :y2="door.y2"
+                stroke="black"
+                stroke-width="8"
+            />
+        </mask>
+    </defs>
+
+    <!-- Rooms (fill only) -->
     <g class="fill-tp-surface/50">
         <rect
             v-for="room in map.storage.rooms"
@@ -131,8 +93,8 @@
         />
     </g>
 
-    <!-- Walls (lines with gaps for doors, merged for shared walls) -->
-    <g class="stroke-tp-border stroke-2">
+    <!-- Walls: merged segments with door mask cutting openings -->
+    <g class="stroke-tp-border stroke-2" mask="url(#door-mask)">
         <line
             v-for="(seg, i) in wallSegments"
             :key="i"
