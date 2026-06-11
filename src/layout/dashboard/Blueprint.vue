@@ -18,6 +18,12 @@
         selectedId.value ? store.blinds[selectedId.value] : null
     )
 
+    const expandedViewBox = computed(() => {
+        if (!map.storage.viewBox) return '0 0 0 0'
+        const parts = map.storage.viewBox.split(' ')
+        return `${+parts[0] - 4} ${+parts[1] - 4} ${+parts[2] + 8} ${+parts[3] + 8}`
+    })
+
     const handleSelection = (id) => { selectedId.value = id }
 
 </script>
@@ -31,7 +37,7 @@
 
         <!-- Blueprint itself -->
         <div class="flex-1 flex items-center justify-center p-4 md:p-12 transition-all duration-500 ease-in-out min-h-0">
-            <svg :viewBox="map.storage.viewBox ?? '0 0 0 0'" class="w-full h-auto max-w-3xl drop-shadow-2xl" xmlns="http://www.w3.org/2000/svg">
+                <svg :viewBox="expandedViewBox" class="w-full h-auto max-w-3xl drop-shadow-2xl" xmlns="http://www.w3.org/2000/svg">
                 <HouseLayer />
                 <LightsLayer />
                 <BlindsLayer @select="handleSelection" />
