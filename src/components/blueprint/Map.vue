@@ -10,8 +10,7 @@
         return { w: +parts[2], h: +parts[3] }
     })
 
-    // Compute wall segments: merge shared walls, keep single thickness
-    const wallSegments = computed(() => {
+    const wallPath = computed(() => {
         const rooms = map.storage.rooms
 
         const allWalls = []
@@ -62,7 +61,7 @@
             merged.push(current)
         }
 
-        return merged
+        return merged.map(seg => `M${seg.x1},${seg.y1}L${seg.x2},${seg.y2}`).join('')
     })
 
 </script>
@@ -93,15 +92,16 @@
         />
     </g>
 
-    <!-- Walls: merged segments with door mask cutting openings -->
-    <g class="stroke-tp-border stroke-2" mask="url(#door-mask)">
-        <line
-            v-for="(seg, i) in wallSegments"
-            :key="i"
-            :x1="seg.x1" :y1="seg.y1"
-            :x2="seg.x2" :y2="seg.y2"
-        />
-    </g>
+    <!-- Walls: single path with door mask, consistent stroke -->
+    <path
+        :d="wallPath"
+        fill="none"
+        class="stroke-tp-border stroke-2"
+        stroke-linejoin="round"
+        stroke-linecap="butt"
+        shape-rendering="crispEdges"
+        mask="url(#door-mask)"
+    />
 
     <!-- Names -->
     <g class="fill-muted font-mono text-[11px] uppercase tracking-widest pointer-events-none">
