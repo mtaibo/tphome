@@ -1,6 +1,6 @@
 <script setup>
 
-    import { ref, onMounted } from 'vue'
+    import { ref, onMounted, computed } from 'vue'
     import { X, Check, ArrowLeft } from 'lucide-vue-next'
 
     import { useMap } from '@/config/map'
@@ -18,6 +18,12 @@
 
     const map = useMap()
     const store = useDevices()
+
+    const expandedViewBox = computed(() => {
+        if (!map.storage.viewBox) return '0 0 0 0'
+        const parts = map.storage.viewBox.split(' ')
+        return `${+parts[0] - 4} ${+parts[1] - 4} ${+parts[2] + 8} ${+parts[3] + 8}`
+    })
 
     const pickedId = ref(null)
     const picking = ref(false)
@@ -104,7 +110,7 @@
             <!-- SVG Blueprint -->
             <div class="flex-1 flex items-center justify-center p-6 min-h-0">
                 <svg
-                    :viewBox="map.storage.viewBox ?? '0 0 0 0'"
+                    :viewBox="expandedViewBox"
                     class="w-full h-auto max-w-xl drop-shadow-2xl"
                     xmlns="http://www.w3.org/2000/svg"
                     :class="pickedId ? '' : 'cursor-crosshair'"

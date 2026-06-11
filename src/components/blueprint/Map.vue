@@ -7,7 +7,7 @@
 
     const viewBox = computed(() => {
         const parts = map.storage.viewBox.split(' ')
-        return { w: +parts[2], h: +parts[3] }
+        return `${+parts[0] - 4} ${+parts[1] - 4} ${+parts[2] + 8} ${+parts[3] + 8}`
     })
 
     const wallPath = computed(() => {
@@ -70,7 +70,7 @@
 
     <defs>
         <mask id="door-mask">
-            <rect :width="viewBox.w" :height="viewBox.h" fill="white"/>
+            <rect :width="viewBox.split(' ')[2]" :height="viewBox.split(' ')[3]" fill="white"/>
             <line
                 v-for="(door, i) in map.storage.doors"
                 :key="i"
@@ -99,7 +99,6 @@
         class="stroke-tp-border stroke-2"
         stroke-linejoin="round"
         stroke-linecap="butt"
-        shape-rendering="crispEdges"
         mask="url(#door-mask)"
     />
 
