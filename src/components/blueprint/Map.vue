@@ -96,7 +96,8 @@
     <path
         :d="wallPath"
         fill="none"
-        class="stroke-tp-border stroke-2"
+        class="stroke-2"
+        style="stroke: #3a3a3c;"
         stroke-linejoin="round"
         stroke-linecap="butt"
         mask="url(#door-mask)"
