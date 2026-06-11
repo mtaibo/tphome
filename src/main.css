@@ -3,26 +3,28 @@
 @theme {
 
   /* Surfaces */
-  --color-tp-bg: #000000;          /* Pure black */
-  --color-tp-surface: #1c1c1e;     /* Cards, panels */
-  --color-tp-border: #38383a;      /* Subtle borders */
+  --color-tp-bg: #000000;
+  --color-tp-surface: #1c1c1e;
+  --color-tp-surface2: #2c2c2e;
+  --color-tp-border: rgba(255, 255, 255, 0.1);
 
   /* Text */
-  --color-tp-text: #6e6e73;        /* Secondary text */
-  --color-tp-text-primary: #f5f5f7; /* Primary text */
-  --color-muted: #636366;          /* Disabled */
+  --color-tp-text: #8e8e93;
+  --color-tp-text-primary: #f5f5f7;
+  --color-muted: #636366;
 
   /* Accent */
-  --color-tp-accent: #0a84ff;      /* Apple blue */
+  --color-tp-accent: #0a84ff;
 
   /* Status */
-  --color-tp-ok: #34c759;          /* Apple green */
-  --color-tp-danger: #ff3b30;      /* Apple red */
+  --color-tp-ok: #30d158;
+  --color-tp-danger: #ff453a;
+  --color-tp-warn: #ffd60a;
 
   /* Functional */
-  --color-tp-light-on: #f5f5f7;    /* Light on */
-  --color-tp-stop: #ff3b30;        /* Blind stop */
-  --color-tp-overlay: #000000;     /* Overlays */
+  --color-tp-light-on: #f5f5f7;
+  --color-tp-stop: #ff453a;
+  --color-tp-overlay: #000000;
   
   /* Fonts */
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
@@ -42,12 +44,6 @@
 }
 
 @layer components {
-
-    /* Background grid */
-    .bg-grid-dots {
-        background-image: radial-gradient(var(--color-tp-border) 1px, transparent 1px);
-        background-size: 32px 32px;
-    }
 
     /* Topbar dot online indicator */
     .status-dot {
