@@ -4,24 +4,24 @@
 
   /* Surfaces */
   --color-tp-bg: #000000;          /* Pure black */
-  --color-tp-surface: #0c0c0c;     /* Cards, panels */
-  --color-tp-border: #222222;      /* Subtle borders */
+  --color-tp-surface: #1c1c1e;     /* Cards, panels (Apple dark surface) */
+  --color-tp-border: #2c2c2e;      /* Subtle borders */
 
   /* Text */
-  --color-tp-text: #b0b0b0;        /* Secondary text */
-  --color-tp-text-primary: #f0f0f0; /* Primary text */
-  --color-muted: #5a5a5a;          /* Disabled */
+  --color-tp-text: #8e8e93;        /* Secondary text (Apple gray) */
+  --color-tp-text-primary: #ffffff; /* Pure white */
+  --color-muted: #636366;          /* Disabled */
 
   /* Accent */
-  --color-tp-accent: #d8d8d8;      /* Active, selection */
+  --color-tp-accent: #0a84ff;      /* Apple blue */
 
   /* Status */
-  --color-tp-ok: #34d868;          /* Online */
-  --color-tp-danger: #e84848;      /* Offline, errors */
+  --color-tp-ok: #30d158;          /* Apple green */
+  --color-tp-danger: #ff453a;      /* Apple red */
 
   /* Functional */
-  --color-tp-light-on: #d8d8d8;    /* Light on */
-  --color-tp-stop: #e84848;        /* Blind stop */
+  --color-tp-light-on: #ffffff;    /* Light on (pure white) */
+  --color-tp-stop: #ff453a;        /* Blind stop (Apple red) */
   --color-tp-overlay: #000000;     /* Overlays */
   
   /* Fonts */
