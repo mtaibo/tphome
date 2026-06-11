@@ -5,11 +5,6 @@
 
     const map = useMap()
 
-    const viewBox = computed(() => {
-        const parts = map.storage.viewBox.split(' ')
-        return `${+parts[0] - 4} ${+parts[1] - 4} ${+parts[2] + 8} ${+parts[3] + 8}`
-    })
-
     const wallPath = computed(() => {
         const rooms = map.storage.rooms
 
@@ -70,7 +65,7 @@
 
     <defs>
         <mask id="door-mask">
-            <rect :width="viewBox.split(' ')[2]" :height="viewBox.split(' ')[3]" fill="white"/>
+            <rect :width="map.storage.viewBox.split(' ')[2]" :height="map.storage.viewBox.split(' ')[3]" fill="white"/>
             <line
                 v-for="(door, i) in map.storage.doors"
                 :key="i"
