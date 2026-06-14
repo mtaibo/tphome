@@ -20,6 +20,13 @@
         return sections[activeSection.value]
     })
 
+    const scenes = ['Noche', 'Mañana', 'Cine', 'Todo off']
+    const activeScene = ref('Noche')
+
+    function selectScene(name) {
+        activeScene.value = name
+    }
+
 </script>
 
 <template>
@@ -29,7 +36,23 @@
         <Sidebar v-model:activeSection="activeSection" />
 
         <main class="flex flex-col flex-1">
-            <Topbar />
+            <Topbar :activeSection="activeSection" />
+
+            <!-- Scenes row — mobile only -->
+            <div v-if="activeSection === 'blueprint'" class="md:hidden px-5 pt-2 pb-1 shrink-0">
+                <div class="scenes-row">
+                    <button
+                        v-for="scene in scenes"
+                        :key="scene"
+                        @click="selectScene(scene)"
+                        class="scene-pill"
+                        :class="{ active: activeScene === scene }"
+                    >
+                        {{ scene }}
+                    </button>
+                </div>
+            </div>
+
             <component :is="activeComponent" />
         </main>
 
