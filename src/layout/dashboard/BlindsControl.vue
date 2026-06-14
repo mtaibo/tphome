@@ -65,11 +65,11 @@
 </script>
 
 <template>
-    <div class="flex flex-col h-full md:bg-tp-surface bg-transparent md:border-l md:border-tp-border select-none" :class="{ 'opacity-80 pointer-events-none': isLoading }">
+    <div class="flex flex-col h-full select-none" :class="{ 'opacity-80 pointer-events-none': isLoading }">
         
-        <header class="h-20 px-6 flex items-center justify-between shrink-0">
-            <div class="flex items-center gap-4">
-                <div class="shrink-0 p-2 bg-tp-accent/10 rounded-lg">
+        <header class="px-6 pt-5 pb-4 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="shrink-0 p-2 bg-tp-accent/10 rounded-xl">
                     <Blinds class="text-tp-accent w-5 h-5" />
                 </div>
                 <h2 class="text-lg font-bold tracking-tight text-tp-text-primary">{{ device.name }}</h2>
@@ -80,8 +80,8 @@
         </header>
 
         <!-- MOBILE LAYOUT -->
-        <div class="md:hidden flex-1 flex items-center justify-center px-4 pb-6 gap-3">
-            <div class="flex flex-col items-center gap-3 flex-1 max-w-[140px]">
+        <div class="md:hidden flex-1 flex items-center justify-center px-6 pb-6 gap-4">
+            <div class="flex flex-col items-center gap-3 flex-1 max-w-[120px]">
                 <div class="relative w-full aspect-[3/5] bg-black/40 rounded-2xl border border-tp-border shadow-inner overflow-hidden touch-none select-none"
                      @pointerdown="onPointerDown"
                      @pointermove="onPointerMove"
