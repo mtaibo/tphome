@@ -27,6 +27,8 @@
         return isHorizontal(blind) ? blind.map.height : blind.map.height * (100 - blind.state.position) / 100
     }
 
+    const isActive = (blind) => blind.state && blind.state.position > 0
+
     const onClick = (id) => {
         if (props.mode === 'config') return emit('pick', id)
         emit('select', id)
@@ -54,14 +56,19 @@
         <rect 
             :x="blind.map.x" :y="blind.map.y" rx="1.5"
             :width="blind.map.width" :height="blind.map.height" 
-            class="fill-black stroke-tp-border"
+            class="fill-black"
+            :class="isActive(blind) ? 'stroke-[#5a5aee]' : 'stroke-tp-border'"
         />
 
         <!-- Blind plain cover -->
         <rect 
             :x="blind.map.x" :y="blind.map.y" rx="1.5"
             :width="coverWidth(blind)" :height="coverHeight(blind)" 
-            :class="props.mode === 'config' ? 'fill-tp-accent/20' : 'fill-muted transition-all duration-500 ease-in-out'"
+            :class="props.mode === 'config'
+                ? 'fill-tp-accent/20'
+                : isActive(blind)
+                    ? 'fill-[#5a5aee18] transition-all duration-500 ease-in-out'
+                    : 'fill-muted transition-all duration-500 ease-in-out'"
         />
 
         <!-- Apply pattern -->

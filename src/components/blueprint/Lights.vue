@@ -26,13 +26,13 @@
     const circleClass = (light) => {
         if (props.mode === 'config') return 'fill-tp-surface/50 stroke-tp-accent/50'
         return light.state.on
-            ? 'fill-tp-light-on/20 stroke-tp-light-on/50'
+            ? 'fill-[#ffe08a12] stroke-[#ffe08a]'
             : 'fill-tp-surface/50 stroke-tp-border/20'
     }
 
     const dotClass = (light) => {
         if (props.mode === 'config') return 'fill-tp-accent'
-        return light.state.on ? 'fill-tp-light-on' : 'fill-muted'
+        return light.state.on ? 'fill-[#ffe08a]' : 'fill-muted'
     }
 
 </script>
