@@ -30,7 +30,7 @@
         <div class="fixed inset-0 md:top-20 bg-grid-dots pointer-events-none z-0"></div>
 
         <!-- Blueprint itself -->
-        <div class="flex-1 flex items-center justify-center p-4 md:p-12 transition-all duration-500 ease-in-out min-h-0">
+        <div class="flex-1 flex items-center justify-center p-4 md:p-12 pb-24 md:pb-12 transition-all duration-500 ease-in-out min-h-0">
                 <svg :viewBox="map.storage.viewBox ?? '0 0 0 0'" class="w-full h-auto max-w-3xl drop-shadow-2xl" xmlns="http://www.w3.org/2000/svg">
                 <HouseLayer />
                 <LightsLayer />
@@ -49,26 +49,18 @@
         </aside>
 
 
-        <!-- Mobile -->
-        <div 
-            class="md:hidden fixed inset-x-0 bottom-0 z-50 transition-transform duration-500 ease-in-out"
-            :class="selectedBlind ? 'translate-y-0' : 'translate-y-full'"
-        >
-            <!-- Overlay -->
+        <!-- Mobile popup -->
+        <Teleport to="body">
             <div 
                 v-if="selectedBlind"
-                class="fixed inset-0 bg-black/40 backdrop-blur-sm -z-10"
-                @click="selectedId = null"
-            />
-
-            <div class="bg-tp-surface border-t border-tp-border rounded-t-2xl pb-18 flex flex-col min-h-[60vh]">
-                <!-- Handle -->
-                <div class="flex justify-center pt-3 pb-1 shrink-0">
-                    <div class="w-10 h-1 bg-tp-border rounded-full"></div>
+                class="blinds-popup-overlay md:hidden"
+                @click.self="selectedId = null"
+            >
+                <div class="blinds-popup">
+                    <BlindsControl :id="selectedId" :device="selectedBlind" @close="selectedId = null" />
                 </div>
-                <BlindsControl v-if="selectedBlind" :id="selectedId" :device="selectedBlind" @close="selectedId = null" class="flex-1 min-h-0" />
             </div>
-        </div>
+        </Teleport>
 
     </div>
 
