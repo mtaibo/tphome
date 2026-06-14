@@ -1,5 +1,6 @@
 <script setup>
 
+    import { computed } from 'vue';
     import { RefreshCw } from 'lucide-vue-next';
 
     import { useDevices } from '@/config/devices'
@@ -8,8 +9,21 @@
     import { socket_manager } from '@/config/socket'
     import { api } from '@/config/api'
 
+    const props = defineProps({
+        activeSection: { type: String, default: 'blueprint' }
+    })
+
     const store = useDevices()
     const map = useMap()
+
+    const sectionNames = {
+        blueprint: 'Plano',
+        lights: 'Luces',
+        blinds: 'Persianas',
+        scenes: 'Escenas',
+    }
+
+    const sectionTitle = computed(() => sectionNames[props.activeSection] ?? 'Plano')
 
     const handleUpdate = async () => {
         await api.triggerUpdate()
@@ -22,9 +36,15 @@
 
 <template>
 
-    <header class="h-20 z-20 hidden md:flex items-center justify-between px-10 bg-tp-surface/60 border-b border-tp-border backdrop-blur-md">
+    <header class="h-20 z-20 flex items-center justify-between px-6 md:px-10 bg-tp-surface/60 border-b border-tp-border backdrop-blur-md">
 
-        <div class="flex items-center gap-6"> 
+        <!-- Mobile: section title -->
+        <div class="md:hidden">
+            <h1 class="text-[28px] font-bold text-tp-text-primary tracking-tight leading-none">{{ sectionTitle }}</h1>
+        </div>
+
+        <!-- Desktop: status + devices -->
+        <div class="hidden md:flex items-center gap-6"> 
             
             <!-- API STATUS -->
             <div class="flex flex-col">
@@ -61,7 +81,7 @@
             <!-- UNCONFIGURED DEVICES -->
             <div 
                 v-if="store.pendingCount > 0"
-                class="flex items-center gap-2.5 px-3 py-1.5 bg-tp-danger/5 border border-tp-danger/20 rounded-lg  hover:bg-tp-danger/10 hover:border-tp-danger/40 transition-all duration-300 cursor-pointer"
+                class="hidden md:flex items-center gap-2.5 px-3 py-1.5 bg-tp-danger/5 border border-tp-danger/20 rounded-lg  hover:bg-tp-danger/10 hover:border-tp-danger/40 transition-all duration-300 cursor-pointer"
             >
   
                 <div class="w-1.5 h-1.5 bg-tp-danger rounded-full shadow-[0_0_8px_var(--color-tp-danger)]"></div>
@@ -72,7 +92,7 @@
             <!-- UPDATE -->
             <button 
                 @click="handleUpdate"
-                class="group flex items-center gap-2.5 px-3 py-1.5 rounded-lg transition-all duration-300 active:scale-95 cursor-pointer"
+                class="hidden md:group md:flex items-center gap-2.5 px-3 py-1.5 rounded-lg transition-all duration-300 active:scale-95 cursor-pointer"
             >
             
                 <RefreshCw class="w-3.5 h-3.5 text-muted group-hover:text-tp-accent group-hover:rotate-180 transition-all duration-500" />
