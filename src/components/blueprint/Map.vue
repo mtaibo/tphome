@@ -92,14 +92,14 @@
         :d="wallPath"
         fill="none"
         class="stroke-2"
-        style="stroke: #3a3a3c;"
+        style="stroke: #ffffff;"
         stroke-linejoin="round"
         stroke-linecap="butt"
         mask="url(#door-mask)"
     />
 
     <!-- Names -->
-    <g class="fill-muted font-mono text-[11px] uppercase tracking-widest pointer-events-none">
+    <g class="fill-white font-mono text-[11px] uppercase tracking-widest pointer-events-none">
         <text
             v-for="(label, i) in map.storage.labels"
             :key="i"
