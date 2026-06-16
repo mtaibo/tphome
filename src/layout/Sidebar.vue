@@ -3,7 +3,9 @@
     import { ref, computed } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
 
-    import { LayoutDashboard, Blinds, Lightbulb, Settings, PanelLeftClose, PanelLeftOpen, Smartphone, ArrowLeft, Clock, Code, Cpu } from 'lucide-vue-next'
+    import { Settings, PanelLeftClose, PanelLeftOpen, ArrowLeft } from 'lucide-vue-next'
+
+    import { getSections } from '@/config/sections.js'
 
     import Header from '@/components/sidebar/Header.vue'
     import NavButton from '@/components/sidebar/NavButton.vue'
@@ -12,24 +14,11 @@
     const props = defineProps({ activeSection: { type: String } })
     const emit = defineEmits(['update:activeSection'])
 
-    const dashboardSections = [
-        { id: 'blueprint', name: 'Plano',     icon: LayoutDashboard },
-        { id: 'lights',    name: 'Luces',     icon: Lightbulb       },
-        { id: 'blinds',    name: 'Persianas', icon: Blinds          },
-    ]
-
-    const settingsSections = [
-        { id: 'active',    name: 'Dispositivos', icon: Smartphone },
-        { id: 'pending',   name: 'Pendientes',   icon: Clock },
-        { id: 'json',      name: 'JSON',         icon: Code },
-        { id: 'firmware',  name: 'Firmware',     icon: Cpu }
-    ]
-
     const router = useRouter()
     const route = useRoute()
 
     const isDashboard = computed(() => route.path === '/')
-    const navSections = computed(() => isDashboard.value ? dashboardSections : settingsSections)
+    const navSections = computed(() => getSections(route.path).map(({ id, name, icon }) => ({ id, name, icon })))
 
     const collapsed = ref(false)
     const toggle = () => { collapsed.value = !collapsed.value }

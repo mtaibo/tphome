@@ -1,6 +1,7 @@
 <script setup>
 
     import { ref, computed } from 'vue'
+    import { useRoute } from 'vue-router'
 
     import PageLayout from '@/layout/PageLayout.vue'
 
@@ -8,17 +9,13 @@
     import Bottombar from '@/layout/Bottombar.vue';
     import Topbar from '@/layout/Topbar.vue';
 
-    import Blueprint from '@/layout/dashboard/Blueprint.vue';
+    import { getSections, getActiveComponent } from '@/config/sections.js'
 
-    const activeSection = ref('blueprint')
-    const activeComponent = computed(() => {
+    const route = useRoute()
+    const sections = getSections(route.path)
 
-        const sections = {
-            blueprint: Blueprint
-        }
-
-        return sections[activeSection.value]
-    })
+    const activeSection = ref(sections[0].id)
+    const activeComponent = computed(() => getActiveComponent(sections, activeSection.value))
 
     const scenes = ['Noche', 'Mañana', 'Cine', 'Todo off']
     const activeScene = ref('Noche')
