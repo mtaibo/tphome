@@ -6,24 +6,15 @@
 
     import Sidebar from '@/layout/Sidebar.vue'
     import Bottombar from '@/layout/Bottombar.vue'
+    import Topbar from '@/layout/Topbar.vue';
 
-    import ActiveDevices from '@/layout/settings/ActiveDevices.vue'
-    import PendingDevices from '@/layout/settings/PendingDevices.vue'
-    import JsonEditor from '@/layout/settings/JsonEditor.vue'
-    import FirmwareManager from '@/layout/settings/FirmwareManager.vue'
+    import { getSections, getActiveComponent } from '@/config/sections.js'
 
-    const activeSection = ref('active')
-    const activeComponent = computed(() => {
+    const route = useRoute()
+    const sections = getSections(route.path)
 
-        const sections = {
-            active: ActiveDevices,
-            pending: PendingDevices,
-            json: JsonEditor,
-            firmware: FirmwareManager
-        }
-
-        return sections[activeSection.value]
-    })
+    const activeSection = ref(sections[0].id)
+    const activeComponent = computed(() => getActiveComponent(sections, activeSection.value))
 
 </script>
 
@@ -34,7 +25,7 @@
         <Sidebar v-model:activeSection="activeSection" />
 
         <main class="flex-1"> 
-            <component  :is="activeComponent" />
+            <component :is="activeComponent" />
         </main>
 
         <Bottombar v-model:activeSection="activeSection" />
