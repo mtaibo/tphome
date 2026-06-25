@@ -71,39 +71,6 @@
         @apply text-tp-danger shadow-tp-danger/50;
     }
 
-    /* Liquid Glass bottom bar — mobile */
-    .liquid-bar {
-        @apply fixed bottom-8 left-4 right-4 z-50 rounded-[24px] px-1.5 py-1.5 flex items-center justify-between;
-        background: rgba(44, 44, 46, 0.52);
-        backdrop-filter: blur(30px) saturate(180%);
-        -webkit-backdrop-filter: blur(30px) saturate(180%);
-        border: 0.5px solid rgba(255, 255, 255, 0.12);
-        box-shadow:
-            inset 0 0.5px 0 rgba(255, 255, 255, 0.1),
-            0 12px 40px rgba(0, 0, 0, 0.7);
-    }
-
-    .tab-item {
-        @apply flex items-center justify-center h-[38px] rounded-[18px] cursor-pointer flex-1 transition-[background] duration-150;
-    }
-
-    .tab-item.active {
-        @apply w-14 flex-none;
-        background: rgba(255, 255, 255, 0.14);
-    }
-
-    .tab-item svg,
-    .tab-item .tab-icon {
-        @apply w-[22px] h-[22px];
-        opacity: 0.6;
-        color: #fff;
-    }
-
-    .tab-item.active svg,
-    .tab-item.active .tab-icon {
-        opacity: 1;
-    }
-
     /* Scenes row — mobile */
     .scenes-row {
         @apply flex gap-[7px] overflow-x-auto shrink-0;
