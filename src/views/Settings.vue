@@ -1,20 +1,16 @@
 <script setup>
 
-    import { ref, computed } from 'vue'
+    import { useRoute } from 'vue-router'
+    import { useSections } from '@/config/sections.js'
 
     import PageLayout from '@/layout/PageLayout.vue'
 
     import Sidebar from '@/layout/Sidebar.vue'
     import Bottombar from '@/layout/Bottombar.vue'
-    import Topbar from '@/layout/Topbar.vue';
-
-    import { getSections, getActiveComponent } from '@/config/sections.js'
+    import Topbar from '@/layout/Topbar.vue'
 
     const route = useRoute()
-    const sections = getSections(route.path)
-
-    const activeSection = ref(sections[0].id)
-    const activeComponent = computed(() => getActiveComponent(sections, activeSection.value))
+    const { sections, activeSection, activeComponent } = useSections(route.path)
 
 </script>
 

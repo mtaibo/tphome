@@ -1,28 +1,16 @@
 <script setup>
 
-    import { ref, computed } from 'vue'
     import { useRoute } from 'vue-router'
+    import { useSections } from '@/config/sections.js'
 
     import PageLayout from '@/layout/PageLayout.vue'
 
-    import Sidebar from '@/layout/Sidebar.vue';
-    import Bottombar from '@/layout/Bottombar.vue';
-    import Topbar from '@/layout/Topbar.vue';
-
-    import { getSections, getActiveComponent } from '@/config/sections.js'
+    import Sidebar from '@/layout/Sidebar.vue'
+    import Bottombar from '@/layout/Bottombar.vue'
+    import Topbar from '@/layout/Topbar.vue'
 
     const route = useRoute()
-    const sections = getSections(route.path)
-
-    const activeSection = ref(sections[0].id)
-    const activeComponent = computed(() => getActiveComponent(sections, activeSection.value))
-
-    const scenes = ['Noche', 'Mañana', 'Cine', 'Todo off']
-    const activeScene = ref('Noche')
-
-    function selectScene(name) {
-        activeScene.value = name
-    }
+    const { sections, activeSection, activeComponent } = useSections(route.path)
 
 </script>
 
@@ -34,26 +22,10 @@
 
         <main class="flex flex-col flex-1">
             <Topbar :activeSection="activeSection" />
-
-            <!-- Scenes row — mobile only -->
-            <div v-if="activeSection === 'blueprint'" class="md:hidden px-5 pt-2 pb-1 shrink-0">
-                <div class="scenes-row">
-                    <button
-                        v-for="scene in scenes"
-                        :key="scene"
-                        @click="selectScene(scene)"
-                        class="scene-pill"
-                        :class="{ active: activeScene === scene }"
-                    >
-                        {{ scene }}
-                    </button>
-                </div>
-            </div>
-
             <component :is="activeComponent" />
         </main>
 
-        <Bottombar v-model:activeSection="activeSection" />
+        <Bottombar v-model:activeSection="activeSection" :sections="sections"/>
 
     </PageLayout>
 
