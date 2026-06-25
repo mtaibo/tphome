@@ -24,7 +24,7 @@
             <component :is="activeComponent" />
         </main>
 
-        <Bottombar v-model:activeSection="activeSection" />
+        <Bottombar v-model:activeSection="activeSection" :sections="sections"/>
 
     </PageLayout>
 
