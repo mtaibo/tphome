@@ -5,7 +5,7 @@
 
     import { Settings, PanelLeftClose, PanelLeftOpen, ArrowLeft } from 'lucide-vue-next'
 
-    import { getSections } from '@/config/sections.js'
+    import { useSections } from '@/config/sections.js'
 
     import Header from '@/components/sidebar/Header.vue'
     import NavButton from '@/components/sidebar/NavButton.vue'
@@ -17,8 +17,10 @@
     const router = useRouter()
     const route = useRoute()
 
+    const { sections } = useSections(route.path)
+
     const isDashboard = computed(() => route.path === '/')
-    const navSections = computed(() => getSections(route.path).map(({ id, name, icon }) => ({ id, name, icon })))
+    const navSections = computed(() => sections.map(({ id, name, icon }) => ({ id, name, icon })))
 
     const collapsed = ref(false)
     const toggle = () => { collapsed.value = !collapsed.value }
