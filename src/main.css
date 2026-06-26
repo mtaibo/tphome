@@ -3,7 +3,7 @@
 @theme {
 
   /* Surfaces */
-  --color-tp-bg: #0a0a0a;
+  --color-tp-bg: #000000;
   --color-tp-surface: #1c1c1e;
   --color-tp-surface2: #2c2c2e;
   --color-tp-border: rgba(255, 255, 255, 0.1);
