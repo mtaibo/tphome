@@ -15,6 +15,8 @@
     const hoverIndex = ref(-1)
     const isDragging = ref(false)
     const isPointerDown = ref(false)
+    const startX = ref(0)
+    const startY = ref(0)
 
     const tabs = computed(() => [
         ...props.sections,
@@ -64,9 +66,25 @@
         })
     }
 
+    function onPointerDown(e) {
+        isPointerDown.value = true
+        const touch = e.touches?.[0] || e
+        startX.value = touch.clientX
+        startY.value = touch.clientY
+    }
+
     function onPointerMove(e) {
         if (!navRef.value || !isPointerDown.value) return
-        const clientX = e.touches?.[0]?.clientX ?? e.clientX
+        
+        const touch = e.touches?.[0] || e
+        const clientX = touch.clientX
+        const clientY = touch.clientY
+        
+        const deltaX = Math.abs(clientX - startX.value)
+        const deltaY = Math.abs(clientY - startY.value)
+        
+        if (deltaY > deltaX) return
+        
         const index = getButtonIndex(navRef.value, clientX)
         if (index >= 0) {
             hoverIndex.value = index
@@ -85,8 +103,8 @@
     }
 
     const listeners = [
-        ['mousedown', () => isPointerDown.value = true],
-        ['touchstart', () => isPointerDown.value = true, { passive: true }],
+        ['mousedown', onPointerDown],
+        ['touchstart', onPointerDown, { passive: true }],
         ['mousemove', onPointerMove],
         ['touchmove', onPointerMove, { passive: true }],
         ['mouseup', onPointerEnd],
