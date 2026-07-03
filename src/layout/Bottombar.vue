@@ -29,7 +29,7 @@
 
 <template>
 
-    <nav class="liquid-bar md:hidden">
+    <nav class="liquid-bar">
         <button
             v-for="item in tabs"
             :key="item.id"
@@ -44,6 +44,7 @@
 </template>
 
 <style scoped>
+@reference "tailwindcss";
 
     .liquid-bar {
         @apply fixed bottom-8 left-4 right-4 z-50 rounded-[24px] px-1.5 py-1.5 flex items-center justify-between;
@@ -54,6 +55,10 @@
         box-shadow:
             inset 0 0.5px 0 rgba(255, 255, 255, 0.1),
             0 12px 40px rgba(0, 0, 0, 0.7);
+
+        @media (min-width: 768px) {
+            display: none;
+        }
     }
 
     .tab-item {
