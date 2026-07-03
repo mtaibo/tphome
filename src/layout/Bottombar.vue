@@ -161,9 +161,9 @@
         position: fixed;
         background: linear-gradient(
             135deg,
-            rgba(255, 255, 255, 0.1) 0%,
-            rgba(255, 255, 255, 0.05) 50%,
-            rgba(255, 255, 255, 0.08) 100%
+            rgba(255, 255, 255, 0.14) 0%,
+            rgba(255, 255, 255, 0.10) 50%,
+            rgba(255, 255, 255, 0.12) 100%
         );
         backdrop-filter: blur(60px) saturate(240%);
         -webkit-backdrop-filter: blur(60px) saturate(240%);
@@ -195,14 +195,14 @@
         border-radius: 26px;
         background: linear-gradient(
             135deg,
-            rgba(255, 255, 255, 0.28) 0%,
-            rgba(255, 255, 255, 0.2) 100%
+            rgba(255, 255, 255, 0.08) 0%,
+            rgba(255, 255, 255, 0.06) 100%
         );
         box-shadow:
-            inset 0 1.5px 0 rgba(255, 255, 255, 0.5),
-            inset 0 -0.5px 0 rgba(0, 0, 0, 0.12),
-            0 6px 16px rgba(0, 0, 0, 0.35),
-            0 0 0 0.5px rgba(255, 255, 255, 0.2);
+            inset 0 1.5px 0 rgba(255, 255, 255, 0.15),
+            inset 0 -0.5px 0 rgba(0, 0, 0, 0.2),
+            0 6px 16px rgba(0, 0, 0, 0.4),
+            0 0 0 0.5px rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
