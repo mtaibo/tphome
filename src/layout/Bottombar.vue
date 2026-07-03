@@ -218,15 +218,15 @@
 
     .tab-item svg {
         @apply w-[24px] h-[24px];
-        opacity: 0.5;
+        opacity: 1;
         color: #fff;
         filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
         transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .tab-item.active svg {
-        opacity: 1;
-        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+        color: var(--color-tp-accent);
+        filter: drop-shadow(0 0 10px var(--color-tp-accent));
         transform: scale(1.05);
     }
 </style>
