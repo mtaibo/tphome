@@ -16,116 +16,97 @@
     const isDragging = ref(false)
     const isPointerDown = ref(false)
 
-    const isDashboard = computed(() => route.path === '/')
-
     const tabs = computed(() => [
         ...props.sections,
-        isDashboard.value
+        route.path === '/'
             ? { id: 'settings', icon: Settings, action: () => router.push('/settings') }
             : { id: 'back', icon: ArrowLeft, action: () => router.push('/') }
     ])
 
-    const activeIndex = computed(() => {
-        return tabs.value.findIndex(t => t.id === props.activeSection)
-    })
-
-    const visualActiveIndex = computed(() => {
-        if (isDragging.value && hoverIndex.value >= 0) return hoverIndex.value
-        return activeIndex.value
-    })
+    const visualIndex = computed(() =>
+        isDragging.value && hoverIndex.value >= 0
+            ? hoverIndex.value
+            : tabs.value.findIndex(t => t.id === props.activeSection)
+    )
 
     const bubbleStyle = computed(() => {
-        if (visualActiveIndex.value < 0 || !navRef.value) return { opacity: 0 }
-        
-        const buttons = navRef.value.querySelectorAll('.tab-item')
-        const button = buttons[visualActiveIndex.value]
+        const idx = visualIndex.value
+        const nav = navRef.value
+        if (idx < 0 || !nav) return { opacity: 0 }
+
+        const button = nav.querySelectorAll('.tab-item')[idx]
         if (!button) return { opacity: 0 }
 
-        const navRect = navRef.value.getBoundingClientRect()
-        const buttonRect = button.getBoundingClientRect()
-
-        const scale = isDragging.value ? 'scale(1.5)' : 'scale(1)'
-        const opacity = isDragging.value ? 0.2 : 1
+        const navRect = nav.getBoundingClientRect()
+        const btnRect = button.getBoundingClientRect()
 
         return {
-            opacity,
-            transform: `translateX(${buttonRect.left - navRect.left}px) ${scale}`,
-            width: `${buttonRect.width}px`,
-            height: `${buttonRect.height}px`
+            opacity: isDragging.value ? 0.2 : 1,
+            transform: `translateX(${btnRect.left - navRect.left}px) scale(${isDragging.value ? 1.5 : 1})`,
+            width: `${btnRect.width}px`,
+            height: `${btnRect.height}px`
         }
     })
 
-    function setActive(item) {
+    function activate(item) {
         if (item.action) item.action()
         else emit('update:activeSection', item.id)
     }
 
-    function handlePointerDown() {
-        isPointerDown.value = true
+    function getButtonIndex(nav, clientX) {
+        const navRect = nav.getBoundingClientRect()
+        const x = clientX - navRect.left
+        const buttons = nav.querySelectorAll('.tab-item')
+        return Array.from(buttons).findIndex(btn => {
+            const r = btn.getBoundingClientRect()
+            const bx = r.left - navRect.left
+            return x >= bx && x < bx + r.width
+        })
     }
 
-    function handlePointerMove(e) {
+    function onPointerMove(e) {
         if (!navRef.value || !isPointerDown.value) return
-        
-        const touch = e.touches?.[0] || e
-        const navRect = navRef.value.getBoundingClientRect()
-        const x = touch.clientX - navRect.left
-
-        const buttons = navRef.value.querySelectorAll('.tab-item')
-        let index = -1
-        
-        for (let i = 0; i < buttons.length; i++) {
-            const rect = buttons[i].getBoundingClientRect()
-            const buttonX = rect.left - navRect.left
-            if (x >= buttonX && x < buttonX + rect.width) {
-                index = i
-                break
-            }
-        }
-
+        const clientX = e.touches?.[0]?.clientX ?? e.clientX
+        const index = getButtonIndex(navRef.value, clientX)
         if (index >= 0) {
             hoverIndex.value = index
             isDragging.value = true
         }
     }
 
-    function handlePointerEnd() {
+    function onPointerEnd() {
         if (isDragging.value && hoverIndex.value >= 0) {
             const item = tabs.value[hoverIndex.value]
-            if (item) {
-                if (item.action) item.action()
-                else emit('update:activeSection', item.id)
-            }
+            if (item) activate(item)
         }
         isDragging.value = false
         hoverIndex.value = -1
         isPointerDown.value = false
     }
 
+    const listeners = [
+        ['mousedown', () => isPointerDown.value = true],
+        ['touchstart', () => isPointerDown.value = true, { passive: true }],
+        ['mousemove', onPointerMove],
+        ['touchmove', onPointerMove, { passive: true }],
+        ['mouseup', onPointerEnd],
+        ['touchend', onPointerEnd],
+        ['touchcancel', onPointerEnd],
+        ['mouseleave', onPointerEnd],
+    ]
+
     onMounted(() => {
-        if (navRef.value) {
-            navRef.value.addEventListener('mousedown', handlePointerDown)
-            navRef.value.addEventListener('touchstart', handlePointerDown, { passive: true })
-            navRef.value.addEventListener('mousemove', handlePointerMove)
-            navRef.value.addEventListener('touchmove', handlePointerMove, { passive: true })
-            navRef.value.addEventListener('mouseup', handlePointerEnd)
-            navRef.value.addEventListener('touchend', handlePointerEnd)
-            navRef.value.addEventListener('touchcancel', handlePointerEnd)
-            navRef.value.addEventListener('mouseleave', handlePointerEnd)
-        }
+        if (!navRef.value) return
+        listeners.forEach(([event, handler, opts]) =>
+            navRef.value.addEventListener(event, handler, opts)
+        )
     })
 
     onUnmounted(() => {
-        if (navRef.value) {
-            navRef.value.removeEventListener('mousedown', handlePointerDown)
-            navRef.value.removeEventListener('touchstart', handlePointerDown)
-            navRef.value.removeEventListener('mousemove', handlePointerMove)
-            navRef.value.removeEventListener('touchmove', handlePointerMove)
-            navRef.value.removeEventListener('mouseup', handlePointerEnd)
-            navRef.value.removeEventListener('touchend', handlePointerEnd)
-            navRef.value.removeEventListener('touchcancel', handlePointerEnd)
-            navRef.value.removeEventListener('mouseleave', handlePointerEnd)
-        }
+        if (!navRef.value) return
+        listeners.forEach(([event, handler, opts]) =>
+            navRef.value.removeEventListener(event, handler, opts)
+        )
     })
 
 </script>
@@ -137,9 +118,9 @@
         <button
             v-for="(item, index) in tabs"
             :key="item.id"
-            @click="setActive(item)"
+            @click="activate(item)"
             class="tab-item"
-            :class="{ active: visualActiveIndex === index }"
+            :class="{ active: visualIndex === index }"
         >
             <component :is="item.icon" />
         </button>
