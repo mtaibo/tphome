@@ -14,6 +14,7 @@
     const navRef = ref(null)
     const hoverIndex = ref(-1)
     const isDragging = ref(false)
+    const isPointerDown = ref(false)
 
     const isDashboard = computed(() => route.path === '/')
 
@@ -44,7 +45,7 @@
         const buttonRect = button.getBoundingClientRect()
 
         const scale = isDragging.value ? 'scale(1.8)' : 'scale(1)'
-        const opacity = isDragging.value ? 0 : 1
+        const opacity = isDragging.value ? 0.2 : 1
 
         return {
             opacity,
@@ -59,8 +60,12 @@
         else emit('update:activeSection', item.id)
     }
 
+    function handlePointerDown() {
+        isPointerDown.value = true
+    }
+
     function handlePointerMove(e) {
-        if (!navRef.value) return
+        if (!navRef.value || !isPointerDown.value) return
         
         const touch = e.touches?.[0] || e
         const navRect = navRef.value.getBoundingClientRect()
@@ -93,22 +98,31 @@
         }
         isDragging.value = false
         hoverIndex.value = -1
+        isPointerDown.value = false
     }
 
     onMounted(() => {
         if (navRef.value) {
-            navRef.value.addEventListener('touchmove', handlePointerMove, { passive: true })
+            navRef.value.addEventListener('mousedown', handlePointerDown)
+            navRef.value.addEventListener('touchstart', handlePointerDown, { passive: true })
             navRef.value.addEventListener('mousemove', handlePointerMove)
+            navRef.value.addEventListener('touchmove', handlePointerMove, { passive: true })
+            navRef.value.addEventListener('mouseup', handlePointerEnd)
             navRef.value.addEventListener('touchend', handlePointerEnd)
+            navRef.value.addEventListener('touchcancel', handlePointerEnd)
             navRef.value.addEventListener('mouseleave', handlePointerEnd)
         }
     })
 
     onUnmounted(() => {
         if (navRef.value) {
-            navRef.value.removeEventListener('touchmove', handlePointerMove)
+            navRef.value.removeEventListener('mousedown', handlePointerDown)
+            navRef.value.removeEventListener('touchstart', handlePointerDown)
             navRef.value.removeEventListener('mousemove', handlePointerMove)
+            navRef.value.removeEventListener('touchmove', handlePointerMove)
+            navRef.value.removeEventListener('mouseup', handlePointerEnd)
             navRef.value.removeEventListener('touchend', handlePointerEnd)
+            navRef.value.removeEventListener('touchcancel', handlePointerEnd)
             navRef.value.removeEventListener('mouseleave', handlePointerEnd)
         }
     })
