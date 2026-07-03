@@ -17,6 +17,7 @@
     const isPointerDown = ref(false)
     const startX = ref(0)
     const startY = ref(0)
+    const directionLock = ref(null)
 
     const tabs = computed(() => [
         ...props.sections,
@@ -68,6 +69,7 @@
 
     function onPointerDown(e) {
         isPointerDown.value = true
+        directionLock.value = null
         const touch = e.touches?.[0] || e
         startX.value = touch.clientX
         startY.value = touch.clientY
@@ -83,7 +85,11 @@
         const deltaX = Math.abs(clientX - startX.value)
         const deltaY = Math.abs(clientY - startY.value)
         
-        if (deltaY > deltaX) return
+        if (directionLock.value === null && (deltaX > 5 || deltaY > 5)) {
+            directionLock.value = deltaY > deltaX ? 'vertical' : 'horizontal'
+        }
+        
+        if (directionLock.value === 'vertical') return
         
         const index = getButtonIndex(navRef.value, clientX)
         if (index >= 0) {
@@ -100,6 +106,7 @@
         isDragging.value = false
         hoverIndex.value = -1
         isPointerDown.value = false
+        directionLock.value = null
     }
 
     const listeners = [
