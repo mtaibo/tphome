@@ -43,9 +43,12 @@
         const navRect = navRef.value.getBoundingClientRect()
         const buttonRect = button.getBoundingClientRect()
 
+        const scale = isDragging.value ? 'scale(1.8)' : 'scale(1)'
+        const opacity = isDragging.value ? 0 : 1
+
         return {
-            opacity: 1,
-            transform: `translateX(${buttonRect.left - navRect.left}px)`,
+            opacity,
+            transform: `translateX(${buttonRect.left - navRect.left}px) ${scale}`,
             width: `${buttonRect.width}px`,
             height: `${buttonRect.height}px`
         }
@@ -114,7 +117,7 @@
 
 <template>
 
-    <nav ref="navRef" class="liquid-bar">
+    <nav ref="navRef" class="liquid-bar" :class="{ dragging: isDragging }">
         <div class="bubble-indicator" :style="bubbleStyle"></div>
         <button
             v-for="(item, index) in tabs"
@@ -152,10 +155,15 @@
             0 30px 90px rgba(0, 0, 0, 0.65),
             0 12px 40px rgba(0, 0, 0, 0.45),
             0 0 0 0.5px rgba(255, 255, 255, 0.15);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
         @media (min-width: 768px) {
             display: none;
         }
+    }
+
+    .liquid-bar.dragging {
+        transform: scale(1.02);
     }
 
     .bubble-indicator {
