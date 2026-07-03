@@ -92,8 +92,9 @@
     function handlePointerEnd() {
         if (isDragging.value && hoverIndex.value >= 0) {
             const item = tabs.value[hoverIndex.value]
-            if (item && !item.action) {
-                emit('update:activeSection', item.id)
+            if (item) {
+                if (item.action) item.action()
+                else emit('update:activeSection', item.id)
             }
         }
         isDragging.value = false
@@ -138,7 +139,7 @@
             :key="item.id"
             @click="setActive(item)"
             class="tab-item"
-            :class="{ active: visualActiveIndex === index && item.id !== 'settings' }"
+            :class="{ active: visualActiveIndex === index }"
         >
             <component :is="item.icon" />
         </button>
