@@ -44,7 +44,7 @@
         const navRect = navRef.value.getBoundingClientRect()
         const buttonRect = button.getBoundingClientRect()
 
-        const scale = isDragging.value ? 'scale(1.8)' : 'scale(1)'
+        const scale = isDragging.value ? 'scale(1.5)' : 'scale(1)'
         const opacity = isDragging.value ? 0.2 : 1
 
         return {
@@ -169,7 +169,7 @@
             0 30px 90px rgba(0, 0, 0, 0.65),
             0 12px 40px rgba(0, 0, 0, 0.45),
             0 0 0 0.5px rgba(255, 255, 255, 0.15);
-        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition: padding 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
         @media (min-width: 768px) {
             display: none;
@@ -177,7 +177,8 @@
     }
 
     .liquid-bar.dragging {
-        transform: scale(1.02);
+        padding-top: 7px;
+        padding-bottom: 7px;
     }
 
     .bubble-indicator {
