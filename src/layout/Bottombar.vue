@@ -3,7 +3,7 @@
     import { ref, computed, onMounted, onUnmounted } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
 
-    import { Smartphone } from 'lucide-vue-next'
+    import { Settings, ArrowLeft } from 'lucide-vue-next'
 
     const props = defineProps({ activeSection: String, sections: Array })
     const emit = defineEmits(['update:activeSection'])
@@ -21,8 +21,8 @@
     const tabs = computed(() => [
         ...props.sections,
         isDashboard.value
-            ? { id: 'settings', icon: Smartphone, action: () => router.push('/settings') }
-            : { id: 'back', icon: Smartphone, action: () => router.push('/') }
+            ? { id: 'settings', icon: Settings, action: () => router.push('/settings') }
+            : { id: 'back', icon: ArrowLeft, action: () => router.push('/') }
     ])
 
     const activeIndex = computed(() => {
