@@ -28,16 +28,16 @@
         return tabs.value.findIndex(t => t.id === props.activeSection)
     })
 
-    const bubbleIndex = computed(() => {
+    const visualActiveIndex = computed(() => {
         if (isDragging.value && hoverIndex.value >= 0) return hoverIndex.value
         return activeIndex.value
     })
 
     const bubbleStyle = computed(() => {
-        if (bubbleIndex.value < 0 || !navRef.value) return { opacity: 0 }
+        if (visualActiveIndex.value < 0 || !navRef.value) return { opacity: 0 }
         
         const buttons = navRef.value.querySelectorAll('.tab-item')
-        const button = buttons[bubbleIndex.value]
+        const button = buttons[visualActiveIndex.value]
         if (!button) return { opacity: 0 }
 
         const navRect = navRef.value.getBoundingClientRect()
@@ -121,10 +121,7 @@
             :key="item.id"
             @click="setActive(item)"
             class="tab-item"
-            :class="{
-                active: activeSection === item.id && item.id !== 'settings',
-                hovering: isDragging && hoverIndex === index && hoverIndex !== activeIndex
-            }"
+            :class="{ active: visualActiveIndex === index && item.id !== 'settings' }"
         >
             <component :is="item.icon" />
         </button>
@@ -201,11 +198,5 @@
         opacity: 1;
         filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
         transform: scale(1.05);
-    }
-
-    .tab-item.hovering svg {
-        opacity: 0.85;
-        filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
-        transform: scale(1.02);
     }
 </style>
