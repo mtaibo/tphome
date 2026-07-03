@@ -195,14 +195,14 @@
         border-radius: 26px;
         background: linear-gradient(
             135deg,
-            rgba(255, 255, 255, 0.20) 0%,
-            rgba(255, 255, 255, 0.16) 100%
+            rgba(0, 0, 0, 0.4) 0%,
+            rgba(0, 0, 0, 0.3) 100%
         );
         box-shadow:
-            inset 0 1.5px 0 rgba(255, 255, 255, 0.15),
-            inset 0 -0.5px 0 rgba(0, 0, 0, 0.2),
-            0 6px 16px rgba(0, 0, 0, 0.4),
-            0 0 0 0.5px rgba(255, 255, 255, 0.1);
+            inset 0 1px 0 rgba(255, 255, 255, 0.1),
+            inset 0 -0.5px 0 rgba(0, 0, 0, 0.3),
+            0 4px 12px rgba(0, 0, 0, 0.5),
+            0 0 0 0.5px rgba(255, 255, 255, 0.08);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
