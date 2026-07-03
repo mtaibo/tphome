@@ -166,7 +166,7 @@
 
 <template>
 
-    <div class="h-full flex flex-col p-4 md:p-8 gap-4 md:gap-8 overflow-y-auto">
+    <div class="h-full flex flex-col p-4 md:p-8 pb-24 gap-4 md:gap-8 overflow-y-auto">
 
         <section>
             <div class="flex items-center gap-3 mb-5">
