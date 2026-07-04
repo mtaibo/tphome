@@ -46,6 +46,10 @@
 }
 
 @layer base {
+  html, body, #app {
+    height: 100%;
+  }
+
   body {
     @apply bg-tp-bg text-tp-text antialiased overflow-clip;
     margin: 0;
