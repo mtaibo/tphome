@@ -7,7 +7,7 @@
 
 .is-standalone {
     --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-bottom: max(calc(env(safe-area-inset-bottom, 0px) - 1.5rem), 0px);
 }
 
 @theme {
