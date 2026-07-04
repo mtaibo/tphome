@@ -29,6 +29,10 @@
 
     const sectionTitle = computed(() => sectionNames[props.activeSection] ?? 'Plano')
 
+    const isSettingsSection = computed(() =>
+        ['active', 'pending', 'json', 'firmware'].includes(props.activeSection)
+    )
+
     const handleUpdate = async () => {
         await api.triggerUpdate()
         await store.setup()
@@ -40,15 +44,20 @@
 
 <template>
 
-    <header class="h-20 z-20 flex items-center justify-between px-6 md:px-10 bg-transparent md:bg-tp-surface/60 md:border-b md:border-tp-border md:backdrop-blur-md">
+    <header class="h-20 z-20 flex items-center justify-between px-6 md:px-10 bg-transparent border-0 md:bg-tp-surface/60 md:border-b md:border-tp-border md:backdrop-blur-md">
 
         <!-- Mobile: section title -->
         <div class="md:hidden">
-            <h1 class="text-[28px] font-bold text-tp-text-primary tracking-tight leading-none">{{ sectionTitle }}</h1>
+            <h1 class="text-[34px] font-bold text-white tracking-tight leading-none">{{ sectionTitle }}</h1>
+        </div>
+
+        <!-- Desktop: section title (settings only) -->
+        <div v-if="isSettingsSection" class="hidden md:block">
+            <h1 class="text-[34px] font-bold text-white tracking-tight leading-none">{{ sectionTitle }}</h1>
         </div>
 
         <!-- Desktop: status + devices -->
-        <div class="hidden md:flex items-center gap-6"> 
+        <div v-if="!isSettingsSection" class="hidden md:flex items-center gap-6"> 
             
             <!-- API STATUS -->
             <div class="flex flex-col">
@@ -80,7 +89,7 @@
         </div>
 
 
-        <div class="flex items-center gap-6">
+        <div v-if="!isSettingsSection" class="flex items-center gap-6">
 
             <!-- UNCONFIGURED DEVICES -->
             <div 
