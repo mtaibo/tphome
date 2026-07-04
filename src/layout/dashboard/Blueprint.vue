@@ -30,7 +30,7 @@
         <div class="fixed inset-0 md:top-20 pointer-events-none z-0"></div>
 
         <!-- Blueprint itself -->
-        <div class="flex-1 flex items-center justify-center p-4 md:p-12 md:pb-12 transition-all duration-500 ease-in-out">
+        <div class="flex-1 flex items-center justify-center p-4 md:p-12 md:pb-12 transition-all duration-500 ease-in-out min-h-0">
                 <svg :viewBox="map.storage.viewBox ?? '0 0 0 0'" class="w-full h-full max-h-full max-w-3xl drop-shadow-2xl" xmlns="http://www.w3.org/2000/svg">
                 <HouseLayer />
                 <LightsLayer />
