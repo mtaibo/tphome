@@ -71,30 +71,6 @@
         @apply text-tp-danger shadow-tp-danger/50;
     }
 
-    /* Scenes row — mobile */
-    .scenes-row {
-        @apply flex gap-[7px] overflow-x-auto shrink-0;
-        scrollbar-width: none;
-    }
-
-    .scenes-row::-webkit-scrollbar {
-        display: none;
-    }
-
-    .scene-pill {
-        @apply flex-shrink-0 rounded-[20px] px-4 py-1.5 text-[13px] font-normal cursor-pointer transition-[background,color] duration-150;
-        background: #1c1c1e;
-        border: 0.5px solid #3a3a3c;
-        color: rgba(235, 235, 245, 0.7);
-    }
-
-    .scene-pill.active {
-        @apply font-semibold;
-        background: #fff;
-        border-color: #fff;
-        color: #000;
-    }
-
     /* Blinds popup — mobile */
     .blinds-popup-overlay {
         @apply fixed inset-0 z-[60] flex items-center justify-center;
