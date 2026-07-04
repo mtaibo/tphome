@@ -7,8 +7,18 @@
 
 .is-standalone {
     --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-bottom: 0px;
     background-color: #000000;
+}
+
+.is-standalone body {
+    height: 100dvh;
+    min-height: 100dvh;
+}
+
+.is-standalone #app {
+    height: 100dvh;
+    min-height: 100dvh;
 }
 
 @theme {

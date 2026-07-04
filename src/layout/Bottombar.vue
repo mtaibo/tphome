@@ -189,10 +189,6 @@
         padding-bottom: 7px;
     }
 
-    :global(.is-standalone) .liquid-bar {
-        bottom: calc(0.25rem + var(--safe-bottom));
-    }
-
     .bubble-indicator {
         position: absolute;
         top: 6px;
