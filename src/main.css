@@ -33,7 +33,7 @@
 
 @layer base {
   body {
-    @apply bg-tp-bg text-tp-text antialiased;
+    @apply bg-tp-bg text-tp-text;
     font-family: var(--font-sans);
   }
 
