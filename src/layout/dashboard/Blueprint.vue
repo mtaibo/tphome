@@ -24,7 +24,7 @@
 
 <template>
 
-    <div class="flex flex-col md:flex-row h-full w-full overflow-hidden">
+    <div class="flex flex-col md:flex-row h-full w-full overflow-hidden min-h-0">
 
         <!-- Dot background - top-20 to not be shown below topbar due to its oppacity -->
         <div class="fixed inset-0 md:top-20 bg-grid-dots pointer-events-none z-0"></div>
