@@ -20,6 +20,11 @@
         blueprint: 'Plano',
         lights: 'Luces',
         blinds: 'Persianas',
+        scenes: 'Escenas',
+        active: 'Dispositivos',
+        pending: 'Pendientes',
+        json: 'JSON',
+        firmware: 'Firmware',
     }
 
     const sectionTitle = computed(() => sectionNames[props.activeSection] ?? 'Plano')
@@ -35,7 +40,7 @@
 
 <template>
 
-    <header class="h-20 z-20 flex items-center justify-between px-6 md:px-10 bg-tp-surface/60 border-b border-tp-border backdrop-blur-md">
+    <header class="h-20 z-20 flex items-center justify-between px-6 md:px-10 bg-transparent md:bg-tp-surface/60 md:border-b md:border-tp-border md:backdrop-blur-md">
 
         <!-- Mobile: section title -->
         <div class="md:hidden">
