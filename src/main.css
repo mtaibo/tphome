@@ -22,6 +22,10 @@
     height: 100lvh !important;
 }
 
+.is-standalone .liquid-bar {
+    bottom: calc(1.25rem + var(--safe-bottom)) !important;
+}
+
 @theme {
 
   /* Surfaces */
