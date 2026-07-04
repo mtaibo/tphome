@@ -43,6 +43,17 @@
     font-family: var(--font-sans);
   }
 
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top);
+    background: var(--color-tp-bg);
+    z-index: 9999;
+  }
+
   *, *::before, *::after {
     font-family: inherit;
   }
