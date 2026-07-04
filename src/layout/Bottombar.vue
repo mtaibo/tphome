@@ -1,6 +1,6 @@
 <script setup>
 
-    import { ref, computed, onMounted, onUnmounted } from 'vue'
+    import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
 
     import { Settings, ArrowLeft } from 'lucide-vue-next'
@@ -32,24 +32,43 @@
             : tabs.value.findIndex(t => t.id === props.activeSection)
     )
 
-    const bubbleStyle = computed(() => {
+    const bubbleStyle = ref({ opacity: 0 })
+
+    let retryCount = 0
+
+    function updateBubble() {
         const idx = visualIndex.value
         const nav = navRef.value
-        if (idx < 0 || !nav) return { opacity: 0 }
+        if (idx < 0 || !nav) {
+            bubbleStyle.value = { opacity: 0 }
+            return
+        }
 
         const button = nav.querySelectorAll('.tab-item')[idx]
-        if (!button) return { opacity: 0 }
+        if (!button) {
+            bubbleStyle.value = { opacity: 0 }
+            return
+        }
+
+        const btnRect = button.getBoundingClientRect()
+        if (btnRect.width === 0 && retryCount < 10) {
+            retryCount++
+            requestAnimationFrame(updateBubble)
+            return
+        }
+        retryCount = 0
 
         const navRect = nav.getBoundingClientRect()
-        const btnRect = button.getBoundingClientRect()
 
-        return {
+        bubbleStyle.value = {
             opacity: isDragging.value ? 0.85 : 1,
             transform: `translateX(${btnRect.left - navRect.left}px) scale(${isDragging.value ? 1.5 : 1})`,
             width: `${btnRect.width}px`,
             height: `${btnRect.height}px`
         }
-    })
+    }
+
+    watch([visualIndex, isDragging], updateBubble, { flush: 'post' })
 
     function activate(item) {
         if (item.action) item.action()
@@ -125,6 +144,11 @@
         listeners.forEach(([event, handler, opts]) =>
             navRef.value.addEventListener(event, handler, opts)
         )
+        
+        setTimeout(updateBubble, 10000)
+        
+        const resizeObserver = new ResizeObserver(updateBubble)
+        resizeObserver.observe(navRef.value)
     })
 
     onUnmounted(() => {
