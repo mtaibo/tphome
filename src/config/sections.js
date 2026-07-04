@@ -1,6 +1,6 @@
 
 import { ref, computed } from 'vue'
-import { LayoutDashboard, Blinds, Lightbulb, Smartphone, Clock, Code, Cpu } from 'lucide-vue-next'
+import { LayoutDashboard, Blinds, Lightbulb, Wand2, Smartphone, Clock, Code, Cpu } from 'lucide-vue-next'
 
 import Blueprint     from '@/layout/dashboard/Blueprint.vue'
 import ActiveDevices from '@/layout/settings/ActiveDevices.vue'
@@ -14,6 +14,7 @@ const SECTIONS_MAP = {
         { id: 'blueprint', name: 'Plano',     icon: LayoutDashboard, component: Blueprint },
         { id: 'lights',    name: 'Luces',     icon: Lightbulb,       component: null },
         { id: 'blinds',    name: 'Persianas', icon: Blinds,          component: null },
+        { id: 'scenes',    name: 'Escenas',   icon: Wand2,           component: null },
     ],
 
     "/settings" : [
