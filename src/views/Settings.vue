@@ -20,7 +20,7 @@
 
         <Sidebar v-model:activeSection="activeSection" />
 
-        <main class="flex flex-col flex-1">
+        <main class="flex flex-col flex-1 pt-20 md:pt-0">
             <Topbar :activeSection="activeSection" />
             <component :is="activeComponent" />
         </main>
