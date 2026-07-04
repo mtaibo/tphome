@@ -23,7 +23,7 @@
 }
 
 .is-standalone .liquid-bar {
-    bottom: calc(1.25rem + var(--safe-bottom)) !important;
+    bottom: calc(1.5rem + var(--safe-bottom)) !important;
 }
 
 @theme {
