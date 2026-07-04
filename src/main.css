@@ -32,13 +32,23 @@
 }
 
 @layer base {
-  html, body, #app {
+  html {
+    background: #000000;
     height: 100%;
     height: 100dvh;
+    height: -webkit-fill-available;
+  }
+
+  body, #app {
+    height: 100%;
+    height: 100dvh;
+    height: -webkit-fill-available;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
   }
 
   body {
-    @apply bg-tp-bg text-tp-text antialiased overflow-clip;
+    @apply bg-tp-bg text-tp-text antialiased overflow-hidden;
     margin: 0;
     font-family: var(--font-sans);
   }
