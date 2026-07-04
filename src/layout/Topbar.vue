@@ -44,7 +44,7 @@
 
 <template>
 
-    <header class="fixed md:relative top-0 left-0 right-0 z-20 flex items-end justify-between px-6 md:px-10 h-[calc(5rem+env(safe-area-inset-top,0px))] bg-transparent border-0 md:bg-tp-surface/60 md:border-b md:border-tp-border md:backdrop-blur-md md:h-20">
+    <header class="topbar">
 
         <!-- Mobile: section title -->
         <div class="md:hidden">
@@ -119,3 +119,15 @@
     </header>
 
 </template>
+
+<style scoped>
+    .topbar {
+        @apply fixed top-0 left-0 right-0 z-20 flex items-center justify-between px-6 md:px-10 h-20 bg-transparent border-0 md:relative md:bg-tp-surface/60 md:border-b md:border-tp-border md:backdrop-blur-md;
+    }
+
+    @media (display-mode: standalone) {
+        .topbar {
+            padding-top: env(safe-area-inset-top);
+        }
+    }
+</style>
