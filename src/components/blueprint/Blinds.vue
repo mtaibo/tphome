@@ -57,7 +57,7 @@
             :x="blind.map.x" :y="blind.map.y" rx="1.5"
             :width="blind.map.width" :height="blind.map.height" 
             class="fill-black"
-            :class="isActive(blind) ? 'stroke-[#5a5aee]' : 'stroke-tp-border'"
+            :class="isActive(blind) ? 'stroke-tp-accent' : 'stroke-tp-border'"
         />
 
         <!-- Blind plain cover -->
@@ -67,7 +67,7 @@
             :class="props.mode === 'config'
                 ? 'fill-tp-accent/20'
                 : isActive(blind)
-                    ? 'fill-[#5a5aee18] transition-all duration-500 ease-in-out'
+                    ? 'fill-tp-accent/10 transition-all duration-500 ease-in-out'
                     : 'fill-muted transition-all duration-500 ease-in-out'"
         />
 
