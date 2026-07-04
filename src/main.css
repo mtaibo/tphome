@@ -1,19 +1,5 @@
 @import "tailwindcss";
 
-:root {
-    --safe-top: 0px;
-    --safe-bottom: 0px;
-}
-
-.is-standalone {
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: 0px;
-}
-
-.is-standalone .liquid-bar {
-    bottom: calc(1.5rem + var(--safe-bottom)) !important;
-}
-
 @theme {
 
   /* Surfaces */
@@ -48,6 +34,7 @@
 @layer base {
   html, body, #app {
     height: 100%;
+    height: 100dvh;
   }
 
   body {
