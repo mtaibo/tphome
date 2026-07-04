@@ -44,7 +44,7 @@
 
 <template>
 
-    <header class="fixed top-0 left-0 right-0 z-20 flex items-center justify-between px-6 md:px-10 h-24 bg-tp-bg border-0 md:relative md:bg-tp-surface/60 md:border-b md:border-tp-border md:backdrop-blur-md">
+    <header class="fixed top-0 left-0 right-0 z-20 flex items-center justify-between px-6 md:px-10 h-24 bg-tp-bg border-0 border-t border-transparent md:relative md:bg-tp-surface/60 md:border-b md:border-tp-border md:backdrop-blur-md">
 
         <!-- Mobile: section title -->
         <div class="md:hidden">
