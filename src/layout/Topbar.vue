@@ -1,6 +1,6 @@
 <script setup>
 
-    import { ref, computed } from 'vue';
+    import { computed } from 'vue';
     import { RefreshCw } from 'lucide-vue-next';
 
     import { useDevices } from '@/config/devices'
@@ -20,17 +20,9 @@
         blueprint: 'Plano',
         lights: 'Luces',
         blinds: 'Persianas',
-        scenes: 'Escenas',
     }
 
     const sectionTitle = computed(() => sectionNames[props.activeSection] ?? 'Plano')
-
-    const scenes = ['Noche', 'Mañana', 'Cine', 'Todo off']
-    const activeScene = ref('Noche')
-
-    function selectScene(name) {
-        activeScene.value = name
-    }
 
     const handleUpdate = async () => {
         await api.triggerUpdate()
@@ -107,22 +99,6 @@
 
             </button>
 
-        </div>
-
-
-        <!-- Scenes row — mobile only -->
-        <div v-if="activeSection === 'blueprint'" class="md:hidden px-5 pt-2 pb-1 shrink-0">
-            <div class="scenes-row">
-                <button
-                    v-for="scene in scenes"
-                    :key="scene"
-                    @click="selectScene(scene)"
-                    class="scene-pill"
-                    :class="{ active: activeScene === scene }"
-                >
-                    {{ scene }}
-                </button>
-            </div>
         </div>
 
 
