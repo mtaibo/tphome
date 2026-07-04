@@ -11,14 +11,15 @@
     background-color: #000000;
 }
 
-.is-standalone body {
-    height: 100dvh;
-    min-height: 100dvh;
+.is-standalone body,
+.is-standalone #app {
+    height: 100lvh;
+    min-height: 100lvh;
+    overflow: hidden;
 }
 
-.is-standalone #app {
-    height: 100dvh;
-    min-height: 100dvh;
+.is-standalone .h-svh {
+    height: 100lvh !important;
 }
 
 @theme {
