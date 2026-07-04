@@ -40,7 +40,6 @@
   body {
     @apply bg-tp-bg text-tp-text antialiased overflow-clip;
     margin: 0;
-    padding-top: env(safe-area-inset-top);
     font-family: var(--font-sans);
   }
 
