@@ -33,8 +33,7 @@
 
 @layer base {
   body {
-    @apply bg-tp-bg text-tp-text antialiased overflow-hidden;
-    margin: 0;
+    @apply bg-tp-bg text-tp-text antialiased;
     font-family: var(--font-sans);
   }
 
