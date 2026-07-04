@@ -20,7 +20,7 @@
 
         <Sidebar v-model:activeSection="activeSection" />
 
-        <main class="flex flex-col flex-1 pt-[calc(5rem+env(safe-area-inset-top))] md:pt-0">
+        <main class="dashboard-main">
             <Topbar :activeSection="activeSection" />
             <component :is="activeComponent" />
         </main>
@@ -30,3 +30,15 @@
     </PageLayout>
 
 </template>
+
+<style scoped>
+    .dashboard-main {
+        @apply flex flex-col flex-1 pt-20 md:pt-0;
+    }
+
+    @media (display-mode: standalone) {
+        .dashboard-main {
+            padding-top: calc(5rem + env(safe-area-inset-top));
+        }
+    }
+</style>
