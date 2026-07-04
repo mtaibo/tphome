@@ -35,16 +35,11 @@
   html {
     background: #000000;
     height: 100%;
-    height: 100dvh;
-    height: -webkit-fill-available;
   }
 
   body, #app {
     height: 100%;
-    height: 100dvh;
-    height: -webkit-fill-available;
-    min-height: 100dvh;
-    min-height: -webkit-fill-available;
+    min-height: 100vh;
   }
 
   body {
