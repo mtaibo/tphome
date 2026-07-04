@@ -44,7 +44,7 @@
 
 <template>
 
-    <header class="fixed md:relative top-0 left-0 right-0 z-20 flex items-center justify-between px-6 md:px-10 h-20 pt-[env(safe-area-inset-top)] bg-transparent border-0 md:bg-tp-surface/60 md:border-b md:border-tp-border md:backdrop-blur-md">
+    <header class="fixed md:relative top-0 left-0 right-0 z-20 flex items-end justify-between px-6 md:px-10 h-[calc(5rem+env(safe-area-inset-top,0px))] bg-transparent border-0 md:bg-tp-surface/60 md:border-b md:border-tp-border md:backdrop-blur-md md:h-20">
 
         <!-- Mobile: section title -->
         <div class="md:hidden">
