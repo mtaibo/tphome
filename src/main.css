@@ -13,13 +13,13 @@
 
 .is-standalone body,
 .is-standalone #app {
-    height: 100lvh;
-    min-height: 100lvh;
+    height: calc(100dvh + env(safe-area-inset-bottom, 0px));
+    min-height: calc(100dvh + env(safe-area-inset-bottom, 0px));
     overflow: hidden;
 }
 
 .is-standalone .h-svh {
-    height: 100lvh !important;
+    height: calc(100dvh + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .is-standalone .liquid-bar {
