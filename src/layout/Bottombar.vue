@@ -158,7 +158,7 @@
 
     .liquid-bar {
         @apply fixed left-4 right-4 z-50 rounded-[32px] px-1.5 py-1.5 flex items-center justify-between;
-        bottom: calc(0.875rem + env(safe-area-inset-bottom, 0px));
+        bottom: 0.4rem;
         position: fixed;
         background: linear-gradient(
             135deg,
