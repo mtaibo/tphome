@@ -145,8 +145,6 @@
             navRef.value.addEventListener(event, handler, opts)
         )
         
-        setTimeout(updateBubble, 10000)
-        
         const resizeObserver = new ResizeObserver(updateBubble)
         resizeObserver.observe(navRef.value)
     })
