@@ -157,7 +157,8 @@
 @reference "tailwindcss";
 
     .liquid-bar {
-        @apply fixed bottom-6 left-4 right-4 z-50 rounded-[32px] px-1.5 py-1.5 flex items-center justify-between;
+        @apply fixed left-4 right-4 z-50 rounded-[32px] px-1.5 py-1.5 flex items-center justify-between;
+        bottom: calc(1.5rem + var(--safe-bottom));
         position: fixed;
         background: linear-gradient(
             135deg,
@@ -230,9 +231,4 @@
         transform: scale(1.05);
     }
 
-    @media (display-mode: standalone) {
-        .liquid-bar {
-            bottom: calc(1.5rem + env(safe-area-inset-bottom));
-        }
-    }
 </style>
