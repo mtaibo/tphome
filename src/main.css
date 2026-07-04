@@ -42,10 +42,15 @@
 }
 
 @layer base {
+  html {
+    height: 100%;
+  }
+
   body {
     @apply bg-tp-bg text-tp-text antialiased overflow-clip;
     margin: 0;
     font-family: var(--font-sans);
+    min-height: 100%;
   }
 
   *, *::before, *::after {
