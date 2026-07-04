@@ -44,7 +44,7 @@
 
 <template>
 
-    <header class="fixed top-0 left-0 right-0 z-20 flex items-center justify-between px-6 md:px-10 bg-transparent border-0 md:relative md:bg-tp-surface/60 md:border-b md:border-tp-border md:backdrop-blur-md topbar-header">
+    <header class="fixed top-0 left-0 right-0 z-20 flex items-center justify-between px-6 md:px-10 h-20 bg-transparent border-0 md:relative md:bg-tp-surface/60 md:border-b md:border-tp-border md:backdrop-blur-md">
 
         <!-- Mobile: section title -->
         <div class="md:hidden">
@@ -119,13 +119,3 @@
     </header>
 
 </template>
-
-<style scoped>
-@reference "tailwindcss";
-
-    .topbar-header {
-        padding-top: var(--safe-top);
-        height: calc(5rem + var(--safe-top));
-    }
-
-</style>

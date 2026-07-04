@@ -20,7 +20,7 @@
 
         <Sidebar v-model:activeSection="activeSection" />
 
-        <main class="flex flex-col flex-1 md:pt-0 overflow-y-auto dashboard-main">
+        <main class="flex flex-col flex-1 pt-20 md:pt-0 overflow-y-auto">
             <Topbar :activeSection="activeSection" />
             <component :is="activeComponent" />
         </main>
@@ -30,18 +30,3 @@
     </PageLayout>
 
 </template>
-
-<style scoped>
-@reference "tailwindcss";
-
-    .dashboard-main {
-        padding-top: calc(5rem + var(--safe-top));
-    }
-
-    @media (min-width: 768px) {
-        .dashboard-main {
-            padding-top: 0;
-        }
-    }
-
-</style>
