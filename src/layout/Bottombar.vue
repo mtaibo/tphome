@@ -44,7 +44,7 @@
         const btnRect = button.getBoundingClientRect()
 
         return {
-            opacity: isDragging.value ? 0.2 : 1,
+            opacity: isDragging.value ? 0.5 : 1,
             transform: `translateX(${btnRect.left - navRect.left}px) scale(${isDragging.value ? 1.5 : 1})`,
             width: `${btnRect.width}px`,
             height: `${btnRect.height}px`
