@@ -8,18 +8,6 @@
 .is-standalone {
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: 0px;
-    background-color: #000000;
-}
-
-.is-standalone body,
-.is-standalone #app {
-    height: calc(100dvh + env(safe-area-inset-bottom, 0px));
-    min-height: calc(100dvh + env(safe-area-inset-bottom, 0px));
-    overflow: hidden;
-}
-
-.is-standalone .h-svh {
-    height: calc(100dvh + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .is-standalone .liquid-bar {

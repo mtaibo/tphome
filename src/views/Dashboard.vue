@@ -20,7 +20,7 @@
 
         <Sidebar v-model:activeSection="activeSection" />
 
-        <main class="flex flex-col flex-1 md:pt-0 dashboard-main">
+        <main class="flex flex-col flex-1 md:pt-0 overflow-y-auto dashboard-main">
             <Topbar :activeSection="activeSection" />
             <component :is="activeComponent" />
         </main>
