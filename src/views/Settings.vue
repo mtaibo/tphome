@@ -32,6 +32,7 @@
 </template>
 
 <style scoped>
+@reference "tailwindcss";
     .dashboard-main {
         @apply flex flex-col flex-1 pt-20 md:pt-0;
     }
