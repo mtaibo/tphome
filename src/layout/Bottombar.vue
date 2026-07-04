@@ -227,7 +227,6 @@
 
     .tab-item.active svg {
         color: var(--color-tp-accent);
-        filter: drop-shadow(0 0 10px var(--color-tp-accent));
         transform: scale(1.05);
     }
 
