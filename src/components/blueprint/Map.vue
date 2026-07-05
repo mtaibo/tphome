@@ -64,6 +64,11 @@
 <template>
 
     <defs>
+        <radialGradient id="room-fill" cx="50%" cy="40%" r="70%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.06)" />
+            <stop offset="100%" stop-color="rgba(255,255,255,0.02)" />
+        </radialGradient>
+
         <mask id="door-mask">
             <rect :width="map.storage.viewBox.split(' ')[2]" :height="map.storage.viewBox.split(' ')[3]" fill="white"/>
             <line
@@ -72,18 +77,20 @@
                 :x1="door.x1" :y1="door.y1"
                 :x2="door.x2" :y2="door.y2"
                 stroke="black"
-                stroke-width="8"
+                stroke-width="12"
             />
         </mask>
     </defs>
 
     <!-- Rooms (fill only) -->
-    <g class="fill-tp-surface/50">
+    <g>
         <rect
             v-for="room in map.storage.rooms"
             :key="room.id"
             :x="room.x" :y="room.y"
             :width="room.w" :height="room.h"
+            rx="8"
+            fill="url(#room-fill)"
         />
     </g>
 
@@ -91,15 +98,15 @@
     <path
         :d="wallPath"
         fill="none"
-        class="stroke-2"
-        style="stroke: #ffffff;"
+        stroke="rgba(255, 255, 255, 0.45)"
+        stroke-width="1.5"
         stroke-linejoin="round"
-        stroke-linecap="butt"
+        stroke-linecap="round"
         mask="url(#door-mask)"
     />
 
     <!-- Names -->
-    <g class="fill-white font-mono text-[11px] uppercase tracking-widest pointer-events-none">
+    <g class="pointer-events-none" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; fill: rgba(255,255,255,0.5);">
         <text
             v-for="(label, i) in map.storage.labels"
             :key="i"
