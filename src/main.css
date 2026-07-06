@@ -32,6 +32,11 @@
 }
 
 @layer base {
+  html, body {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
   body {
     @apply bg-tp-bg text-tp-text;
     font-family: var(--font-sans);
