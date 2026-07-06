@@ -31,10 +31,6 @@
   --font-mono: -apple-system, BlinkMacSystemFont, "SF Mono", "Segoe UI Mono", monospace;
 }
 
-:root {
-  --header-height: calc(env(safe-area-inset-top) + 5rem);
-}
-
 @layer base {
   html, body {
     overflow: hidden;
