@@ -36,7 +36,7 @@
 </script>
 
 <template>
-    <div class="h-full overflow-y-auto overflow-x-hidden p-5 md:p-8">
+    <div class="h-full overflow-y-auto overflow-x-hidden pt-28 pb-32 px-5 md:pt-8 md:pb-8 md:px-8">
 
         <!-- Empty state -->
         <div v-if="Object.keys(store.blinds).length === 0"
