@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { LayoutDashboard, Blinds, Lightbulb, Wand2, Smartphone, Clock, Code, Cpu } from 'lucide-vue-next'
 
 import Blueprint     from '@/layout/dashboard/Blueprint.vue'
+import BlindsSection from '@/layout/dashboard/BlindsSection.vue'
 import ActiveDevices from '@/layout/settings/ActiveDevices.vue'
 import PendingDevices from '@/layout/settings/PendingDevices.vue'
 import JsonEditor    from '@/layout/settings/JsonEditor.vue'
@@ -13,7 +14,7 @@ const SECTIONS_MAP = {
     "/" : [
         { id: 'blueprint', name: 'Plano',     icon: LayoutDashboard, component: Blueprint },
         { id: 'lights',    name: 'Luces',     icon: Lightbulb,       component: null },
-        { id: 'blinds',    name: 'Persianas', icon: Blinds,          component: null },
+        { id: 'blinds',    name: 'Persianas', icon: Blinds,          component: BlindsSection },
         { id: 'scenes',    name: 'Escenas',   icon: Wand2,           component: null },
     ],
 
