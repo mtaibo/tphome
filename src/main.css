@@ -75,6 +75,84 @@
         @apply text-tp-danger shadow-tp-danger/50;
     }
 
+    /* Blinds section — liquid glass card */
+    .blind-card {
+        padding: 20px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.065);
+        backdrop-filter: blur(24px) saturate(160%);
+        -webkit-backdrop-filter: blur(24px) saturate(160%);
+        border: 0.5px solid rgba(255, 255, 255, 0.14);
+        box-shadow:
+            0 8px 32px rgba(0, 0, 0, 0.35),
+            inset 0 1px 0 rgba(255, 255, 255, 0.12),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    }
+
+    /* Blinds section — control button */
+    .blind-btn {
+        @apply flex items-center justify-center p-3.5 rounded-2xl cursor-pointer transition-all duration-200;
+        border: 0.5px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    /* Blinds section — position slider */
+    .blind-slider {
+        --track-fill: #007AFF;
+        --track-empty: rgba(255, 255, 255, 0.12);
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 5px;
+        border-radius: 100px;
+        background: linear-gradient(
+            to right,
+            var(--track-fill) var(--blind-val, 0%),
+            var(--track-empty) var(--blind-val, 0%)
+        );
+        outline: none;
+        cursor: pointer;
+    }
+
+    .blind-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #ffffff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(0, 0, 0, 0.1);
+        cursor: grab;
+        transition: transform 0.1s ease;
+    }
+
+    .blind-slider:active::-webkit-slider-thumb {
+        transform: scale(1.18);
+        cursor: grabbing;
+    }
+
+    .blind-slider::-moz-range-thumb {
+        width: 22px;
+        height: 22px;
+        border: none;
+        border-radius: 50%;
+        background: #ffffff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        cursor: grab;
+    }
+
+    .blind-slider::-moz-range-track {
+        height: 5px;
+        border-radius: 100px;
+        background: var(--track-empty);
+    }
+
+    .blind-slider::-moz-range-progress {
+        height: 5px;
+        border-radius: 100px;
+        background: var(--track-fill);
+    }
+
     /* Blinds popup — mobile */
     .blinds-popup-overlay {
         @apply fixed inset-0 z-[60] flex items-center justify-center;
