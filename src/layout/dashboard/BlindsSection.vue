@@ -88,7 +88,7 @@
         </div>
 
         <!-- Cards grid -->
-        <div v-else class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             <div
                 v-for="(device, id) in store.blinds"
                 :key="id"
@@ -112,10 +112,10 @@
                 </div>
 
                 <!-- Control area: track left, buttons right -->
-                <div class="flex gap-2 items-start md:justify-center">
+                <div class="flex gap-2 items-start">
 
                     <!-- Vertical track -->
-                    <div class="blind-track flex-1 md:max-w-[60px]"
+                    <div class="blind-track flex-1 md:max-w-[72px]"
                          @pointerdown="onTrackPointerDown($event, id)"
                          @pointermove="onTrackPointerMove($event, id)"
                          @pointerup="onTrackPointerUp($event, id)"
