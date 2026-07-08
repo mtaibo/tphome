@@ -78,12 +78,13 @@
     </defs>
 
     <!-- Rooms (fill only) -->
-    <g class="fill-tp-surface/50">
+    <g>
         <rect
             v-for="room in map.storage.rooms"
             :key="room.id"
             :x="room.x" :y="room.y"
             :width="room.w" :height="room.h"
+            fill="rgba(255,255,255,0.04)"
         />
     </g>
 
@@ -92,14 +93,14 @@
         :d="wallPath"
         fill="none"
         class="stroke-2"
-        style="stroke: #ffffff;"
+        style="stroke: rgba(255,255,255,0.78);"
         stroke-linejoin="round"
-        stroke-linecap="butt"
+        stroke-linecap="round"
         mask="url(#door-mask)"
     />
 
     <!-- Names -->
-    <g class="fill-white font-mono text-[11px] uppercase tracking-widest pointer-events-none">
+    <g fill="rgba(255,255,255,0.45)" font-family="SF Mono, ui-monospace, monospace" font-size="11" class="uppercase tracking-widest pointer-events-none">
         <text
             v-for="(label, i) in map.storage.labels"
             :key="i"

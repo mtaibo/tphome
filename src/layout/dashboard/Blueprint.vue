@@ -27,12 +27,14 @@
     <div class="flex flex-col md:flex-row h-full w-full overflow-hidden min-h-0">
 
         <!-- Blueprint itself -->
-        <div class="flex-1 flex items-center justify-center p-4 md:p-12 md:pb-12 transition-all duration-500 ease-in-out">
-                <svg :viewBox="map.storage.viewBox ?? '0 0 0 0'" class="w-full h-full max-h-full max-w-3xl drop-shadow-2xl" xmlns="http://www.w3.org/2000/svg">
-                <HouseLayer />
-                <LightsLayer />
-                <BlindsLayer @select="handleSelection" />
-            </svg>
+        <div class="flex-1 flex items-center justify-center p-5 md:p-10 transition-all duration-500 ease-in-out">
+            <div class="map-glass w-full max-w-3xl">
+                <svg :viewBox="map.storage.viewBox ?? '0 0 0 0'" class="w-full h-auto block" xmlns="http://www.w3.org/2000/svg">
+                    <HouseLayer />
+                    <LightsLayer />
+                    <BlindsLayer @select="handleSelection" />
+                </svg>
+            </div>
         </div>
 
         <!-- Desktop sidebar -->
