@@ -93,17 +93,27 @@
 
         <!-- MOBILE LAYOUT -->
         <div class="md:hidden flex-1 flex items-center justify-center px-5 pb-6 gap-4">
-            <div class="flex flex-col items-center gap-3 flex-1 max-w-[120px]">
-                <div class="relative w-full aspect-[3/5] rounded-[22px] border border-white/[0.08] overflow-hidden touch-none select-none"
-                     style="background: rgba(0,0,0,0.35); box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);"
+            <div class="flex flex-col items-center gap-3 flex-1 max-w-[110px]">
+                <div class="relative w-full aspect-[3/5] rounded-[26px] overflow-hidden touch-none select-none cursor-grab active:cursor-grabbing"
+                     style="background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.04) 100%); border: 0.5px solid rgba(255,255,255,0.13); box-shadow: inset 0 2px 8px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.09);"
                      @pointerdown="onPointerDown"
                      @pointermove="onPointerMove"
                      @pointerup="onPointerUp"
                      @pointercancel="onPointerUp">
-                    <div class="absolute top-0 w-full border-b border-tp-accent/40 transition-all duration-700 ease-in-out flex flex-col gap-1 p-1.5 overflow-hidden"
-                         style="background: rgba(100,100,100,0.18);"
+                    <!-- Slats fill from top -->
+                    <div class="absolute top-0 left-0 right-0 overflow-hidden"
+                         :class="tempPosition < 100 ? 'border-b border-tp-accent/35' : ''"
                          :style="{ height: (100 - tempPosition) + '%' }">
-                        <div v-for="i in 16" :key="i" class="h-1.5 min-h-1.5 w-full bg-white/15 rounded-sm shrink-0"></div>
+                        <div class="flex flex-col gap-[3px] px-[4px] pt-[4px]">
+                            <div v-for="i in 24" :key="i"
+                                 class="w-full bg-white/14 rounded-[2px] shrink-0"
+                                 style="height: 4px; min-height: 4px;"></div>
+                        </div>
+                    </div>
+                    <!-- Handle -->
+                    <div class="absolute left-[7px] right-[7px] h-5 rounded-[10px] pointer-events-none"
+                         style="background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,255,255,0.82)); box-shadow: 0 2px 8px rgba(0,0,0,0.30), inset 0 1px 0 white; transition: top 0.08s ease-out;"
+                         :style="{ top: `calc(${100 - tempPosition}% - 10px)` }">
                     </div>
                 </div>
                 <div class="flex items-baseline gap-1">
