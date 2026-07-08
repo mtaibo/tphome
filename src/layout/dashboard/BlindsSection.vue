@@ -1,6 +1,6 @@
 <script setup>
     import { ref, watch, nextTick } from 'vue'
-    import { ChevronUp, ChevronDown, Square, Settings, Blinds } from 'lucide-vue-next'
+    import { ChevronUp, ChevronDown, Pause, Settings, Blinds } from 'lucide-vue-next'
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
     import { useRouter } from 'vue-router'
@@ -68,7 +68,7 @@
     }
 
     const TRACK_H  = 180
-    const HANDLE_H = 28
+    const HANDLE_H = 20
 
     const handleTop = (id) => {
         const pos = positions.value[id] ?? 0
@@ -112,10 +112,10 @@
                 </div>
 
                 <!-- Control area: track left, buttons right -->
-                <div class="flex gap-3 items-start">
+                <div class="flex gap-2 items-start">
 
                     <!-- Vertical track -->
-                    <div class="blind-track"
+                    <div class="blind-track flex-1"
                          @pointerdown="onTrackPointerDown($event, id)"
                          @pointermove="onTrackPointerMove($event, id)"
                          @pointerup="onTrackPointerUp($event, id)"
@@ -140,7 +140,7 @@
                     </div>
 
                     <!-- Buttons column -->
-                    <div class="flex-1 flex flex-col justify-between items-center h-[180px]">
+                    <div class="flex flex-col justify-between items-center h-[180px]">
                         <button @click="handleUp(id)"
                                 class="blind-btn"
                                 :class="{ pressing: pressing[`${id}-up`] }">
@@ -149,7 +149,7 @@
                         <button @click="handleStop(id)"
                                 class="blind-btn"
                                 :class="{ pressing: pressing[`${id}-stop`] }">
-                            <Square class="w-[13px] h-[13px] fill-current text-tp-stop/85" />
+                            <Pause class="w-[15px] h-[15px] fill-current text-tp-text-primary/80" />
                         </button>
                         <button @click="handleDown(id)"
                                 class="blind-btn"
