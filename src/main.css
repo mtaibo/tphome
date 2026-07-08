@@ -227,29 +227,31 @@
             inset 0 -1px 0 rgba(0, 0, 0, 0.2);
     }
 
-    /* Popup enter/leave transition */
+    /* Popup bubble animation */
     .popup-enter-active {
-        transition: opacity 0.38s ease;
+        transition: opacity 0.40s ease;
     }
     .popup-leave-active {
-        transition: opacity 0.30s ease;
+        transition: opacity 0.28s ease;
     }
     .popup-enter-from,
     .popup-leave-to {
         opacity: 0;
     }
+
+    .popup-enter-active .blinds-popup,
+    .popup-leave-active .blinds-popup {
+        transform-origin: 50% 100%;
+    }
     .popup-enter-active .blinds-popup {
-        transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.30s ease;
+        transition: transform 0.50s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
     }
     .popup-leave-active .blinds-popup {
-        transition: transform 0.30s cubic-bezier(0.4, 0, 1, 1), opacity 0.28s ease;
+        transition: transform 0.30s cubic-bezier(0.4, 0, 1, 1), opacity 0.26s ease;
     }
-    .popup-enter-from .blinds-popup {
-        transform: translateY(28px);
-        opacity: 0;
-    }
+    .popup-enter-from .blinds-popup,
     .popup-leave-to .blinds-popup {
-        transform: translateY(14px);
+        transform: scale(0.08);
         opacity: 0;
     }
 }
