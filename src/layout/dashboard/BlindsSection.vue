@@ -112,7 +112,7 @@
                 </div>
 
                 <!-- Control area: track left, buttons right -->
-                <div class="flex gap-2 items-start">
+                <div class="flex gap-2 items-start md:justify-center">
 
                     <!-- Vertical track -->
                     <div class="blind-track flex-1 md:max-w-[60px]"
