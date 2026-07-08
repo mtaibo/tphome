@@ -196,8 +196,6 @@
             inset 0 -1px 0 rgba(0, 0, 0, 0.15),
             inset 1px 0 0 rgba(255, 255, 255, 0.12),
             inset -1px 0 0 rgba(255, 255, 255, 0.12),
-            0 30px 90px rgba(0, 0, 0, 0.65),
-            0 12px 40px rgba(0, 0, 0, 0.45),
             0 0 0 0.5px rgba(255, 255, 255, 0.15);
         transition: padding 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
