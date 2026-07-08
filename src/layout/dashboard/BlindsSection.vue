@@ -1,18 +1,22 @@
 <script setup>
-    import { ref, watch } from 'vue'
-    import { ChevronUp, ChevronDown, Square, Blinds } from 'lucide-vue-next'
+    import { ref, watch, nextTick } from 'vue'
+    import { ChevronUp, ChevronDown, Square, Settings, Blinds } from 'lucide-vue-next'
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
+    import { useRouter } from 'vue-router'
 
-    const store = useDevices()
+    const store   = useDevices()
+    const router  = useRouter()
 
-    const positions  = ref({})
-    const loading    = ref({})
-    const draggingId = ref(null)
+    const positions = ref({})
+    const loading   = ref({})
+    const dragging  = ref({})
+    const pressing  = ref({})
+    const dragState = ref({})
 
     watch(() => store.blinds, (blinds) => {
         for (const [id, device] of Object.entries(blinds)) {
-            if (draggingId.value !== id) {
+            if (!dragging.value[id]) {
                 positions.value[id] = device.state?.position ?? 0
             }
         }
@@ -25,14 +29,52 @@
         finally { loading.value[id] = false }
     }
 
-    const onSliderInput  = (id, val) => { draggingId.value = id; positions.value[id] = Number(val) }
-    const onSliderChange = (id, val) => { draggingId.value = null; sendCommand(id, 'set', Number(val)) }
+    const pressBtn = (key, action) => {
+        pressing.value[key] = false
+        nextTick(() => {
+            pressing.value[key] = true
+            setTimeout(() => { pressing.value[key] = false }, 440)
+        })
+        action()
+    }
 
-    const handleUp   = (id) => { positions.value[id] = 100; sendCommand(id, 'up')   }
-    const handleDown = (id) => { positions.value[id] = 0;   sendCommand(id, 'down') }
-    const handleStop = (id) => { sendCommand(id, 'stop') }
+    const handleUp       = (id) => pressBtn(`${id}-up`,   () => { positions.value[id] = 100; sendCommand(id, 'up') })
+    const handleDown     = (id) => pressBtn(`${id}-down`, () => { positions.value[id] = 0;   sendCommand(id, 'down') })
+    const handleStop     = (id) => pressBtn(`${id}-stop`, () => sendCommand(id, 'stop'))
+    const handleSettings = (id) => pressBtn(`${id}-cfg`,  () => router.push({ path: '/settings', query: { device: id } }))
 
-    const sliderStyle = (id) => ({ '--blind-val': (positions.value[id] ?? 0) + '%' })
+    // Vertical track drag
+    function onTrackPointerDown(e, id) {
+        e.currentTarget.setPointerCapture(e.pointerId)
+        const rect = e.currentTarget.getBoundingClientRect()
+        dragState.value[id] = { active: true, startY: e.clientY, startPos: positions.value[id] ?? 0, height: rect.height }
+        dragging.value[id] = true
+    }
+
+    function onTrackPointerMove(e, id) {
+        const s = dragState.value[id]
+        if (!s?.active) return
+        const dy    = e.clientY - s.startY
+        const delta = -(dy / s.height) * 100
+        positions.value[id] = Math.round(Math.max(0, Math.min(100, s.startPos + delta)))
+    }
+
+    function onTrackPointerUp(e, id) {
+        const s = dragState.value[id]
+        if (!s?.active) return
+        dragState.value[id] = { active: false }
+        dragging.value[id] = false
+        sendCommand(id, 'set', positions.value[id])
+    }
+
+    const TRACK_H  = 180
+    const HANDLE_H = 28
+
+    const handleTop = (id) => {
+        const pos = positions.value[id] ?? 0
+        const raw = (1 - pos / 100) * TRACK_H - HANDLE_H / 2
+        return `${Math.max(0, Math.min(TRACK_H - HANDLE_H, raw))}px`
+    }
 </script>
 
 <template>
@@ -46,7 +88,7 @@
         </div>
 
         <!-- Cards grid -->
-        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             <div
                 v-for="(device, id) in store.blinds"
                 :key="id"
@@ -54,65 +96,72 @@
                 :class="{ 'opacity-50 pointer-events-none': loading[id] }"
             >
                 <!-- Header -->
-                <div class="flex items-start justify-between mb-5">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 rounded-xl transition-colors duration-300"
-                             :class="device.connection?.online ? 'bg-tp-accent/15' : 'bg-white/5'">
-                            <Blinds class="w-4.5 h-4.5 transition-colors duration-300"
-                                    :class="device.connection?.online ? 'text-tp-accent' : 'text-muted'" />
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="w-2 h-2 rounded-full shrink-0 transition-all duration-300"
+                             :class="device.connection?.online
+                                 ? 'bg-tp-ok shadow-[0_0_6px_var(--color-tp-ok)]'
+                                 : 'bg-tp-danger'">
                         </div>
-                        <div>
-                            <h3 class="text-sm font-semibold text-tp-text-primary leading-tight">{{ device.name }}</h3>
-                            <p class="text-[10px] font-medium tracking-widest uppercase mt-0.5 transition-colors duration-300"
-                               :class="device.connection?.online ? 'text-tp-ok' : 'text-muted'">
-                                {{ device.connection?.online ? 'En línea' : 'Sin conexión' }}
-                            </p>
+                        <h3 class="text-sm font-semibold text-tp-text-primary leading-tight truncate">{{ device.name }}</h3>
+                    </div>
+                    <div class="flex items-baseline gap-0.5 shrink-0 ml-2">
+                        <span class="text-xl font-mono font-bold text-tp-text-primary tabular-nums leading-none">{{ positions[id] ?? 0 }}</span>
+                        <span class="text-[10px] font-bold text-tp-accent leading-none mb-0.5">%</span>
+                    </div>
+                </div>
+
+                <!-- Control area: track left, buttons right -->
+                <div class="flex gap-3 items-start">
+
+                    <!-- Vertical track -->
+                    <div class="blind-track"
+                         @pointerdown="onTrackPointerDown($event, id)"
+                         @pointermove="onTrackPointerMove($event, id)"
+                         @pointerup="onTrackPointerUp($event, id)"
+                         @pointercancel="onTrackPointerUp($event, id)">
+
+                        <!-- Blind slats fill from top -->
+                        <div class="absolute top-0 left-0 right-0 overflow-hidden"
+                             :class="(positions[id] ?? 0) < 100 ? 'border-b border-tp-accent/35' : ''"
+                             :style="{ height: (100 - (positions[id] ?? 0)) + '%' }">
+                            <div class="flex flex-col gap-[3px] px-[4px] pt-[4px]">
+                                <div v-for="i in 24" :key="i"
+                                     class="w-full bg-white/14 rounded-[2px] shrink-0"
+                                     style="height: 4px; min-height: 4px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Drag handle -->
+                        <div class="blind-track-handle"
+                             :class="dragging[id] ? 'transition-none' : ''"
+                             :style="{ top: handleTop(id) }">
                         </div>
                     </div>
-                    <div class="flex items-baseline gap-0.5 mt-0.5">
-                        <span class="text-2xl font-mono font-bold text-tp-text-primary tabular-nums leading-none">{{ positions[id] ?? 0 }}</span>
-                        <span class="text-xs font-bold text-tp-accent leading-none mb-0.5">%</span>
+
+                    <!-- Buttons column -->
+                    <div class="flex-1 flex flex-col justify-between items-center h-[180px]">
+                        <button @click="handleUp(id)"
+                                class="blind-btn"
+                                :class="{ pressing: pressing[`${id}-up`] }">
+                            <ChevronUp class="w-[18px] h-[18px] text-tp-text-primary/80" />
+                        </button>
+                        <button @click="handleStop(id)"
+                                class="blind-btn"
+                                :class="{ pressing: pressing[`${id}-stop`] }">
+                            <Square class="w-[13px] h-[13px] fill-current text-tp-stop/85" />
+                        </button>
+                        <button @click="handleDown(id)"
+                                class="blind-btn"
+                                :class="{ pressing: pressing[`${id}-down`] }">
+                            <ChevronDown class="w-[18px] h-[18px] text-tp-text-primary/80" />
+                        </button>
+                        <button @click="handleSettings(id)"
+                                class="blind-btn blind-btn-muted"
+                                :class="{ pressing: pressing[`${id}-cfg`] }">
+                            <Settings class="w-[15px] h-[15px] text-muted" />
+                        </button>
                     </div>
-                </div>
-
-                <!-- Mini blind visualization -->
-                <div class="relative w-full h-14 rounded-2xl overflow-hidden mb-5 bg-black/30 border border-white/[0.06]">
-                    <div class="absolute inset-y-0 left-5 w-px bg-white/[0.04]"></div>
-                    <div class="absolute inset-y-0 right-5 w-px bg-white/[0.04]"></div>
-                    <div class="absolute top-0 left-0 right-0 flex flex-col gap-[2.5px] p-[3px] overflow-hidden transition-all duration-500 ease-in-out"
-                         :class="(positions[id] ?? 0) < 100 ? 'border-b border-tp-accent/35' : ''"
-                         :style="{ height: (100 - (positions[id] ?? 0)) + '%' }">
-                        <div v-for="i in 14" :key="i" class="h-[4.5px] min-h-[4.5px] w-full bg-muted/22 rounded-sm shrink-0"></div>
-                    </div>
-                </div>
-
-                <!-- Position slider -->
-                <div class="mb-5 px-0.5">
-                    <input
-                        type="range"
-                        min="0" max="100"
-                        :value="positions[id] ?? 0"
-                        :style="sliderStyle(id)"
-                        class="blind-slider w-full"
-                        @input="onSliderInput(id, $event.target.value)"
-                        @change="onSliderChange(id, $event.target.value)"
-                    />
-                </div>
-
-                <!-- Control buttons -->
-                <div class="grid grid-cols-3 gap-2">
-                    <button @click="handleUp(id)"
-                            class="blind-btn group hover:bg-tp-accent/12 hover:border-tp-accent/35 active:scale-95">
-                        <ChevronUp class="w-5 h-5 text-muted group-hover:text-tp-accent transition-colors duration-200" />
-                    </button>
-                    <button @click="handleStop(id)"
-                            class="blind-btn group hover:bg-tp-stop/12 hover:border-tp-stop/35 active:scale-95">
-                        <Square class="w-3.5 h-3.5 fill-current text-muted group-hover:text-tp-stop transition-colors duration-200" />
-                    </button>
-                    <button @click="handleDown(id)"
-                            class="blind-btn group hover:bg-tp-accent/12 hover:border-tp-accent/35 active:scale-95">
-                        <ChevronDown class="w-5 h-5 text-muted group-hover:text-tp-accent transition-colors duration-200" />
-                    </button>
                 </div>
             </div>
         </div>
