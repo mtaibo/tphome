@@ -1,14 +1,20 @@
 <script setup>
 
-    import { ref, computed } from 'vue'
+    import { ref, computed, onMounted } from 'vue'
     import { Lightbulb, Blinds, Trash2, Radio, Info, Braces, ChevronDown, Download, Crosshair } from 'lucide-vue-next'
+    import { useRoute } from 'vue-router'
 
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
 
     const store = useDevices()
+    const route = useRoute()
 
     const expandedId = ref(null)
+
+    onMounted(() => {
+        if (route.query.device) expandedId.value = route.query.device
+    })
 
     function toggleExpanded(id) {
         expandedId.value = expandedId.value === id ? null : id
