@@ -1,6 +1,6 @@
 <script setup>
-    import { ref, watch } from 'vue'
-    import { X, ChevronUp, ChevronDown, Square, Blinds, Check } from 'lucide-vue-next'
+    import { ref, watch, nextTick } from 'vue'
+    import { X, ChevronUp, ChevronDown, Pause, Blinds, Check } from 'lucide-vue-next'
     import { api } from '@/config/api'
 
     const props = defineProps({
@@ -11,6 +11,16 @@
 
     const tempPosition = ref(props.device.state.position)
     const isLoading    = ref(false)
+    const pressing     = ref({})
+
+    const pressBtn = (key, action) => {
+        pressing.value[key] = false
+        nextTick(() => {
+            pressing.value[key] = true
+            setTimeout(() => { pressing.value[key] = false }, 440)
+        })
+        action()
+    }
 
     const sendCommand = async (command, value = null) => {
         isLoading.value = true
@@ -29,9 +39,9 @@
         sendCommand('set', value)
     }
 
-    const handleUp   = () => { tempPosition.value = 100; sendCommand('up')   }
-    const handleDown = () => { tempPosition.value = tempPosition.value === 20 ? 0 : 20; sendCommand('down') }
-    const handleStop = () => { sendCommand('stop') }
+    const handleUp   = () => pressBtn('up',   () => { tempPosition.value = 100; sendCommand('up') })
+    const handleDown = () => pressBtn('down', () => { tempPosition.value = tempPosition.value === 20 ? 0 : 20; sendCommand('down') })
+    const handleStop = () => pressBtn('stop', () => sendCommand('stop'))
 
     let dragging = false
 
@@ -67,31 +77,33 @@
 <template>
     <div class="flex flex-col h-full select-none" :class="{ 'opacity-80 pointer-events-none': isLoading }">
         
-        <header class="px-6 pt-5 pb-4 flex items-center justify-between shrink-0">
+        <header class="px-5 pt-5 pb-4 flex items-center justify-between shrink-0">
             <div class="flex items-center gap-3">
-                <div class="shrink-0 p-2 bg-tp-accent/10 rounded-xl">
+                <div class="shrink-0 p-2 bg-tp-accent/10 rounded-[14px]">
                     <Blinds class="text-tp-accent w-5 h-5" />
                 </div>
-                <h2 class="text-lg font-bold tracking-tight text-tp-text-primary">{{ device.name }}</h2>
+                <h2 class="text-base font-bold tracking-tight text-tp-text-primary">{{ device.name }}</h2>
             </div>
-            <button @click="emit('close')" class="p-2 hover:bg-tp-border/30 rounded-lg transition-colors cursor-pointer text-muted hover:text-tp-text-primary">
-                <X class="w-5 h-5" />
+            <button @click="pressBtn('close', () => emit('close'))"
+                    class="blind-btn blind-btn-muted"
+                    :class="{ pressing: pressing['close'] }">
+                <X class="w-[15px] h-[15px] text-muted" />
             </button>
         </header>
 
         <!-- MOBILE LAYOUT -->
-        <div class="md:hidden flex-1 flex items-center justify-center px-6 pb-6 gap-4">
+        <div class="md:hidden flex-1 flex items-center justify-center px-5 pb-6 gap-4">
             <div class="flex flex-col items-center gap-3 flex-1 max-w-[120px]">
-                <div class="relative w-full aspect-[3/5] bg-black/40 rounded-2xl border border-tp-border shadow-inner overflow-hidden touch-none select-none"
+                <div class="relative w-full aspect-[3/5] rounded-[22px] border border-white/[0.08] overflow-hidden touch-none select-none"
+                     style="background: rgba(0,0,0,0.35); box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);"
                      @pointerdown="onPointerDown"
                      @pointermove="onPointerMove"
                      @pointerup="onPointerUp"
                      @pointercancel="onPointerUp">
-                    <div class="absolute inset-y-0 left-3 w-px bg-tp-border/10"></div>
-                    <div class="absolute inset-y-0 right-3 w-px bg-tp-border/10"></div>
-                    <div class="absolute top-0 w-full bg-muted/20 border-b border-tp-accent/40 transition-all duration-700 ease-in-out flex flex-col gap-1 p-1.5 overflow-hidden"
+                    <div class="absolute top-0 w-full border-b border-tp-accent/40 transition-all duration-700 ease-in-out flex flex-col gap-1 p-1.5 overflow-hidden"
+                         style="background: rgba(100,100,100,0.18);"
                          :style="{ height: (100 - tempPosition) + '%' }">
-                        <div v-for="i in 16" :key="i" class="h-1.5 min-h-1.5 w-full bg-muted/30 rounded-sm shrink-0 shadow-sm"></div>
+                        <div v-for="i in 16" :key="i" class="h-1.5 min-h-1.5 w-full bg-white/15 rounded-sm shrink-0"></div>
                     </div>
                 </div>
                 <div class="flex items-baseline gap-1">
@@ -101,14 +113,14 @@
             </div>
 
             <div class="flex flex-col gap-3">
-                <button @click="handleUp" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl hover:bg-tp-accent/10 hover:border-tp-accent/50 group cursor-pointer transition-all">
-                    <ChevronUp class="w-6 h-6 text-muted group-hover:text-tp-accent" />
+                <button @click="handleUp" class="blind-btn" :class="{ pressing: pressing['up'] }">
+                    <ChevronUp class="w-[18px] h-[18px] text-tp-text-primary/80" />
                 </button>
-                <button @click="handleStop" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl cursor-pointer hover:bg-tp-stop/10 hover:border-tp-stop/50 group transition-all">
-                    <Square class="w-4 h-4 text-muted group-hover:text-tp-stop fill-current" />
+                <button @click="handleStop" class="blind-btn" :class="{ pressing: pressing['stop'] }">
+                    <Pause class="w-[15px] h-[15px] fill-current text-tp-text-primary/80" />
                 </button>
-                <button @click="handleDown" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl hover:bg-tp-accent/10 hover:border-tp-accent/50 group cursor-pointer transition-all">
-                    <ChevronDown class="w-6 h-6 text-muted group-hover:text-tp-accent" />
+                <button @click="handleDown" class="blind-btn" :class="{ pressing: pressing['down'] }">
+                    <ChevronDown class="w-[18px] h-[18px] text-tp-text-primary/80" />
                 </button>
             </div>
         </div>
