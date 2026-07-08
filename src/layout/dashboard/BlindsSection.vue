@@ -115,7 +115,7 @@
                 <div class="flex gap-2 items-start">
 
                     <!-- Vertical track -->
-                    <div class="blind-track flex-1 md:max-w-[96px]"
+                    <div class="blind-track flex-1 md:max-w-[60px]"
                          @pointerdown="onTrackPointerDown($event, id)"
                          @pointermove="onTrackPointerMove($event, id)"
                          @pointerup="onTrackPointerUp($event, id)"
