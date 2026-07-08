@@ -38,41 +38,27 @@
             <svg
                 :viewBox="map.storage.viewBox ?? '0 0 0 0'"
                 class="w-full h-auto max-w-3xl"
-                style="filter: drop-shadow(0 24px 64px rgba(0,0,0,0.55)) drop-shadow(0 6px 20px rgba(0,0,0,0.35));"
                 xmlns="http://www.w3.org/2000/svg"
             >
                 <defs>
                     <clipPath id="map-clip">
                         <rect x="0" y="0" :width="mapDims.w" :height="mapDims.h" :rx="mapDims.rx" :ry="mapDims.rx" />
                     </clipPath>
-                    <linearGradient id="map-glass-grad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.10" />
-                        <stop offset="50%"  stop-color="#ffffff" stop-opacity="0.02" />
-                        <stop offset="100%" stop-color="#000000" stop-opacity="0.08" />
-                    </linearGradient>
                 </defs>
-
-                <!-- Glass background -->
-                <rect x="0" y="0"
-                      :width="mapDims.w" :height="mapDims.h"
-                      :rx="mapDims.rx" :ry="mapDims.rx"
-                      fill="rgba(14,14,18,0.90)" />
 
                 <!-- All content clipped to rounded corners -->
                 <g clip-path="url(#map-clip)">
                     <HouseLayer />
                     <LightsLayer />
                     <BlindsLayer @select="handleSelection" />
-                    <!-- Glass sheen overlay -->
-                    <rect x="0" y="0" :width="mapDims.w" :height="mapDims.h" fill="url(#map-glass-grad)" />
                 </g>
 
-                <!-- Outer border -->
+                <!-- Subtle border hinting the map boundary -->
                 <rect :x="0.75" :y="0.75"
                       :width="mapDims.w - 1.5" :height="mapDims.h - 1.5"
                       :rx="mapDims.rx" :ry="mapDims.rx"
                       fill="none"
-                      stroke="rgba(255,255,255,0.18)" stroke-width="1.5" />
+                      stroke="rgba(255,255,255,0.10)" stroke-width="1.5" />
 
             </svg>
         </div>
