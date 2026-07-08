@@ -88,7 +88,7 @@
         </div>
 
         <!-- Cards grid -->
-        <div v-else class="flex flex-wrap justify-center gap-4">
+        <div v-else class="flex flex-wrap justify-start md:justify-center gap-4">
             <div
                 v-for="(device, id) in store.blinds"
                 :key="id"
