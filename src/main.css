@@ -123,6 +123,18 @@
         cursor: grabbing;
     }
 
+    @media (min-width: 768px) {
+        .blind-track {
+            width: 72px;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .blind-track {
+            width: 88px;
+        }
+    }
+
     /* Handle pill inside the track */
     .blind-track-handle {
         position: absolute;

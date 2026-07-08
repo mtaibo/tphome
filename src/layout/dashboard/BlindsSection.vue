@@ -88,7 +88,7 @@
         </div>
 
         <!-- Cards grid -->
-        <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div v-else class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             <div
                 v-for="(device, id) in store.blinds"
                 :key="id"
@@ -96,16 +96,16 @@
                 :class="{ 'opacity-50 pointer-events-none': loading[id] }"
             >
                 <!-- Header -->
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-2 min-w-0">
-                        <div class="w-2 h-2 rounded-full shrink-0 transition-all duration-300"
+                <div class="flex items-start justify-between mb-4 gap-2">
+                    <div class="flex items-start gap-2 flex-1 min-w-0">
+                        <div class="w-2 h-2 rounded-full shrink-0 mt-[3px] transition-all duration-300"
                              :class="device.connection?.online
                                  ? 'bg-tp-ok shadow-[0_0_6px_var(--color-tp-ok)]'
                                  : 'bg-tp-danger'">
                         </div>
-                        <h3 class="text-sm font-semibold text-tp-text-primary leading-tight truncate">{{ device.name }}</h3>
+                        <h3 class="text-sm font-semibold text-tp-text-primary leading-tight">{{ device.name }}</h3>
                     </div>
-                    <div class="flex items-baseline gap-0.5 shrink-0 ml-2">
+                    <div class="flex items-baseline gap-0.5 shrink-0">
                         <span class="text-xl font-mono font-bold text-tp-text-primary tabular-nums leading-none">{{ positions[id] ?? 0 }}</span>
                         <span class="text-[10px] font-bold text-tp-accent leading-none mb-0.5">%</span>
                     </div>
