@@ -5,6 +5,11 @@
 
     const map = useMap()
 
+    const roomRx = computed(() => {
+        const parts = (map.storage.viewBox ?? '0 0 100 100').split(' ').map(Number)
+        return Math.round(Math.min(parts[2] || 100, parts[3] || 100) * 0.018)
+    })
+
     const wallPath = computed(() => {
         const rooms = map.storage.rooms
 
@@ -84,6 +89,7 @@
             :key="room.id"
             :x="room.x" :y="room.y"
             :width="room.w" :height="room.h"
+            :rx="roomRx" :ry="roomRx"
             fill="rgba(255,255,255,0.05)"
         />
     </g>

@@ -20,12 +20,6 @@
 
     const handleSelection = (id) => { selectedId.value = id }
 
-    const mapDims = computed(() => {
-        const parts = (map.storage.viewBox ?? '0 0 100 100').split(' ').map(Number)
-        const w = parts[2] || 100
-        const h = parts[3] || 100
-        return { w, h, rx: Math.round(Math.min(w, h) * 0.05) }
-    })
 
 </script>
 
@@ -40,26 +34,9 @@
                 class="w-full h-auto max-w-3xl"
                 xmlns="http://www.w3.org/2000/svg"
             >
-                <defs>
-                    <clipPath id="map-clip">
-                        <rect x="0" y="0" :width="mapDims.w" :height="mapDims.h" :rx="mapDims.rx" :ry="mapDims.rx" />
-                    </clipPath>
-                </defs>
-
-                <!-- All content clipped to rounded corners -->
-                <g clip-path="url(#map-clip)">
-                    <HouseLayer />
-                    <LightsLayer />
-                    <BlindsLayer @select="handleSelection" />
-                </g>
-
-                <!-- Subtle border hinting the map boundary -->
-                <rect :x="0.75" :y="0.75"
-                      :width="mapDims.w - 1.5" :height="mapDims.h - 1.5"
-                      :rx="mapDims.rx" :ry="mapDims.rx"
-                      fill="none"
-                      stroke="rgba(255,255,255,0.10)" stroke-width="1.5" />
-
+                <HouseLayer />
+                <LightsLayer />
+                <BlindsLayer @select="handleSelection" />
             </svg>
         </div>
 
