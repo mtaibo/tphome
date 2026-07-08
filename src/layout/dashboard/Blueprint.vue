@@ -48,15 +48,17 @@
 
         <!-- Mobile popup -->
         <Teleport to="body">
-            <div 
-                v-if="selectedBlind"
-                class="blinds-popup-overlay md:hidden"
-                @click.self="selectedId = null"
-            >
-                <div class="blinds-popup">
-                    <BlindsControl :id="selectedId" :device="selectedBlind" @close="selectedId = null" />
+            <Transition name="popup">
+                <div
+                    v-if="selectedBlind"
+                    class="blinds-popup-overlay md:hidden"
+                    @click.self="selectedId = null"
+                >
+                    <div class="blinds-popup">
+                        <BlindsControl :id="selectedId" :device="selectedBlind" @close="selectedId = null" />
+                    </div>
                 </div>
-            </div>
+            </Transition>
         </Teleport>
 
     </div>
