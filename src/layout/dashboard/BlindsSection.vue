@@ -88,11 +88,11 @@
         </div>
 
         <!-- Cards grid -->
-        <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        <div v-else class="flex flex-wrap justify-center gap-4">
             <div
                 v-for="(device, id) in store.blinds"
                 :key="id"
-                class="blind-card transition-opacity duration-300 select-none"
+                class="blind-card transition-opacity duration-300 select-none w-[calc(50%-8px)] md:w-48 shrink-0"
                 :class="{ 'opacity-50 pointer-events-none': loading[id] }"
             >
                 <!-- Header -->
