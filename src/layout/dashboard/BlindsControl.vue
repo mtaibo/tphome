@@ -10,7 +10,8 @@
     const emit = defineEmits(['close'])
 
     const tempPosition = ref(Math.round(props.device.state.position))  // integer, for text/input
-    const smoothPos    = ref(props.device.state.position)              // float, for visual heights
+    const smoothPos    = ref(props.device.state.position)              // float, fill position
+    const handlePos    = ref(props.device.state.position)              // float, bubble position
     const isLoading    = ref(false)
     const pressing     = ref({})
 
@@ -31,6 +32,7 @@
         moveStartPos       = realPos
         moveStartTime      = Date.now()
         smoothPos.value    = realPos
+        handlePos.value    = realPos
         tempPosition.value = Math.round(realPos)
     }
 
@@ -40,7 +42,7 @@
         if (velocity !== 0) {
             moveStartPos = newPos; moveStartTime = Date.now()
         } else if (!setPending) {
-            displayPos = newPos; smoothPos.value = newPos; tempPosition.value = Math.round(newPos)
+            displayPos = newPos; smoothPos.value = newPos; handlePos.value = newPos; tempPosition.value = Math.round(newPos)
         }
     })
 
@@ -52,9 +54,12 @@
     function animate() {
         if (!dragging && velocity !== 0) {
             const now = Date.now()
-            displayPos = Math.max(0, Math.min(100, moveStartPos + velocity * (now - moveStartTime)))
-            smoothPos.value    = displayPos
-            tempPosition.value = Math.round(displayPos)
+            displayPos      = Math.max(0, Math.min(100, moveStartPos + velocity * (now - moveStartTime)))
+            smoothPos.value = displayPos
+            if (!setPending) {
+                handlePos.value    = displayPos
+                tempPosition.value = Math.round(displayPos)
+            }
         }
         rafId = requestAnimationFrame(animate)
     }
@@ -114,22 +119,41 @@
         dragging = true
         velocity = 0; setPending = false
         const pos = posFromY(e.currentTarget, e.clientY)
-        displayPos = pos; smoothPos.value = pos; tempPosition.value = pos
+        displayPos = pos; smoothPos.value = pos; handlePos.value = pos; tempPosition.value = pos
         e.currentTarget.setPointerCapture(e.pointerId)
     }
 
     function onPointerMove(e) {
         if (!dragging) return
         const pos = posFromY(e.currentTarget, e.clientY)
-        displayPos = pos; smoothPos.value = pos; tempPosition.value = pos
+        displayPos = pos; smoothPos.value = pos; handlePos.value = pos; tempPosition.value = pos
     }
 
     function onPointerUp(e) {
         if (!dragging) return
         dragging = false
         const pos = posFromY(e.currentTarget, e.clientY)
-        displayPos = pos; smoothPos.value = pos; tempPosition.value = pos
-        velocity = 0; setPending = true
+
+        // Bubble locks at target; number shows target
+        handlePos.value    = pos
+        tempPosition.value = pos
+
+        // Fill snaps back to real position and animates toward target like a button press
+        displayPos      = realPos
+        smoothPos.value = realPos
+        moveStartPos    = realPos
+        moveStartTime   = Date.now()
+
+        if (pos < realPos) {
+            velocity = -(100 / ((props.device.prefs?.down_time ?? 3000) * 10))
+            setPending = true
+        } else if (pos > realPos) {
+            velocity = 100 / ((props.device.prefs?.up_time ?? 3000) * 10)
+            setPending = true
+        } else {
+            velocity = 0; setPending = false
+        }
+
         updatePosition(pos)
     }
 
@@ -171,10 +195,10 @@
                                  style="height: 4px; min-height: 4px;"></div>
                         </div>
                     </div>
-                    <!-- Handle -->
+                    <!-- Handle bubble — locked at target while fill animates -->
                     <div class="absolute left-[7px] right-[7px] h-5 rounded-[10px] pointer-events-none"
                          style="background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,255,255,0.82)); box-shadow: 0 2px 8px rgba(0,0,0,0.30), inset 0 1px 0 white;"
-                         :style="{ top: `calc(${100 - smoothPos}% - 10px)` }">
+                         :style="{ top: `calc(${100 - handlePos}% - 10px)` }">
                     </div>
                 </div>
                 <div class="flex items-baseline gap-1">
@@ -206,9 +230,15 @@
                      @pointercancel="onPointerUp">
                     <div class="absolute inset-y-0 left-4 w-px bg-tp-border/10"></div>
                     <div class="absolute inset-y-0 right-4 w-px bg-tp-border/10"></div>
-                    <div class="absolute top-0 w-full bg-muted/20 border-b border-tp-accent/40 flex flex-col gap-1.5 p-2 overflow-hidden"
+                    <!-- Fill animates with actual movement -->
+                    <div class="absolute top-0 w-full bg-muted/20 flex flex-col gap-1.5 p-2 overflow-hidden"
                          :style="{ height: (100 - smoothPos) + '%' }">
                         <div v-for="i in 20" :key="i" class="h-2 min-h-2 w-full bg-muted/30 rounded-sm shrink-0 shadow-sm"></div>
+                    </div>
+                    <!-- Handle line locked at target -->
+                    <div class="absolute left-0 right-0 h-[2px] pointer-events-none"
+                         style="background: rgba(255,255,255,0.70); box-shadow: 0 0 5px rgba(255,255,255,0.35);"
+                         :style="{ top: `calc(${100 - handlePos}% - 1px)` }">
                     </div>
                 </div>
                 <div class="flex items-baseline gap-1">
