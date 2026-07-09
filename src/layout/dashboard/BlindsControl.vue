@@ -14,16 +14,20 @@
     const pressing     = ref({})
 
     // Smooth animation state
-    let realPos  = props.device.state.position
-    let realTime = Date.now()
-    let velocity = 0  // % per millisecond
-    let rafId    = null
+    let realPos        = props.device.state.position
+    let realTime       = Date.now()
+    let velocity       = 0      // % per millisecond
+    let lastKnownSpeed = 0.007  // updated from real WS data, used as seed on button press
+    let rafId          = null
 
     // Track real position updates from WS and derive velocity
     watch(() => props.device.state.position, (newPos) => {
         const now = Date.now()
         const dt  = now - realTime
-        if (dt > 50) velocity = (newPos - realPos) / dt
+        if (dt > 50) {
+            velocity = (newPos - realPos) / dt
+            if (Math.abs(velocity) > 0.001) lastKnownSpeed = Math.abs(velocity)
+        }
         realPos  = newPos
         realTime = now
     })
@@ -73,9 +77,15 @@
         sendCommand('set', value)
     }
 
-    const handleUp   = () => pressBtn('up',   () => { tempPosition.value = 100; sendCommand('up') })
-    const handleDown = () => pressBtn('down', () => { tempPosition.value = tempPosition.value === 20 ? 0 : 20; sendCommand('down') })
-    const handleStop = () => pressBtn('stop', () => sendCommand('stop'))
+    const handleUp = () => pressBtn('up', () => {
+        realPos = tempPosition.value; realTime = Date.now(); velocity = lastKnownSpeed
+        sendCommand('up')
+    })
+    const handleDown = () => pressBtn('down', () => {
+        realPos = tempPosition.value; realTime = Date.now(); velocity = -lastKnownSpeed
+        sendCommand('down')
+    })
+    const handleStop = () => pressBtn('stop', () => { velocity = 0; sendCommand('stop') })
 
     let dragging = false
 

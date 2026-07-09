@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, watch, nextTick } from 'vue'
+    import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
     import { ChevronUp, ChevronDown, Pause, Settings, Blinds } from 'lucide-vue-next'
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
@@ -14,13 +14,48 @@
     const pressing  = ref({})
     const dragState = ref({})
 
+    // Per-blind animation state (outside Vue reactivity for perf)
+    const anim = {}
+    let rafId = null
+
+    function getAnim(id, initialPos) {
+        if (!anim[id]) {
+            positions.value[id] = initialPos ?? 0
+            anim[id] = { realPos: initialPos ?? 0, realTime: Date.now(), velocity: 0, lastKnownSpeed: 0.007 }
+        }
+        return anim[id]
+    }
+
+    // Derive velocity from WS position updates, don't snap positions directly
     watch(() => store.blinds, (blinds) => {
         for (const [id, device] of Object.entries(blinds)) {
-            if (!dragging.value[id]) {
-                positions.value[id] = device.state?.position ?? 0
+            if (dragging.value[id]) continue
+            const newPos = device.state?.position ?? 0
+            const a = getAnim(id, newPos)
+            const now = Date.now()
+            const dt  = now - a.realTime
+            if (dt > 50) {
+                a.velocity = (newPos - a.realPos) / dt
+                if (Math.abs(a.velocity) > 0.001) a.lastKnownSpeed = Math.abs(a.velocity)
             }
+            a.realPos  = newPos
+            a.realTime = now
         }
     }, { immediate: true, deep: true })
+
+    function animateLoop() {
+        const now = Date.now()
+        for (const [id, a] of Object.entries(anim)) {
+            if (dragging.value[id]) continue
+            const elapsed   = Math.min(now - a.realTime, 1500)
+            const estimated = a.realPos + a.velocity * elapsed
+            positions.value[id] = Math.max(0, Math.min(100, Math.round(estimated)))
+        }
+        rafId = requestAnimationFrame(animateLoop)
+    }
+
+    onMounted(()   => { rafId = requestAnimationFrame(animateLoop) })
+    onUnmounted(() => { if (rafId) cancelAnimationFrame(rafId) })
 
     const sendCommand = async (id, cmd, val = null) => {
         loading.value[id] = true
@@ -38,9 +73,17 @@
         action()
     }
 
-    const handleUp       = (id) => pressBtn(`${id}-up`,   () => { positions.value[id] = 100; sendCommand(id, 'up') })
-    const handleDown     = (id) => pressBtn(`${id}-down`, () => { positions.value[id] = 0;   sendCommand(id, 'down') })
-    const handleStop     = (id) => pressBtn(`${id}-stop`, () => sendCommand(id, 'stop'))
+    const handleUp = (id) => pressBtn(`${id}-up`, () => {
+        const a = getAnim(id, positions.value[id])
+        a.realPos = positions.value[id] ?? 0; a.realTime = Date.now(); a.velocity = a.lastKnownSpeed
+        sendCommand(id, 'up')
+    })
+    const handleDown = (id) => pressBtn(`${id}-down`, () => {
+        const a = getAnim(id, positions.value[id])
+        a.realPos = positions.value[id] ?? 0; a.realTime = Date.now(); a.velocity = -a.lastKnownSpeed
+        sendCommand(id, 'down')
+    })
+    const handleStop     = (id) => pressBtn(`${id}-stop`, () => { if (anim[id]) anim[id].velocity = 0; sendCommand(id, 'stop') })
     const handleSettings = (id) => pressBtn(`${id}-cfg`,  () => router.push({ path: '/settings', query: { device: id } }))
 
     // Vertical track drag
@@ -64,7 +107,10 @@
         if (!s?.active) return
         dragState.value[id] = { active: false }
         dragging.value[id] = false
-        sendCommand(id, 'set', positions.value[id])
+        const pos = positions.value[id]
+        sendCommand(id, 'set', pos)
+        const a = getAnim(id, pos)
+        a.realPos = pos; a.realTime = Date.now(); a.velocity = 0
     }
 
     const TRACK_H  = 180
