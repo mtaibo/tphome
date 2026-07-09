@@ -56,8 +56,9 @@
         <rect
             :x="blind.map.x" :y="blind.map.y" rx="1.5"
             :width="blind.map.width" :height="blind.map.height"
-            class="fill-black"
-            :class="isActive(blind) ? 'stroke-tp-accent' : 'stroke-tp-border'"
+            fill="black"
+            stroke="rgba(255,255,255,0.55)"
+            stroke-width="0.5"
         />
 
         <!-- Config mode: flat accent fill -->
