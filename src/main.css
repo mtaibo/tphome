@@ -55,6 +55,10 @@
 
 @layer components {
 
+    .page-layout {
+        @apply flex h-screen w-full font-sans bg-tp-bg text-tp-text overflow-hidden;
+    }
+
     /* Topbar dot online indicator */
     .status-dot {
         @apply w-1.5 h-1.5 rounded-full shadow-[0_0_5px] animate-pulse transition-all duration-500;

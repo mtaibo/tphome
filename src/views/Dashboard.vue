@@ -1,9 +1,8 @@
+
 <script setup>
 
     import { useRoute } from 'vue-router'
     import { useSections } from '@/config/sections.js'
-
-    import PageLayout from '@/layout/PageLayout.vue'
 
     import Sidebar from '@/layout/Sidebar.vue'
     import Bottombar from '@/layout/Bottombar.vue'
@@ -16,7 +15,7 @@
 
 <template>
 
-    <PageLayout>
+    <div class="page-layout">
 
         <Sidebar v-model:activeSection="activeSection" />
 
@@ -27,6 +26,6 @@
 
         <Bottombar v-model:activeSection="activeSection" :sections="sections"/>
 
-    </PageLayout>
+    </div>
 
 </template>
