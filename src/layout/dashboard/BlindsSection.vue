@@ -54,7 +54,7 @@
             const corrRate = Math.abs(a.velocity) > 0.002 ? 0.002 : 0.006
             a.displayPos += a.velocity * dt + (a.realPos - a.displayPos) * corrRate * dt
             a.displayPos  = Math.max(0, Math.min(100, a.displayPos))
-            positions.value[id] = Math.round(a.displayPos)
+            positions.value[id] = a.displayPos  // float for smooth visual
         }
         rafId = requestAnimationFrame(animateLoop)
     }
@@ -88,7 +88,10 @@
         a.displayPos = positions.value[id] ?? 0; a.realPos = a.displayPos; a.realTime = Date.now(); a.velocity = -a.lastKnownSpeed
         sendCommand(id, 'down')
     })
-    const handleStop = (id) => pressBtn(`${id}-stop`, () => { if (anim[id]) anim[id].velocity = 0; sendCommand(id, 'stop') })
+    const handleStop = (id) => pressBtn(`${id}-stop`, () => {
+        if (anim[id]) { anim[id].velocity = 0; anim[id].displayPos = anim[id].realPos; positions.value[id] = anim[id].realPos }
+        sendCommand(id, 'stop')
+    })
     const handleSettings = (id) => pressBtn(`${id}-cfg`,  () => router.push({ path: '/settings', query: { device: id } }))
 
     // Vertical track drag
@@ -157,7 +160,7 @@
                         <h3 class="text-sm font-semibold text-tp-text-primary leading-tight">{{ device.name }}</h3>
                     </div>
                     <div class="flex items-baseline gap-0.5 shrink-0">
-                        <span class="text-sm font-mono font-bold text-tp-text-primary tabular-nums leading-none">{{ positions[id] ?? 0 }}</span>
+                        <span class="text-sm font-mono font-bold text-tp-text-primary tabular-nums leading-none">{{ Math.round(positions[id] ?? 0) }}</span>
                         <span class="text-[9px] font-bold text-tp-accent leading-none mb-0.5">%</span>
                     </div>
                 </div>

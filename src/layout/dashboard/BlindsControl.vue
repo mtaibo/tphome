@@ -9,20 +9,27 @@
     })
     const emit = defineEmits(['close'])
 
-    const tempPosition = ref(props.device.state.position)
+    const tempPosition = ref(Math.round(props.device.state.position))  // integer, for text/input
+    const smoothPos    = ref(props.device.state.position)              // float, for visual heights
     const isLoading    = ref(false)
     const pressing     = ref({})
 
     // Smooth animation state
     let realPos        = props.device.state.position
     let realTime       = Date.now()
-    let velocity       = 0      // % per millisecond
-    let lastKnownSpeed = 0.007  // updated from real WS data, used as seed on button press
-    let displayPos     = props.device.state.position  // internal float driving the UI
+    let velocity       = 0
+    let lastKnownSpeed = 0.007
+    let displayPos     = props.device.state.position
     let lastFrameTime  = Date.now()
     let rafId          = null
 
-    // Track real position updates from WS and derive velocity
+    const snapToReal = () => {
+        velocity          = 0
+        displayPos        = realPos
+        smoothPos.value   = realPos
+        tempPosition.value = Math.round(realPos)
+    }
+
     watch(() => props.device.state.position, (newPos) => {
         const now = Date.now()
         const dt  = now - realTime
@@ -34,11 +41,9 @@
         realTime = now
     })
 
-    // When motor stops, kill velocity so spring corrects any overshoot
     watch(() => props.device.state.motor_state, () => {
-        velocity = 0
-        realPos  = props.device.state.position
-        realTime = Date.now()
+        realPos = props.device.state.position
+        snapToReal()
     })
 
     function animate() {
@@ -47,11 +52,10 @@
         lastFrameTime = now
 
         if (!dragging) {
-            // Spring: move by velocity + gentle pull toward realPos.
-            // Higher corrRate when stopped so overshoot corrects fast.
             const corrRate = Math.abs(velocity) > 0.002 ? 0.002 : 0.006
             displayPos += velocity * dt + (realPos - displayPos) * corrRate * dt
             displayPos  = Math.max(0, Math.min(100, displayPos))
+            smoothPos.value    = displayPos
             tempPosition.value = Math.round(displayPos)
         }
         rafId = requestAnimationFrame(animate)
@@ -87,14 +91,14 @@
     }
 
     const handleUp = () => pressBtn('up', () => {
-        displayPos = tempPosition.value; realPos = displayPos; realTime = Date.now(); velocity = lastKnownSpeed
+        displayPos = smoothPos.value; realPos = displayPos; realTime = Date.now(); velocity = lastKnownSpeed
         sendCommand('up')
     })
     const handleDown = () => pressBtn('down', () => {
-        displayPos = tempPosition.value; realPos = displayPos; realTime = Date.now(); velocity = -lastKnownSpeed
+        displayPos = smoothPos.value; realPos = displayPos; realTime = Date.now(); velocity = -lastKnownSpeed
         sendCommand('down')
     })
-    const handleStop = () => pressBtn('stop', () => { velocity = 0; sendCommand('stop') })
+    const handleStop = () => pressBtn('stop', () => { snapToReal(); sendCommand('stop') })
 
     let dragging = false
 
@@ -107,27 +111,23 @@
     function onPointerDown(e) {
         dragging = true
         const pos = posFromY(e.currentTarget, e.clientY)
-        displayPos = pos
-        tempPosition.value = pos
+        displayPos = pos; smoothPos.value = pos; tempPosition.value = pos
         e.currentTarget.setPointerCapture(e.pointerId)
     }
 
     function onPointerMove(e) {
         if (!dragging) return
         const pos = posFromY(e.currentTarget, e.clientY)
-        displayPos = pos
-        tempPosition.value = pos
+        displayPos = pos; smoothPos.value = pos; tempPosition.value = pos
     }
 
     function onPointerUp(e) {
         if (!dragging) return
         dragging = false
         const pos = posFromY(e.currentTarget, e.clientY)
-        displayPos = pos
+        displayPos = pos; smoothPos.value = pos
         updatePosition(pos)
-        realPos  = pos
-        realTime = Date.now()
-        velocity = 0
+        realPos = pos; realTime = Date.now(); velocity = 0
     }
 
 </script>
@@ -160,8 +160,8 @@
                      @pointercancel="onPointerUp">
                     <!-- Slats fill from top -->
                     <div class="absolute top-0 left-0 right-0 overflow-hidden"
-                         :class="tempPosition < 100 ? 'border-b border-tp-accent/35' : ''"
-                         :style="{ height: (100 - tempPosition) + '%' }">
+                         :class="smoothPos < 100 ? 'border-b border-tp-accent/35' : ''"
+                         :style="{ height: (100 - smoothPos) + '%' }">
                         <div class="flex flex-col gap-[3px] px-[4px] pt-[4px]">
                             <div v-for="i in 24" :key="i"
                                  class="w-full bg-white/14 rounded-[2px] shrink-0"
@@ -170,8 +170,8 @@
                     </div>
                     <!-- Handle -->
                     <div class="absolute left-[7px] right-[7px] h-5 rounded-[10px] pointer-events-none"
-                         style="background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,255,255,0.82)); box-shadow: 0 2px 8px rgba(0,0,0,0.30), inset 0 1px 0 white; transition: top 0.08s ease-out;"
-                         :style="{ top: `calc(${100 - tempPosition}% - 10px)` }">
+                         style="background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,255,255,0.82)); box-shadow: 0 2px 8px rgba(0,0,0,0.30), inset 0 1px 0 white;"
+                         :style="{ top: `calc(${100 - smoothPos}% - 10px)` }">
                     </div>
                 </div>
                 <div class="flex items-baseline gap-1">
@@ -203,8 +203,8 @@
                      @pointercancel="onPointerUp">
                     <div class="absolute inset-y-0 left-4 w-px bg-tp-border/10"></div>
                     <div class="absolute inset-y-0 right-4 w-px bg-tp-border/10"></div>
-                    <div class="absolute top-0 w-full bg-muted/20 border-b border-tp-accent/40 transition-all duration-700 ease-in-out flex flex-col gap-1.5 p-2 overflow-hidden"
-                         :style="{ height: (100 - tempPosition) + '%' }">
+                    <div class="absolute top-0 w-full bg-muted/20 border-b border-tp-accent/40 flex flex-col gap-1.5 p-2 overflow-hidden"
+                         :style="{ height: (100 - smoothPos) + '%' }">
                         <div v-for="i in 20" :key="i" class="h-2 min-h-2 w-full bg-muted/30 rounded-sm shrink-0 shadow-sm"></div>
                     </div>
                 </div>
