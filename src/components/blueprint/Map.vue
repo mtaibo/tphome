@@ -10,58 +10,64 @@
         return Math.round(Math.min(parts[2] || 100, parts[3] || 100) * 0.08)
     })
 
-    // Interior walls: segments where both sides are inside rooms (shared between rooms)
-    const interiorWallPath = computed(() => {
+    // Classify wall segments by testing each boundary only within the room that owns it.
+    // This avoids generating phantom walls where a room-corner y/x passes through another room's interior.
+    const wallSegments = computed(() => {
         const rooms = map.storage.rooms
         const xs = [...new Set(rooms.flatMap(r => [r.x, r.x + r.w]))].sort((a, b) => a - b)
         const ys = [...new Set(rooms.flatMap(r => [r.y, r.y + r.h]))].sort((a, b) => a - b)
         const inRoom = (x, y) => rooms.some(r => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h)
+        const sk = (x1, y1, x2, y2) => `${x1},${y1},${x2},${y2}`
 
-        const segs = []
+        const exteriorSet = new Set(), interiorSet = new Set()
+        const exterior = [], interiorParts = []
+
+        // Horizontal boundaries: only test x-intervals within the room that has that y-edge
         for (const y of ys) {
-            for (let i = 0; i < xs.length - 1; i++) {
-                const xm = (xs[i] + xs[i + 1]) / 2
-                if (inRoom(xm, y - 0.5) && inRoom(xm, y + 0.5))
-                    segs.push(`M${xs[i]},${y}L${xs[i + 1]},${y}`)
+            for (const room of rooms.filter(r => r.y === y || r.y + r.h === y)) {
+                const rxs = xs.filter(x => x >= room.x && x <= room.x + room.w)
+                for (let i = 0; i < rxs.length - 1; i++) {
+                    const xm = (rxs[i] + rxs[i + 1]) / 2
+                    const above = inRoom(xm, y - 0.5), below = inRoom(xm, y + 0.5)
+                    const key = sk(rxs[i], y, rxs[i + 1], y)
+                    if (above !== below && !exteriorSet.has(key)) {
+                        exteriorSet.add(key)
+                        exterior.push({ x1: rxs[i], y1: y, x2: rxs[i + 1], y2: y })
+                    } else if (above && below && !interiorSet.has(key)) {
+                        interiorSet.add(key)
+                        interiorParts.push(`M${rxs[i]},${y}L${rxs[i + 1]},${y}`)
+                    }
+                }
             }
         }
+
+        // Vertical boundaries: only test y-intervals within the room that has that x-edge
         for (const x of xs) {
-            for (let j = 0; j < ys.length - 1; j++) {
-                const ym = (ys[j] + ys[j + 1]) / 2
-                if (inRoom(x - 0.5, ym) && inRoom(x + 0.5, ym))
-                    segs.push(`M${x},${ys[j]}L${x},${ys[j + 1]}`)
+            for (const room of rooms.filter(r => r.x === x || r.x + r.w === x)) {
+                const rys = ys.filter(y => y >= room.y && y <= room.y + room.h)
+                for (let j = 0; j < rys.length - 1; j++) {
+                    const ym = (rys[j] + rys[j + 1]) / 2
+                    const left = inRoom(x - 0.5, ym), right = inRoom(x + 0.5, ym)
+                    const key = sk(x, rys[j], x, rys[j + 1])
+                    if (left !== right && !exteriorSet.has(key)) {
+                        exteriorSet.add(key)
+                        exterior.push({ x1: x, y1: rys[j], x2: x, y2: rys[j + 1] })
+                    } else if (left && right && !interiorSet.has(key)) {
+                        interiorSet.add(key)
+                        interiorParts.push(`M${x},${rys[j]}L${x},${rys[j + 1]}`)
+                    }
+                }
             }
         }
-        return segs.join('')
+
+        return { exterior, interiorPath: interiorParts.join('') }
     })
 
-    // Exterior outline: connected polygon traced from boundary segments, with rounded corners
+    // Trace exterior segments into a closed polygon with rounded corners
     const exteriorOutlinePath = computed(() => {
-        const rooms = map.storage.rooms
-        const xs = [...new Set(rooms.flatMap(r => [r.x, r.x + r.w]))].sort((a, b) => a - b)
-        const ys = [...new Set(rooms.flatMap(r => [r.y, r.y + r.h]))].sort((a, b) => a - b)
-        const inRoom = (x, y) => rooms.some(r => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h)
-
-        // Boundary segments: exactly one side is inside a room
-        const segs = []
-        for (const y of ys) {
-            for (let i = 0; i < xs.length - 1; i++) {
-                const xm = (xs[i] + xs[i + 1]) / 2
-                if (inRoom(xm, y - 0.5) !== inRoom(xm, y + 0.5))
-                    segs.push({ x1: xs[i], y1: y, x2: xs[i + 1], y2: y })
-            }
-        }
-        for (const x of xs) {
-            for (let j = 0; j < ys.length - 1; j++) {
-                const ym = (ys[j] + ys[j + 1]) / 2
-                if (inRoom(x - 0.5, ym) !== inRoom(x + 0.5, ym))
-                    segs.push({ x1: x, y1: ys[j], x2: x, y2: ys[j + 1] })
-            }
-        }
-
+        const segs = wallSegments.value.exterior
         if (!segs.length) return ''
 
-        // Build adjacency graph from segment endpoints
         const adj = new Map()
         const k = (x, y) => `${x},${y}`
         for (const seg of segs) {
@@ -72,13 +78,11 @@
             adj.get(k2).nb.push(k1)
         }
 
-        // Start from topmost-leftmost vertex (guaranteed to be on exterior)
         const startKey = [...adj.keys()].reduce((a, b) => {
             const na = adj.get(a), nb = adj.get(b)
             return nb.y < na.y || (nb.y === na.y && nb.x < na.x) ? b : a
         })
 
-        // Trace closed polygon by following neighbors (avoid backtracking)
         const raw = []
         let cur = startKey, prev = null
         do {
@@ -89,7 +93,7 @@
             cur = next
         } while (cur !== startKey && raw.length <= segs.length)
 
-        // Drop collinear vertices (cross product = 0)
+        // Drop collinear vertices
         const n = raw.length
         const poly = raw.filter((c, i) => {
             const p = raw[(i - 1 + n) % n], nx = raw[(i + 1) % n]
@@ -98,7 +102,7 @@
 
         if (poly.length < 3) return ''
 
-        // Build rounded-corner path using quadratic bezier arcs at each corner
+        // Quadratic bezier arcs at each corner
         const r = 12
         const m = poly.length
         let d = ''
@@ -154,9 +158,9 @@
         />
     </g>
 
-    <!-- Interior walls (straight, between rooms) -->
+    <!-- Interior walls (shared walls between rooms) -->
     <path
-        :d="interiorWallPath"
+        :d="wallSegments.interiorPath"
         fill="none"
         class="stroke-2"
         style="stroke: rgba(255,255,255,0.80);"
