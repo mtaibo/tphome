@@ -102,7 +102,8 @@
 
         if (poly.length < 3) return ''
 
-        // Quadratic bezier arcs at each corner
+        // Quadratic bezier arcs only at convex corners (cross product > 0).
+        // Concave corners (inward notches) get a sharp angle to avoid visual gaps.
         const r = 12
         const m = poly.length
         let d = ''
@@ -117,12 +118,17 @@
             const dx2 = nx.x - cv.x, dy2 = nx.y - cv.y
             const len2 = Math.hypot(dx2, dy2)
 
-            const cr = Math.min(r, len1 / 2, len2 / 2)
-            const p1x = cv.x - (dx1 / len1) * cr, p1y = cv.y - (dy1 / len1) * cr
-            const p2x = cv.x + (dx2 / len2) * cr, p2y = cv.y + (dy2 / len2) * cr
+            const cross = dx1 * dy2 - dy1 * dx2
 
-            d += i === 0 ? `M${p1x},${p1y}` : `L${p1x},${p1y}`
-            d += `Q${cv.x},${cv.y} ${p2x},${p2y}`
+            if (cross > 0) {
+                const cr = Math.min(r, len1 / 2, len2 / 2)
+                const p1x = cv.x - (dx1 / len1) * cr, p1y = cv.y - (dy1 / len1) * cr
+                const p2x = cv.x + (dx2 / len2) * cr, p2y = cv.y + (dy2 / len2) * cr
+                d += i === 0 ? `M${p1x},${p1y}` : `L${p1x},${p1y}`
+                d += `Q${cv.x},${cv.y} ${p2x},${p2y}`
+            } else {
+                d += i === 0 ? `M${cv.x},${cv.y}` : `L${cv.x},${cv.y}`
+            }
         }
 
         return d + 'Z'
