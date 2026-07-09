@@ -38,59 +38,71 @@
 
 <template>
 
-    <g 
-        v-for="(blind, id) in blinds" 
-        :key="id" 
-        class="select-none cursor-pointer" 
+    <g
+        v-for="(blind, id) in blinds"
+        :key="id"
+        class="select-none cursor-pointer"
         @click="onClick(id)"
     >
-    
+
         <!-- Hit area (invisible, extends 4px beyond the blind for accessibility) -->
-        <rect 
+        <rect
             :x="blind.map.x - 4" :y="blind.map.y - 4"
-            :width="blind.map.width + 8" :height="blind.map.height + 8" 
+            :width="blind.map.width + 8" :height="blind.map.height + 8"
             fill="transparent" rx="3"
         />
 
         <!-- Blind background -->
-        <rect 
+        <rect
             :x="blind.map.x" :y="blind.map.y" rx="1.5"
-            :width="blind.map.width" :height="blind.map.height" 
+            :width="blind.map.width" :height="blind.map.height"
             class="fill-black"
             :class="isActive(blind) ? 'stroke-tp-accent' : 'stroke-tp-border'"
         />
 
-        <!-- Blind plain cover -->
-        <rect 
+        <!-- Config mode: flat accent fill -->
+        <rect
+            v-if="props.mode === 'config'"
             :x="blind.map.x" :y="blind.map.y" rx="1.5"
-            :width="coverWidth(blind)" :height="coverHeight(blind)" 
-            :class="props.mode === 'config'
-                ? 'fill-tp-accent/20'
-                : isActive(blind)
-                    ? 'fill-tp-accent/10 transition-all duration-500 ease-in-out'
-                    : 'fill-muted transition-all duration-500 ease-in-out'"
+            :width="blind.map.width" :height="blind.map.height"
+            class="fill-tp-accent/20"
         />
 
-        <!-- Apply pattern -->
-        <rect 
-            v-if="props.mode !== 'config'"
-            :x="blind.map.x" :y="blind.map.y" 
-            :width="coverWidth(blind)" :height="coverHeight(blind)" 
-            :fill="isHorizontal(blind) ? 'url(#pattern-v)' : 'url(#pattern-h)'"
-            class="pointer-events-none transition-all duration-500 ease-in-out"
+        <!-- Control mode: white slat fill sized by position -->
+        <rect
+            v-else
+            :x="blind.map.x" :y="blind.map.y" rx="1.5"
+            :width="coverWidth(blind)" :height="coverHeight(blind)"
+            :fill="isHorizontal(blind) ? 'url(#blind-slat-h)' : 'url(#blind-slat-v)'"
+            class="transition-all duration-500 ease-in-out"
         />
 
     </g>
 
-    <!-- Patterns -->
     <defs>
-        <pattern id="pattern-h" x="0" y="0" width="100%" height="4" patternUnits="userSpaceOnUse">
-            <line x1="0" y1="0" x2="100%" y2="0" class="stroke-black/30" stroke-width="1"/>
+
+        <!--
+            Horizontal blind (wide × thin, fills left→right):
+            Vertical slat stripes — each stripe = one slat seen from above.
+            Body: white. Left edge: highlight. Right edge: shadow.
+        -->
+        <pattern id="blind-slat-h" x="0" y="0" width="5" height="7" patternUnits="userSpaceOnUse">
+            <rect width="5" height="7" fill="rgba(255,255,255,0.84)"/>
+            <rect x="0"   width="0.6" height="7" fill="rgba(255,255,255,1)"/>
+            <rect x="4.2" width="0.8" height="7" fill="rgba(0,0,0,0.18)"/>
         </pattern>
 
-        <pattern id="pattern-v" x="0" y="0" width="4" height="100%" patternUnits="userSpaceOnUse">
-            <line x1="0" y1="0" x2="0" y2="100%" class="stroke-black/30" stroke-width="1"/>
+        <!--
+            Vertical blind (narrow × tall, fills top→bottom):
+            Horizontal slat stripes — each stripe = one slat seen from the side.
+            Body: white. Top edge: highlight. Bottom edge: shadow.
+        -->
+        <pattern id="blind-slat-v" x="0" y="0" width="7" height="4" patternUnits="userSpaceOnUse">
+            <rect width="7" height="4"   fill="rgba(255,255,255,0.84)"/>
+            <rect width="7" height="0.6" fill="rgba(255,255,255,1)"/>
+            <rect y="3.4"  width="7" height="0.6" fill="rgba(0,0,0,0.18)"/>
         </pattern>
+
     </defs>
 
 </template>
