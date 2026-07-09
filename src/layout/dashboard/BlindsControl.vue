@@ -87,12 +87,12 @@
     }
 
     const handleUp = () => pressBtn('up', () => {
-        const upTime = props.device.prefs?.up_time ?? 3000
+        const upTime = (props.device.prefs?.up_time ?? 3000) * 10  // prefs are in 10ms units
         displayPos = smoothPos.value; realPos = displayPos; realTime = Date.now(); velocity = 100 / upTime
         sendCommand('up')
     })
     const handleDown = () => pressBtn('down', () => {
-        const downTime = props.device.prefs?.down_time ?? 3000
+        const downTime = (props.device.prefs?.down_time ?? 3000) * 10
         displayPos = smoothPos.value; realPos = displayPos; realTime = Date.now(); velocity = -(100 / downTime)
         sendCommand('down')
     })

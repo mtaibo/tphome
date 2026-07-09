@@ -80,14 +80,14 @@
 
     const handleUp = (id) => pressBtn(`${id}-up`, () => {
         const device = store.blinds[id]
-        const upTime = device?.prefs?.up_time ?? 3000
+        const upTime = (device?.prefs?.up_time ?? 3000) * 10  // prefs are in 10ms units
         const a = getAnim(id, positions.value[id])
         a.displayPos = positions.value[id] ?? 0; a.realPos = a.displayPos; a.realTime = Date.now(); a.velocity = 100 / upTime
         sendCommand(id, 'up')
     })
     const handleDown = (id) => pressBtn(`${id}-down`, () => {
         const device = store.blinds[id]
-        const downTime = device?.prefs?.down_time ?? 3000
+        const downTime = (device?.prefs?.down_time ?? 3000) * 10
         const a = getAnim(id, positions.value[id])
         a.displayPos = positions.value[id] ?? 0; a.realPos = a.displayPos; a.realTime = Date.now(); a.velocity = -(100 / downTime)
         sendCommand(id, 'down')
