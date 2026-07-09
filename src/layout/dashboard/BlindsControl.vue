@@ -14,43 +14,43 @@
     const isLoading    = ref(false)
     const pressing     = ref({})
 
-    // Smooth animation state
+    // Animation: constant speed from prefs, anchored to (moveStartPos, moveStartTime)
+    // Each WS update recalibrates the anchor so prediction stays in sync without jerks
+    let velocity      = 0
+    let moveStartPos  = props.device.state.position
+    let moveStartTime = Date.now()
     let realPos       = props.device.state.position
-    let realTime      = Date.now()
-    let velocity      = 0  // %/ms, set from prefs on button press
     let displayPos    = props.device.state.position
-    let lastFrameTime = Date.now()
     let rafId         = null
 
     const snapToReal = () => {
         velocity           = 0
         displayPos         = realPos
+        moveStartPos       = realPos
+        moveStartTime      = Date.now()
         smoothPos.value    = realPos
         tempPosition.value = Math.round(realPos)
     }
 
+    // WS position update: recalibrate prediction anchor while moving, snap when stopped
     watch(() => props.device.state.position, (newPos) => {
-        realPos  = newPos
-        realTime = Date.now()
-        if (velocity === 0) snapToReal()
+        realPos = newPos
+        if (velocity === 0) {
+            displayPos = newPos; smoothPos.value = newPos; tempPosition.value = Math.round(newPos)
+        } else {
+            moveStartPos = newPos; moveStartTime = Date.now()
+        }
     })
 
-    watch(() => props.device.state.motor_state, () => {
-        realPos = props.device.state.position
-        snapToReal()
+    // Only snap when motor reaches IDLE (0) — not on MOVING (2) updates
+    watch(() => props.device.state.motor_state, (newState) => {
+        if (newState === 0) { realPos = props.device.state.position; snapToReal() }
     })
 
     function animate() {
-        const now = Date.now()
-        const dt  = Math.min(now - lastFrameTime, 50)
-        lastFrameTime = now
-
-        if (!dragging) {
-            if (velocity !== 0) {
-                displayPos += velocity * dt
-                displayPos += (realPos - displayPos) * 0.002 * dt
-                displayPos  = Math.max(0, Math.min(100, displayPos))
-            }
+        if (!dragging && velocity !== 0) {
+            const now = Date.now()
+            displayPos = Math.max(0, Math.min(100, moveStartPos + velocity * (now - moveStartTime)))
             smoothPos.value    = displayPos
             tempPosition.value = Math.round(displayPos)
         }
@@ -87,13 +87,13 @@
     }
 
     const handleUp = () => pressBtn('up', () => {
-        const upTime = (props.device.prefs?.up_time ?? 3000) * 10  // prefs are in 10ms units
-        displayPos = smoothPos.value; realPos = displayPos; realTime = Date.now(); velocity = 100 / upTime
+        velocity = 100 / ((props.device.prefs?.up_time ?? 3000) * 10)
+        moveStartPos = displayPos; moveStartTime = Date.now()
         sendCommand('up')
     })
     const handleDown = () => pressBtn('down', () => {
-        const downTime = (props.device.prefs?.down_time ?? 3000) * 10
-        displayPos = smoothPos.value; realPos = displayPos; realTime = Date.now(); velocity = -(100 / downTime)
+        velocity = -(100 / ((props.device.prefs?.down_time ?? 3000) * 10))
+        moveStartPos = displayPos; moveStartTime = Date.now()
         sendCommand('down')
     })
     const handleStop = () => pressBtn('stop', () => { snapToReal(); sendCommand('stop') })

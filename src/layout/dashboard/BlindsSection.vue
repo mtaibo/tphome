@@ -16,44 +16,40 @@
 
     // Per-blind animation state (outside Vue reactivity for perf)
     const anim = {}
-    let rafId         = null
-    let lastFrameTime = Date.now()
+    let rafId = null
 
     function getAnim(id, initialPos) {
         if (!anim[id]) {
             positions.value[id] = initialPos ?? 0
-            anim[id] = { realPos: initialPos ?? 0, realTime: Date.now(), velocity: 0, displayPos: initialPos ?? 0 }
+            anim[id] = { realPos: initialPos ?? 0, velocity: 0, moveStartPos: initialPos ?? 0, moveStartTime: Date.now(), displayPos: initialPos ?? 0 }
         }
         return anim[id]
     }
 
-    // On WS update: store real position, snap only if stopped
+    // WS update: recalibrate anchor while moving; snap on IDLE or when stopped
     watch(() => store.blinds, (blinds) => {
         for (const [id, device] of Object.entries(blinds)) {
             if (dragging.value[id]) continue
-            const newPos = device.state?.position ?? 0
+            const newPos     = device.state?.position ?? 0
+            const motorState = device.state?.motor_state ?? 0
             const a = getAnim(id, newPos)
-            a.realPos  = newPos
-            a.realTime = Date.now()
-            if (a.velocity === 0) {
-                a.displayPos = newPos
+            a.realPos = newPos
+            if (a.velocity === 0 || motorState === 0) {
+                a.velocity = 0; a.displayPos = newPos; a.moveStartPos = newPos; a.moveStartTime = Date.now()
                 positions.value[id] = newPos
+            } else {
+                a.moveStartPos = newPos; a.moveStartTime = Date.now()
             }
         }
     }, { immediate: true, deep: true })
 
     function animateLoop() {
         const now = Date.now()
-        const dt  = Math.min(now - lastFrameTime, 50)
         lastFrameTime = now
 
         for (const [id, a] of Object.entries(anim)) {
-            if (dragging.value[id]) continue
-            if (a.velocity !== 0) {
-                a.displayPos += a.velocity * dt
-                a.displayPos += (a.realPos - a.displayPos) * 0.002 * dt
-                a.displayPos  = Math.max(0, Math.min(100, a.displayPos))
-            }
+            if (dragging.value[id] || a.velocity === 0) continue
+            a.displayPos = Math.max(0, Math.min(100, a.moveStartPos + a.velocity * (now - a.moveStartTime)))
             positions.value[id] = a.displayPos
         }
         rafId = requestAnimationFrame(animateLoop)
@@ -80,20 +76,23 @@
 
     const handleUp = (id) => pressBtn(`${id}-up`, () => {
         const device = store.blinds[id]
-        const upTime = (device?.prefs?.up_time ?? 3000) * 10  // prefs are in 10ms units
         const a = getAnim(id, positions.value[id])
-        a.displayPos = positions.value[id] ?? 0; a.realPos = a.displayPos; a.realTime = Date.now(); a.velocity = 100 / upTime
+        a.velocity = 100 / ((device?.prefs?.up_time ?? 3000) * 10)
+        a.moveStartPos = a.displayPos; a.moveStartTime = Date.now()
         sendCommand(id, 'up')
     })
     const handleDown = (id) => pressBtn(`${id}-down`, () => {
         const device = store.blinds[id]
-        const downTime = (device?.prefs?.down_time ?? 3000) * 10
         const a = getAnim(id, positions.value[id])
-        a.displayPos = positions.value[id] ?? 0; a.realPos = a.displayPos; a.realTime = Date.now(); a.velocity = -(100 / downTime)
+        a.velocity = -(100 / ((device?.prefs?.down_time ?? 3000) * 10))
+        a.moveStartPos = a.displayPos; a.moveStartTime = Date.now()
         sendCommand(id, 'down')
     })
     const handleStop = (id) => pressBtn(`${id}-stop`, () => {
-        if (anim[id]) { anim[id].velocity = 0; anim[id].displayPos = anim[id].realPos; positions.value[id] = anim[id].realPos }
+        if (anim[id]) {
+            anim[id].velocity = 0; anim[id].displayPos = anim[id].realPos
+            anim[id].moveStartPos = anim[id].realPos; positions.value[id] = anim[id].realPos
+        }
         sendCommand(id, 'stop')
     })
     const handleSettings = (id) => pressBtn(`${id}-cfg`,  () => router.push({ path: '/settings', query: { device: id } }))
