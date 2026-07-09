@@ -1,6 +1,6 @@
 <script setup>
     import { ref, computed, watch, nextTick } from 'vue'
-    import { X, ChevronUp, ChevronDown, Pause, Blinds, Check } from 'lucide-vue-next'
+    import { X, ChevronUp, ChevronDown, Pause, Blinds } from 'lucide-vue-next'
     import { api } from '@/config/api'
     import BlindSlider from '@/components/BlindSlider.vue'
     import { positions, handlePositions, getAnim, setPending, isPending } from '@/composables/useBlindAnimations'
@@ -192,7 +192,7 @@
         </div>
 
         <!-- DESKTOP LAYOUT -->
-        <div class="hidden md:flex flex-1 flex-col items-center justify-center p-6 space-y-8">
+        <div class="hidden md:flex flex-1 flex-col items-center justify-center p-6 gap-8">
             <div class="flex flex-col items-center gap-4">
                 <BlindSlider
                     class="w-40 h-64"
@@ -208,31 +208,16 @@
                 </div>
             </div>
 
-            <div class="w-full max-w-65 space-y-8">
-                <div class="grid grid-cols-3 gap-3">
-                    <button @click="handleUp" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl transition-all cursor-pointer hover:bg-tp-accent/10 hover:border-tp-accent/50 group">
-                        <ChevronUp class="w-6 h-6 text-tp-muted group-hover:text-tp-accent" />
-                    </button>
-                    <button @click="handleStop" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl transition-all cursor-pointer hover:bg-tp-stop/10 hover:border-tp-stop/50 group">
-                        <Pause class="w-4 h-4 text-tp-muted group-hover:text-tp-stop fill-current" />
-                    </button>
-                    <button @click="handleDown" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl transition-all cursor-pointer hover:bg-tp-accent/10 hover:border-tp-accent/50 group">
-                        <ChevronDown class="w-6 h-6 text-tp-muted group-hover:text-tp-accent" />
-                    </button>
-                </div>
-
-                <div class="flex gap-3 h-14">
-                    <div class="flex-1 bg-tp-bg/50 border border-tp-border rounded-xl flex items-center px-4 focus-within:border-tp-accent/50 transition-colors">
-                        <input type="number" v-model.number="tempPosition" @keyup.enter="updatePosition(tempPosition)"
-                               placeholder="0-100"
-                               class="w-full bg-transparent border-none text-sm font-mono text-tp-text focus:outline-none [appearance:textfield]"
-                        />
-                        <span class="text-tp-muted/30 font-mono text-lg">%</span>
-                    </div>
-                    <button @click="updatePosition(tempPosition)" class="flex items-center justify-center px-6 bg-tp-border/20 border border-tp-border rounded-xl transition-all cursor-pointer hover:bg-tp-accent/10 hover:border-tp-accent/50 group">
-                        <Check class="w-5 h-5 text-tp-muted group-hover:text-tp-accent transition-colors" />
-                    </button>
-                </div>
+            <div class="flex gap-3">
+                <button @click="handleUp" class="blind-btn" :class="{ pressing: pressing['up'] }">
+                    <ChevronUp class="w-[18px] h-[18px] text-tp-text/80" />
+                </button>
+                <button @click="handleStop" class="blind-btn" :class="{ pressing: pressing['stop'] }">
+                    <Pause class="w-[15px] h-[15px] fill-current text-tp-text/80" />
+                </button>
+                <button @click="handleDown" class="blind-btn" :class="{ pressing: pressing['down'] }">
+                    <ChevronDown class="w-[18px] h-[18px] text-tp-text/80" />
+                </button>
             </div>
         </div>
     </div>
