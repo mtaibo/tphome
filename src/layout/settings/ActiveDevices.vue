@@ -111,7 +111,7 @@
                             <span class="text-sm text-tp-text flex-1 truncate">{{ device.name }}</span>
                             <div
                                 class="w-2 h-2 rounded-full shrink-0"
-                                :class="device.connection?.online ? 'bg-tp-ok shadow-[0_0_6px_var(--color-tp-ok)]' : 'bg-tp-danger'"
+                                :class="device.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"
                             ></div>
                             <ChevronDown
                                 class="w-4 h-4 shrink-0 text-tp-muted transition-transform duration-200"
@@ -162,7 +162,7 @@
                                 </button>
                                 <button
                                     @click.stop="deleteDevice(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-danger hover:bg-tp-danger/10 transition-all cursor-pointer"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-off hover:bg-tp-off/10 transition-all cursor-pointer"
                                 >
                                     <Trash2 class="w-4 h-4 shrink-0" />
                                     <span>Eliminar dispositivo</span>
@@ -186,7 +186,7 @@
                             <span class="text-xs font-mono text-tp-muted shrink-0 whitespace-nowrap">{{ device.id }}</span>
                             <div
                                 class="w-2 h-2 rounded-full shrink-0"
-                                :class="device.connection?.online ? 'bg-tp-ok shadow-[0_0_6px_var(--color-tp-ok)]' : 'bg-tp-danger'"
+                                :class="device.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"
                             ></div>
                             <ChevronDown
                                 class="w-4 h-4 shrink-0 text-tp-muted transition-transform duration-200"
@@ -237,7 +237,7 @@
                                 </button>
                                 <button
                                     @click.stop="deleteDevice(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-danger hover:bg-tp-danger/10 transition-all cursor-pointer"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-off hover:bg-tp-off/10 transition-all cursor-pointer"
                                 >
                                     <Trash2 class="w-4 h-4 shrink-0" />
                                     <span>Eliminar dispositivo</span>

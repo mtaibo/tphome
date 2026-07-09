@@ -25,10 +25,10 @@
 
 <template>
 
-    <div class="flex flex-col md:flex-row h-full w-full overflow-hidden min-h-0">
+    <div class="h-full w-full overflow-hidden min-h-0">
 
-        <!-- Blueprint itself -->
-        <div class="flex-1 flex items-center justify-center p-5 md:p-10 transition-all duration-500 ease-in-out">
+        <!-- Blueprint -->
+        <div class="flex items-center justify-center p-5 md:p-10 h-full">
             <svg
                 :viewBox="map.storage.viewBox ?? '0 0 0 0'"
                 class="w-full h-auto max-w-3xl"
@@ -40,22 +40,12 @@
             </svg>
         </div>
 
-        <!-- Desktop sidebar -->
-        <aside
-            class="hidden md:block h-full border-l border-tp-border bg-tp-surface/20 backdrop-blur-md transition-all duration-500 ease-in-out overflow-hidden"
-            :class="selectedBlind ? 'w-80 opacity-100' : 'w-0 opacity-0 border-none'"
-        >
-            <div class="w-80 h-full">
-                <BlindsControl v-if="selectedBlind" :id="selectedId" :device="selectedBlind" @close="selectedId = null" />
-            </div>
-        </aside>
-
-        <!-- Mobile popup -->
+        <!-- Popup (bottom sheet on mobile, centered modal on desktop) -->
         <Teleport to="body">
             <Transition name="popup">
                 <div
                     v-if="selectedBlind"
-                    class="blinds-popup-overlay md:hidden"
+                    class="blinds-popup-overlay"
                     @click.self="selectedId = null"
                 >
                     <div class="blinds-popup">

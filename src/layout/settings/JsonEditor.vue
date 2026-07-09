@@ -334,7 +334,7 @@
                                  </button>
                                  <button
                                      @click.stop="deleteDevice(device)"
-                                     class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-tp-muted/50 hover:text-tp-danger hover:bg-tp-danger/10 border border-tp-border/20 transition-all cursor-pointer"
+                                     class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-tp-muted/50 hover:text-tp-off hover:bg-tp-off/10 border border-tp-border/20 transition-all cursor-pointer"
                                  >
                                      <Trash2 class="w-3.5 h-3.5" />
                                      Eliminar

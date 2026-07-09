@@ -31,9 +31,13 @@ export function useSections(path) {
     const sections = SECTIONS_MAP[path] || SECTIONS_MAP['/']
     const activeSection = ref(sections[0]?.id || '')
   
-    const activeComponent = computed(() => {
-        return sections.find(s => s.id === activeSection.value)?.component || null
-    })
+    const activeComponent = computed(() =>
+        sections.find(s => s.id === activeSection.value)?.component || null
+    )
 
-    return { sections, activeSection, activeComponent }
+    const activeSectionName = computed(() =>
+        sections.find(s => s.id === activeSection.value)?.name ?? ''
+    )
+
+    return { sections, activeSection, activeComponent, activeSectionName }
 }
