@@ -1,8 +1,9 @@
 <script setup>
-    import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
+    import { ref, computed, watch, nextTick } from 'vue'
     import { X, ChevronUp, ChevronDown, Pause, Blinds, Check } from 'lucide-vue-next'
     import { api } from '@/config/api'
     import BlindSlider from '@/components/BlindSlider.vue'
+    import { positions, handlePositions, getAnim, setPending, isPending } from '@/composables/useBlindAnimations'
 
     const props = defineProps({
         id:     { type: String, required: true },
@@ -10,63 +11,53 @@
     })
     const emit = defineEmits(['close'])
 
-    const tempPosition = ref(Math.round(props.device.state.position))  // integer, for text/input
-    const smoothPos    = ref(props.device.state.position)              // float, fill position
-    const handlePos    = ref(props.device.state.position)              // float, bubble position
+    // Ensure shared anim state exists for this blind
+    getAnim(props.id, props.device.state?.position ?? 0)
+
+    const tempPosition = ref(Math.round(props.device.state?.position ?? 0))
     const isLoading    = ref(false)
     const pressing     = ref({})
 
-    // Animation: constant speed from prefs, anchored to (moveStartPos, moveStartTime)
-    // Each WS update recalibrates the anchor so prediction stays in sync without jerks
-    let velocity      = 0
-    let moveStartPos  = props.device.state.position
-    let moveStartTime = Date.now()
-    let realPos       = props.device.state.position
-    let displayPos    = props.device.state.position
-    let setPending    = false  // true while motor moves toward a slider-set target
-    let rafId         = null
+    const smoothPos = computed(() => positions[props.id]       ?? 0)
+    const handlePos = computed(() => handlePositions[props.id] ?? 0)
+
+    // Keep tempPosition in sync with handle when motor is free-running (not set-pending)
+    watch(handlePos, (val) => {
+        if (!isPending(props.id)) tempPosition.value = Math.round(val)
+    })
 
     const snapToReal = () => {
-        velocity           = 0
-        setPending         = false
-        displayPos         = realPos
-        moveStartPos       = realPos
-        moveStartTime      = Date.now()
-        smoothPos.value    = realPos
-        handlePos.value    = realPos
-        tempPosition.value = Math.round(realPos)
+        const a = getAnim(props.id)
+        a.velocity = 0; setPending(props.id, false)
+        a.displayPos = a.realPos; a.handlePos = a.realPos
+        a.moveStartPos = a.realPos; a.moveStartTime = Date.now()
+        positions[props.id]       = a.realPos
+        handlePositions[props.id] = a.realPos
+        tempPosition.value = Math.round(a.realPos)
     }
 
     // WS position update: recalibrate anchor while button-moving; ignore while set-pending
-    watch(() => props.device.state.position, (newPos) => {
-        realPos = newPos
-        if (velocity !== 0) {
-            moveStartPos = newPos; moveStartTime = Date.now()
-        } else if (!setPending) {
-            displayPos = newPos; smoothPos.value = newPos; handlePos.value = newPos; tempPosition.value = Math.round(newPos)
+    watch(() => props.device.state?.position, (newPos) => {
+        if (newPos == null) return
+        const a = getAnim(props.id)
+        a.realPos = newPos
+        if (a.velocity !== 0) {
+            a.moveStartPos = newPos; a.moveStartTime = Date.now()
+        } else if (!isPending(props.id)) {
+            a.displayPos = newPos; a.handlePos = newPos
+            positions[props.id] = newPos; handlePositions[props.id] = newPos
+            tempPosition.value = Math.round(newPos)
         }
     })
 
     // Snap only when motor reaches IDLE (0) — clears setPending and confirms final position
-    watch(() => props.device.state.motor_state, (newState) => {
-        if (newState === 0) { realPos = props.device.state.position; snapToReal() }
-    })
-
-    function animate() {
-        if (!dragging && velocity !== 0) {
-            const now = Date.now()
-            displayPos      = Math.max(0, Math.min(100, moveStartPos + velocity * (now - moveStartTime)))
-            smoothPos.value = displayPos
-            if (!setPending) {
-                handlePos.value    = displayPos
-                tempPosition.value = Math.round(displayPos)
-            }
+    watch(() => props.device.state?.motor_state, (newState) => {
+        if (newState === 0) {
+            const a = getAnim(props.id)
+            a.realPos = props.device.state?.position ?? a.realPos
+            snapToReal()
         }
-        rafId = requestAnimationFrame(animate)
-    }
-
-    onMounted(()   => { rafId = requestAnimationFrame(animate) })
-    onUnmounted(() => { if (rafId) cancelAnimationFrame(rafId) })
+    })
 
     const pressBtn = (key, action) => {
         pressing.value[key] = false
@@ -95,15 +86,17 @@
     }
 
     const handleUp = () => pressBtn('up', () => {
-        setPending = false
-        velocity = 100 / ((props.device.prefs?.up_time ?? 3000) * 10)
-        moveStartPos = displayPos; moveStartTime = Date.now()
+        const a = getAnim(props.id)
+        setPending(props.id, false)
+        a.velocity = 100 / ((props.device.prefs?.up_time ?? 3000) * 10)
+        a.moveStartPos = a.displayPos; a.moveStartTime = Date.now()
         sendCommand('up')
     })
     const handleDown = () => pressBtn('down', () => {
-        setPending = false
-        velocity = -(100 / ((props.device.prefs?.down_time ?? 3000) * 10))
-        moveStartPos = displayPos; moveStartTime = Date.now()
+        const a = getAnim(props.id)
+        setPending(props.id, false)
+        a.velocity = -(100 / ((props.device.prefs?.down_time ?? 3000) * 10))
+        a.moveStartPos = a.displayPos; a.moveStartTime = Date.now()
         sendCommand('down')
     })
     const handleStop = () => pressBtn('stop', () => { snapToReal(); sendCommand('stop') })
@@ -112,35 +105,40 @@
 
     function onSliderDragStart(pos) {
         dragging = true
-        velocity = 0; setPending = false
-        displayPos = pos; smoothPos.value = pos; handlePos.value = pos; tempPosition.value = pos
+        const a = getAnim(props.id)
+        a.velocity = 0; setPending(props.id, false)
+        a.displayPos = pos; a.handlePos = pos
+        positions[props.id] = pos; handlePositions[props.id] = pos
+        tempPosition.value = pos
     }
 
     function onSliderDragMove(pos) {
         if (!dragging) return
-        displayPos = pos; smoothPos.value = pos; handlePos.value = pos; tempPosition.value = pos
+        const a = getAnim(props.id)
+        a.displayPos = pos; a.handlePos = pos
+        positions[props.id] = pos; handlePositions[props.id] = pos
+        tempPosition.value = pos
     }
 
     function onSliderDragEnd(pos) {
         if (!dragging) return
         dragging = false
+        const a = getAnim(props.id)
 
-        handlePos.value    = pos
+        a.handlePos = pos; handlePositions[props.id] = pos
         tempPosition.value = pos
 
-        displayPos      = realPos
-        smoothPos.value = realPos
-        moveStartPos    = realPos
-        moveStartTime   = Date.now()
+        a.displayPos = a.realPos; positions[props.id] = a.realPos
+        a.moveStartPos = a.realPos; a.moveStartTime = Date.now()
 
-        if (pos < realPos) {
-            velocity = -(100 / ((props.device.prefs?.down_time ?? 3000) * 10))
-            setPending = true
-        } else if (pos > realPos) {
-            velocity = 100 / ((props.device.prefs?.up_time ?? 3000) * 10)
-            setPending = true
+        if (pos < a.realPos) {
+            a.velocity = -(100 / ((props.device.prefs?.down_time ?? 3000) * 10))
+            setPending(props.id, true)
+        } else if (pos > a.realPos) {
+            a.velocity = 100 / ((props.device.prefs?.up_time ?? 3000) * 10)
+            setPending(props.id, true)
         } else {
-            velocity = 0; setPending = false
+            a.velocity = 0; setPending(props.id, false)
         }
 
         updatePosition(pos)
@@ -150,7 +148,7 @@
 
 <template>
     <div class="flex flex-col h-full select-none" :class="{ 'opacity-80 pointer-events-none': isLoading }">
-        
+
         <header class="px-5 pt-5 pb-4 flex items-center justify-between shrink-0">
             <div class="flex items-center gap-3">
                 <div class="shrink-0 p-2 bg-tp-accent/10 rounded-[14px]">
@@ -218,7 +216,7 @@
                         <ChevronUp class="w-6 h-6 text-muted group-hover:text-tp-accent" />
                     </button>
                     <button @click="handleStop" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl transition-all cursor-pointer hover:bg-tp-stop/10 hover:border-tp-stop/50 group">
-                        <Square class="w-4 h-4 text-muted group-hover:text-tp-stop fill-current" />
+                        <Pause class="w-4 h-4 text-muted group-hover:text-tp-stop fill-current" />
                     </button>
                     <button @click="handleDown" class="flex items-center justify-center p-4 bg-tp-border/20 border border-tp-border rounded-xl transition-all cursor-pointer hover:bg-tp-accent/10 hover:border-tp-accent/50 group">
                         <ChevronDown class="w-6 h-6 text-muted group-hover:text-tp-accent" />
