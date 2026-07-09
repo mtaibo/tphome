@@ -2,6 +2,7 @@
     import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
     import { X, ChevronUp, ChevronDown, Pause, Blinds, Check } from 'lucide-vue-next'
     import { api } from '@/config/api'
+    import BlindSlider from '@/components/BlindSlider.vue'
 
     const props = defineProps({
         id:     { type: String, required: true },
@@ -109,36 +110,24 @@
 
     let dragging = false
 
-    function posFromY(el, clientY) {
-        const rect = el.getBoundingClientRect()
-        const y = clientY - rect.top
-        return Math.max(0, Math.min(100, Math.round((1 - y / rect.height) * 100)))
-    }
-
-    function onPointerDown(e) {
+    function onSliderDragStart(pos) {
         dragging = true
         velocity = 0; setPending = false
-        const pos = posFromY(e.currentTarget, e.clientY)
         displayPos = pos; smoothPos.value = pos; handlePos.value = pos; tempPosition.value = pos
-        e.currentTarget.setPointerCapture(e.pointerId)
     }
 
-    function onPointerMove(e) {
+    function onSliderDragMove(pos) {
         if (!dragging) return
-        const pos = posFromY(e.currentTarget, e.clientY)
         displayPos = pos; smoothPos.value = pos; handlePos.value = pos; tempPosition.value = pos
     }
 
-    function onPointerUp(e) {
+    function onSliderDragEnd(pos) {
         if (!dragging) return
         dragging = false
-        const pos = posFromY(e.currentTarget, e.clientY)
 
-        // Bubble locks at target; number shows target
         handlePos.value    = pos
         tempPosition.value = pos
 
-        // Fill snaps back to real position and animates toward target like a button press
         displayPos      = realPos
         smoothPos.value = realPos
         moveStartPos    = realPos
@@ -179,28 +168,14 @@
         <!-- MOBILE LAYOUT -->
         <div class="md:hidden flex-1 flex items-center justify-center px-5 pb-6 gap-4">
             <div class="flex flex-col items-center gap-3 flex-1 max-w-[110px]">
-                <div class="relative w-full aspect-[3/5] rounded-[26px] overflow-hidden touch-none select-none cursor-grab active:cursor-grabbing"
-                     style="background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.04) 100%); border: 0.5px solid rgba(255,255,255,0.13); box-shadow: inset 0 2px 8px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.09);"
-                     @pointerdown="onPointerDown"
-                     @pointermove="onPointerMove"
-                     @pointerup="onPointerUp"
-                     @pointercancel="onPointerUp">
-                    <!-- Slats fill from top -->
-                    <div class="absolute top-0 left-0 right-0 overflow-hidden"
-                         :class="smoothPos < 100 ? 'border-b border-tp-accent/35' : ''"
-                         :style="{ height: (100 - smoothPos) + '%' }">
-                        <div class="flex flex-col gap-[3px] px-[4px] pt-[4px]">
-                            <div v-for="i in 24" :key="i"
-                                 class="w-full bg-white/14 rounded-[2px] shrink-0"
-                                 style="height: 4px; min-height: 4px;"></div>
-                        </div>
-                    </div>
-                    <!-- Handle bubble — locked at target while fill animates -->
-                    <div class="absolute left-[7px] right-[7px] h-5 rounded-[10px] pointer-events-none"
-                         style="background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,255,255,0.82)); box-shadow: 0 2px 8px rgba(0,0,0,0.30), inset 0 1px 0 white;"
-                         :style="{ top: `calc(${100 - handlePos}% - 10px)` }">
-                    </div>
-                </div>
+                <BlindSlider
+                    class="w-full aspect-[3/5]"
+                    :fill-pos="smoothPos"
+                    :handle-pos="handlePos"
+                    @drag-start="onSliderDragStart"
+                    @drag-move="onSliderDragMove"
+                    @drag-end="onSliderDragEnd"
+                />
                 <div class="flex items-baseline gap-1">
                     <span class="text-2xl font-mono font-bold text-tp-text-primary">{{ tempPosition }}</span>
                     <span class="text-sm font-bold text-tp-accent">%</span>
@@ -223,24 +198,14 @@
         <!-- DESKTOP LAYOUT -->
         <div class="hidden md:flex flex-1 flex-col items-center justify-center p-6 space-y-8">
             <div class="flex flex-col items-center gap-4">
-                <div class="relative w-40 h-64 bg-black/40 rounded-2xl border border-tp-border shadow-inner overflow-hidden touch-none select-none"
-                     @pointerdown="onPointerDown"
-                     @pointermove="onPointerMove"
-                     @pointerup="onPointerUp"
-                     @pointercancel="onPointerUp">
-                    <div class="absolute inset-y-0 left-4 w-px bg-tp-border/10"></div>
-                    <div class="absolute inset-y-0 right-4 w-px bg-tp-border/10"></div>
-                    <!-- Fill animates with actual movement -->
-                    <div class="absolute top-0 w-full bg-muted/20 flex flex-col gap-1.5 p-2 overflow-hidden"
-                         :style="{ height: (100 - smoothPos) + '%' }">
-                        <div v-for="i in 20" :key="i" class="h-2 min-h-2 w-full bg-muted/30 rounded-sm shrink-0 shadow-sm"></div>
-                    </div>
-                    <!-- Handle line locked at target -->
-                    <div class="absolute left-0 right-0 h-[2px] pointer-events-none"
-                         style="background: rgba(255,255,255,0.70); box-shadow: 0 0 5px rgba(255,255,255,0.35);"
-                         :style="{ top: `calc(${100 - handlePos}% - 1px)` }">
-                    </div>
-                </div>
+                <BlindSlider
+                    class="w-40 h-64"
+                    :fill-pos="smoothPos"
+                    :handle-pos="handlePos"
+                    @drag-start="onSliderDragStart"
+                    @drag-move="onSliderDragMove"
+                    @drag-end="onSliderDragEnd"
+                />
                 <div class="flex items-baseline gap-1">
                     <span class="text-3xl font-mono font-bold text-tp-text-primary">{{ tempPosition }}</span>
                     <span class="text-sm font-bold text-tp-accent">%</span>

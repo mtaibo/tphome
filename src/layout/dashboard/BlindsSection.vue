@@ -4,25 +4,34 @@
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
     import { useRouter } from 'vue-router'
+    import BlindSlider from '@/components/BlindSlider.vue'
 
     const store   = useDevices()
     const router  = useRouter()
 
-    const positions = ref({})
-    const loading   = ref({})
-    const dragging  = ref({})
-    const pressing  = ref({})
-    const dragState = ref({})
+    const positions       = ref({})   // fill position per blind (reactive, for template)
+    const handlePositions = ref({})   // bubble position per blind (reactive, for template)
+    const loading         = ref({})
+    const dragging        = ref({})
+    const pressing        = ref({})
 
     // Per-blind animation state (outside Vue reactivity for perf)
     const anim       = {}
-    const setPending = {}  // per-blind flag: true while motor moves toward a slider-set target
+    const setPending = {}
     let rafId = null
 
     function getAnim(id, initialPos) {
         if (!anim[id]) {
-            positions.value[id] = initialPos ?? 0
-            anim[id] = { realPos: initialPos ?? 0, velocity: 0, moveStartPos: initialPos ?? 0, moveStartTime: Date.now(), displayPos: initialPos ?? 0 }
+            positions.value[id]       = initialPos ?? 0
+            handlePositions.value[id] = initialPos ?? 0
+            anim[id] = {
+                realPos:      initialPos ?? 0,
+                velocity:     0,
+                moveStartPos: initialPos ?? 0,
+                moveStartTime: Date.now(),
+                displayPos:   initialPos ?? 0,
+                handlePos:    initialPos ?? 0,
+            }
         }
         return anim[id]
     }
@@ -37,24 +46,29 @@
             a.realPos = newPos
             if (motorState === 0) {
                 setPending[id] = false
-                a.velocity = 0; a.displayPos = newPos; a.moveStartPos = newPos; a.moveStartTime = Date.now()
-                positions.value[id] = newPos
+                a.velocity = 0; a.displayPos = newPos; a.handlePos = newPos
+                a.moveStartPos = newPos; a.moveStartTime = Date.now()
+                positions.value[id] = newPos; handlePositions.value[id] = newPos
             } else if (a.velocity !== 0) {
                 a.moveStartPos = newPos; a.moveStartTime = Date.now()
             } else if (!setPending[id]) {
-                a.displayPos = newPos; a.moveStartPos = newPos; a.moveStartTime = Date.now()
-                positions.value[id] = newPos
+                a.displayPos = newPos; a.handlePos = newPos
+                a.moveStartPos = newPos; a.moveStartTime = Date.now()
+                positions.value[id] = newPos; handlePositions.value[id] = newPos
             }
         }
     }, { immediate: true, deep: true })
 
     function animateLoop() {
         const now = Date.now()
-
         for (const [id, a] of Object.entries(anim)) {
             if (dragging.value[id] || a.velocity === 0) continue
             a.displayPos = Math.max(0, Math.min(100, a.moveStartPos + a.velocity * (now - a.moveStartTime)))
             positions.value[id] = a.displayPos
+            if (!setPending[id]) {
+                a.handlePos = a.displayPos
+                handlePositions.value[id] = a.displayPos
+            }
         }
         rafId = requestAnimationFrame(animateLoop)
     }
@@ -96,48 +110,57 @@
     })
     const handleStop = (id) => pressBtn(`${id}-stop`, () => {
         if (anim[id]) {
-            anim[id].velocity = 0; anim[id].displayPos = anim[id].realPos
-            anim[id].moveStartPos = anim[id].realPos; positions.value[id] = anim[id].realPos
+            const a = anim[id]
+            a.velocity = 0; a.displayPos = a.realPos; a.handlePos = a.realPos
+            a.moveStartPos = a.realPos
+            positions.value[id] = a.realPos; handlePositions.value[id] = a.realPos
+            setPending[id] = false
         }
         sendCommand(id, 'stop')
     })
-    const handleSettings = (id) => pressBtn(`${id}-cfg`,  () => router.push({ path: '/settings', query: { device: id } }))
+    const handleSettings = (id) => pressBtn(`${id}-cfg`, () => router.push({ path: '/settings', query: { device: id } }))
 
-    // Vertical track drag
-    function onTrackPointerDown(e, id) {
-        e.currentTarget.setPointerCapture(e.pointerId)
-        const rect = e.currentTarget.getBoundingClientRect()
-        dragState.value[id] = { active: true, startY: e.clientY, startPos: positions.value[id] ?? 0, height: rect.height }
+    // Slider drag handlers (receive position values from BlindSlider component)
+    function onBlindDragStart(id, pos) {
         dragging.value[id] = true
-    }
-
-    function onTrackPointerMove(e, id) {
-        const s = dragState.value[id]
-        if (!s?.active) return
-        const dy    = e.clientY - s.startY
-        const delta = -(dy / s.height) * 100
-        positions.value[id] = Math.round(Math.max(0, Math.min(100, s.startPos + delta)))
-    }
-
-    function onTrackPointerUp(e, id) {
-        const s = dragState.value[id]
-        if (!s?.active) return
-        dragState.value[id] = { active: false }
-        dragging.value[id] = false
-        const pos = positions.value[id]
         const a = getAnim(id, pos)
-        a.displayPos = pos; a.velocity = 0
-        setPending[id] = true
-        sendCommand(id, 'set', pos)
+        a.velocity = 0; setPending[id] = false
+        a.displayPos = pos; a.handlePos = pos
+        positions.value[id] = pos; handlePositions.value[id] = pos
     }
 
-    const TRACK_H  = 180
-    const HANDLE_H = 20
+    function onBlindDragMove(id, pos) {
+        const a = anim[id]
+        if (!a) return
+        a.displayPos = pos; a.handlePos = pos
+        positions.value[id] = pos; handlePositions.value[id] = pos
+    }
 
-    const handleTop = (id) => {
-        const pos = positions.value[id] ?? 0
-        const raw = (1 - pos / 100) * TRACK_H - HANDLE_H / 2
-        return `${Math.max(0, Math.min(TRACK_H - HANDLE_H, raw))}px`
+    function onBlindDragEnd(id, pos) {
+        dragging.value[id] = false
+        const a = anim[id]
+        if (!a) return
+
+        a.handlePos = pos
+        handlePositions.value[id] = pos
+
+        a.displayPos = a.realPos
+        a.moveStartPos = a.realPos
+        a.moveStartTime = Date.now()
+        positions.value[id] = a.realPos
+
+        const device = store.blinds[id]
+        if (pos < a.realPos) {
+            a.velocity = -(100 / ((device?.prefs?.down_time ?? 3000) * 10))
+            setPending[id] = true
+        } else if (pos > a.realPos) {
+            a.velocity = 100 / ((device?.prefs?.up_time ?? 3000) * 10)
+            setPending[id] = true
+        } else {
+            a.velocity = 0; setPending[id] = false
+        }
+
+        sendCommand(id, 'set', pos)
     }
 </script>
 
@@ -170,38 +193,22 @@
                         <h3 class="text-sm font-semibold text-tp-text-primary leading-tight">{{ device.name }}</h3>
                     </div>
                     <div class="flex items-baseline gap-0.5 shrink-0">
-                        <span class="text-sm font-mono font-bold text-tp-text-primary tabular-nums leading-none">{{ Math.round(positions[id] ?? 0) }}</span>
+                        <span class="text-sm font-mono font-bold text-tp-text-primary tabular-nums leading-none">{{ Math.round(handlePositions[id] ?? 0) }}</span>
                         <span class="text-[9px] font-bold text-tp-accent leading-none mb-0.5">%</span>
                     </div>
                 </div>
 
-                <!-- Control area: track left, buttons right -->
+                <!-- Control area: slider left, buttons right -->
                 <div class="flex gap-2 items-start">
 
-                    <!-- Vertical track -->
-                    <div class="blind-track flex-1"
-                         @pointerdown="onTrackPointerDown($event, id)"
-                         @pointermove="onTrackPointerMove($event, id)"
-                         @pointerup="onTrackPointerUp($event, id)"
-                         @pointercancel="onTrackPointerUp($event, id)">
-
-                        <!-- Blind slats fill from top -->
-                        <div class="absolute top-0 left-0 right-0 overflow-hidden"
-                             :class="(positions[id] ?? 0) < 100 ? 'border-b border-tp-accent/35' : ''"
-                             :style="{ height: (100 - (positions[id] ?? 0)) + '%' }">
-                            <div class="flex flex-col gap-[3px] px-[4px] pt-[4px]">
-                                <div v-for="i in 24" :key="i"
-                                     class="w-full bg-white/14 rounded-[2px] shrink-0"
-                                     style="height: 4px; min-height: 4px;"></div>
-                            </div>
-                        </div>
-
-                        <!-- Drag handle -->
-                        <div class="blind-track-handle"
-                             :class="dragging[id] ? 'transition-none' : ''"
-                             :style="{ top: handleTop(id) }">
-                        </div>
-                    </div>
+                    <BlindSlider
+                        class="flex-1 h-[180px]"
+                        :fill-pos="positions[id] ?? 0"
+                        :handle-pos="handlePositions[id] ?? 0"
+                        @drag-start="onBlindDragStart(id, $event)"
+                        @drag-move="onBlindDragMove(id, $event)"
+                        @drag-end="onBlindDragEnd(id, $event)"
+                    />
 
                     <!-- Buttons column -->
                     <div class="flex flex-col justify-between items-center h-[180px]">
