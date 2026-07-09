@@ -15,30 +15,24 @@
     const pressing     = ref({})
 
     // Smooth animation state
-    let realPos        = props.device.state.position
-    let realTime       = Date.now()
-    let velocity       = 0
-    let lastKnownSpeed = 0.007
-    let displayPos     = props.device.state.position
-    let lastFrameTime  = Date.now()
-    let rafId          = null
+    let realPos       = props.device.state.position
+    let realTime      = Date.now()
+    let velocity      = 0  // %/ms, set from prefs on button press
+    let displayPos    = props.device.state.position
+    let lastFrameTime = Date.now()
+    let rafId         = null
 
     const snapToReal = () => {
-        velocity          = 0
-        displayPos        = realPos
-        smoothPos.value   = realPos
+        velocity           = 0
+        displayPos         = realPos
+        smoothPos.value    = realPos
         tempPosition.value = Math.round(realPos)
     }
 
     watch(() => props.device.state.position, (newPos) => {
-        const now = Date.now()
-        const dt  = now - realTime
-        if (dt > 50) {
-            velocity = (newPos - realPos) / dt
-            if (Math.abs(velocity) > 0.001) lastKnownSpeed = Math.abs(velocity)
-        }
         realPos  = newPos
-        realTime = now
+        realTime = Date.now()
+        if (velocity === 0) snapToReal()
     })
 
     watch(() => props.device.state.motor_state, () => {
@@ -52,9 +46,11 @@
         lastFrameTime = now
 
         if (!dragging) {
-            const corrRate = Math.abs(velocity) > 0.002 ? 0.002 : 0.006
-            displayPos += velocity * dt + (realPos - displayPos) * corrRate * dt
-            displayPos  = Math.max(0, Math.min(100, displayPos))
+            if (velocity !== 0) {
+                displayPos += velocity * dt
+                displayPos += (realPos - displayPos) * 0.002 * dt
+                displayPos  = Math.max(0, Math.min(100, displayPos))
+            }
             smoothPos.value    = displayPos
             tempPosition.value = Math.round(displayPos)
         }
@@ -91,11 +87,13 @@
     }
 
     const handleUp = () => pressBtn('up', () => {
-        displayPos = smoothPos.value; realPos = displayPos; realTime = Date.now(); velocity = lastKnownSpeed
+        const upTime = props.device.prefs?.up_time ?? 3000
+        displayPos = smoothPos.value; realPos = displayPos; realTime = Date.now(); velocity = 100 / upTime
         sendCommand('up')
     })
     const handleDown = () => pressBtn('down', () => {
-        displayPos = smoothPos.value; realPos = displayPos; realTime = Date.now(); velocity = -lastKnownSpeed
+        const downTime = props.device.prefs?.down_time ?? 3000
+        displayPos = smoothPos.value; realPos = displayPos; realTime = Date.now(); velocity = -(100 / downTime)
         sendCommand('down')
     })
     const handleStop = () => pressBtn('stop', () => { snapToReal(); sendCommand('stop') })

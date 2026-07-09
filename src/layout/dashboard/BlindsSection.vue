@@ -22,25 +22,23 @@
     function getAnim(id, initialPos) {
         if (!anim[id]) {
             positions.value[id] = initialPos ?? 0
-            anim[id] = { realPos: initialPos ?? 0, realTime: Date.now(), velocity: 0, lastKnownSpeed: 0.007, displayPos: initialPos ?? 0 }
+            anim[id] = { realPos: initialPos ?? 0, realTime: Date.now(), velocity: 0, displayPos: initialPos ?? 0 }
         }
         return anim[id]
     }
 
-    // Derive velocity from WS position updates, don't snap positions directly
+    // On WS update: store real position, snap only if stopped
     watch(() => store.blinds, (blinds) => {
         for (const [id, device] of Object.entries(blinds)) {
             if (dragging.value[id]) continue
             const newPos = device.state?.position ?? 0
             const a = getAnim(id, newPos)
-            const now = Date.now()
-            const dt  = now - a.realTime
-            if (dt > 50) {
-                a.velocity = (newPos - a.realPos) / dt
-                if (Math.abs(a.velocity) > 0.001) a.lastKnownSpeed = Math.abs(a.velocity)
-            }
             a.realPos  = newPos
-            a.realTime = now
+            a.realTime = Date.now()
+            if (a.velocity === 0) {
+                a.displayPos = newPos
+                positions.value[id] = newPos
+            }
         }
     }, { immediate: true, deep: true })
 
@@ -51,10 +49,12 @@
 
         for (const [id, a] of Object.entries(anim)) {
             if (dragging.value[id]) continue
-            const corrRate = Math.abs(a.velocity) > 0.002 ? 0.002 : 0.006
-            a.displayPos += a.velocity * dt + (a.realPos - a.displayPos) * corrRate * dt
-            a.displayPos  = Math.max(0, Math.min(100, a.displayPos))
-            positions.value[id] = a.displayPos  // float for smooth visual
+            if (a.velocity !== 0) {
+                a.displayPos += a.velocity * dt
+                a.displayPos += (a.realPos - a.displayPos) * 0.002 * dt
+                a.displayPos  = Math.max(0, Math.min(100, a.displayPos))
+            }
+            positions.value[id] = a.displayPos
         }
         rafId = requestAnimationFrame(animateLoop)
     }
@@ -79,13 +79,17 @@
     }
 
     const handleUp = (id) => pressBtn(`${id}-up`, () => {
+        const device = store.blinds[id]
+        const upTime = device?.prefs?.up_time ?? 3000
         const a = getAnim(id, positions.value[id])
-        a.displayPos = positions.value[id] ?? 0; a.realPos = a.displayPos; a.realTime = Date.now(); a.velocity = a.lastKnownSpeed
+        a.displayPos = positions.value[id] ?? 0; a.realPos = a.displayPos; a.realTime = Date.now(); a.velocity = 100 / upTime
         sendCommand(id, 'up')
     })
     const handleDown = (id) => pressBtn(`${id}-down`, () => {
+        const device = store.blinds[id]
+        const downTime = device?.prefs?.down_time ?? 3000
         const a = getAnim(id, positions.value[id])
-        a.displayPos = positions.value[id] ?? 0; a.realPos = a.displayPos; a.realTime = Date.now(); a.velocity = -a.lastKnownSpeed
+        a.displayPos = positions.value[id] ?? 0; a.realPos = a.displayPos; a.realTime = Date.now(); a.velocity = -(100 / downTime)
         sendCommand(id, 'down')
     })
     const handleStop = (id) => pressBtn(`${id}-stop`, () => {
