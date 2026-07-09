@@ -18,6 +18,8 @@
     let realTime       = Date.now()
     let velocity       = 0      // % per millisecond
     let lastKnownSpeed = 0.007  // updated from real WS data, used as seed on button press
+    let displayPos     = props.device.state.position  // internal float driving the UI
+    let lastFrameTime  = Date.now()
     let rafId          = null
 
     // Track real position updates from WS and derive velocity
@@ -32,7 +34,7 @@
         realTime = now
     })
 
-    // When motor stops, kill velocity so we don't drift
+    // When motor stops, kill velocity so spring corrects any overshoot
     watch(() => props.device.state.motor_state, () => {
         velocity = 0
         realPos  = props.device.state.position
@@ -40,10 +42,17 @@
     })
 
     function animate() {
+        const now = Date.now()
+        const dt  = Math.min(now - lastFrameTime, 50)
+        lastFrameTime = now
+
         if (!dragging) {
-            const elapsed  = Math.min(Date.now() - realTime, 1500)
-            const estimated = realPos + velocity * elapsed
-            tempPosition.value = Math.max(0, Math.min(100, Math.round(estimated)))
+            // Spring: move by velocity + gentle pull toward realPos.
+            // Higher corrRate when stopped so overshoot corrects fast.
+            const corrRate = Math.abs(velocity) > 0.002 ? 0.002 : 0.006
+            displayPos += velocity * dt + (realPos - displayPos) * corrRate * dt
+            displayPos  = Math.max(0, Math.min(100, displayPos))
+            tempPosition.value = Math.round(displayPos)
         }
         rafId = requestAnimationFrame(animate)
     }
@@ -78,11 +87,11 @@
     }
 
     const handleUp = () => pressBtn('up', () => {
-        realPos = tempPosition.value; realTime = Date.now(); velocity = lastKnownSpeed
+        displayPos = tempPosition.value; realPos = displayPos; realTime = Date.now(); velocity = lastKnownSpeed
         sendCommand('up')
     })
     const handleDown = () => pressBtn('down', () => {
-        realPos = tempPosition.value; realTime = Date.now(); velocity = -lastKnownSpeed
+        displayPos = tempPosition.value; realPos = displayPos; realTime = Date.now(); velocity = -lastKnownSpeed
         sendCommand('down')
     })
     const handleStop = () => pressBtn('stop', () => { velocity = 0; sendCommand('stop') })
@@ -97,21 +106,25 @@
 
     function onPointerDown(e) {
         dragging = true
-        tempPosition.value = posFromY(e.currentTarget, e.clientY)
+        const pos = posFromY(e.currentTarget, e.clientY)
+        displayPos = pos
+        tempPosition.value = pos
         e.currentTarget.setPointerCapture(e.pointerId)
     }
 
     function onPointerMove(e) {
         if (!dragging) return
-        tempPosition.value = posFromY(e.currentTarget, e.clientY)
+        const pos = posFromY(e.currentTarget, e.clientY)
+        displayPos = pos
+        tempPosition.value = pos
     }
 
     function onPointerUp(e) {
         if (!dragging) return
         dragging = false
         const pos = posFromY(e.currentTarget, e.clientY)
+        displayPos = pos
         updatePosition(pos)
-        // Reset animation baseline so the rAF loop doesn't jump after drag
         realPos  = pos
         realTime = Date.now()
         velocity = 0
