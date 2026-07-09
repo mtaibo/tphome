@@ -1,80 +1,58 @@
 <script setup>
-    import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
+    import { ref, watch, nextTick } from 'vue'
     import { ChevronUp, ChevronDown, Pause, Settings, Blinds } from 'lucide-vue-next'
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
     import { useRouter } from 'vue-router'
     import BlindSlider from '@/components/BlindSlider.vue'
+    import { positions, handlePositions, getAnim, setPending, isPending } from '@/composables/useBlindAnimations'
 
     const store   = useDevices()
     const router  = useRouter()
 
-    const positions       = ref({})   // fill position per blind (reactive, for template)
-    const handlePositions = ref({})   // bubble position per blind (reactive, for template)
-    const loading         = ref({})
-    const dragging        = ref({})
-    const pressing        = ref({})
+    const loading  = ref({})
+    const dragging = ref({})
+    const pressing = ref({})
 
-    // Per-blind animation state (outside Vue reactivity for perf)
-    const anim       = {}
-    const setPending = {}
-    let rafId = null
-
-    function getAnim(id, initialPos) {
-        if (!anim[id]) {
-            positions.value[id]       = initialPos ?? 0
-            handlePositions.value[id] = initialPos ?? 0
-            anim[id] = {
-                realPos:      initialPos ?? 0,
-                velocity:     0,
-                moveStartPos: initialPos ?? 0,
-                moveStartTime: Date.now(),
-                displayPos:   initialPos ?? 0,
-                handlePos:    initialPos ?? 0,
-            }
-        }
-        return anim[id]
-    }
-
-    // WS update: recalibrate anchor while button-moving; ignore while set-pending; snap on IDLE
+    // WS update: recalibrate anchor while moving; auto-detect direction when motor is
+    // running but velocity is unknown (e.g. blind was started from another view)
     watch(() => store.blinds, (blinds) => {
         for (const [id, device] of Object.entries(blinds)) {
             if (dragging.value[id]) continue
             const newPos     = device.state?.position ?? 0
             const motorState = device.state?.motor_state ?? 0
             const a = getAnim(id, newPos)
+            const prevRealPos = a.realPos
             a.realPos = newPos
+
             if (motorState === 0) {
-                setPending[id] = false
+                // Motor idle: snap everything
+                setPending(id, false)
                 a.velocity = 0; a.displayPos = newPos; a.handlePos = newPos
                 a.moveStartPos = newPos; a.moveStartTime = Date.now()
-                positions.value[id] = newPos; handlePositions.value[id] = newPos
+                positions[id] = newPos; handlePositions[id] = newPos
             } else if (a.velocity !== 0) {
+                // Already animating: just recalibrate the prediction anchor
                 a.moveStartPos = newPos; a.moveStartTime = Date.now()
-            } else if (!setPending[id]) {
+            } else if (isPending(id)) {
+                // Waiting for slider set to confirm: don't touch display
+            } else if (prevRealPos !== newPos) {
+                // Motor moving but velocity unknown (e.g. started from another view).
+                // Infer direction from position delta and start predictive animation.
+                const isGoingUp = newPos > prevRealPos
+                a.velocity = isGoingUp
+                    ? 100 / ((device?.prefs?.up_time   ?? 3000) * 10)
+                    : -(100 / ((device?.prefs?.down_time ?? 3000) * 10))
                 a.displayPos = newPos; a.handlePos = newPos
                 a.moveStartPos = newPos; a.moveStartTime = Date.now()
-                positions.value[id] = newPos; handlePositions.value[id] = newPos
+                positions[id] = newPos; handlePositions[id] = newPos
+            } else {
+                // First update while motor may be running, no delta yet: snap once
+                a.displayPos = newPos; a.handlePos = newPos
+                positions[id] = newPos; handlePositions[id] = newPos
             }
         }
     }, { immediate: true, deep: true })
-
-    function animateLoop() {
-        const now = Date.now()
-        for (const [id, a] of Object.entries(anim)) {
-            if (dragging.value[id] || a.velocity === 0) continue
-            a.displayPos = Math.max(0, Math.min(100, a.moveStartPos + a.velocity * (now - a.moveStartTime)))
-            positions.value[id] = a.displayPos
-            if (!setPending[id]) {
-                a.handlePos = a.displayPos
-                handlePositions.value[id] = a.displayPos
-            }
-        }
-        rafId = requestAnimationFrame(animateLoop)
-    }
-
-    onMounted(()   => { rafId = requestAnimationFrame(animateLoop) })
-    onUnmounted(() => { if (rafId) cancelAnimationFrame(rafId) })
 
     const sendCommand = async (id, cmd, val = null) => {
         loading.value[id] = true
@@ -94,70 +72,61 @@
 
     const handleUp = (id) => pressBtn(`${id}-up`, () => {
         const device = store.blinds[id]
-        const a = getAnim(id, positions.value[id])
-        setPending[id] = false
+        const a = getAnim(id, positions[id])
+        setPending(id, false)
         a.velocity = 100 / ((device?.prefs?.up_time ?? 3000) * 10)
         a.moveStartPos = a.displayPos; a.moveStartTime = Date.now()
         sendCommand(id, 'up')
     })
     const handleDown = (id) => pressBtn(`${id}-down`, () => {
         const device = store.blinds[id]
-        const a = getAnim(id, positions.value[id])
-        setPending[id] = false
+        const a = getAnim(id, positions[id])
+        setPending(id, false)
         a.velocity = -(100 / ((device?.prefs?.down_time ?? 3000) * 10))
         a.moveStartPos = a.displayPos; a.moveStartTime = Date.now()
         sendCommand(id, 'down')
     })
     const handleStop = (id) => pressBtn(`${id}-stop`, () => {
-        if (anim[id]) {
-            const a = anim[id]
-            a.velocity = 0; a.displayPos = a.realPos; a.handlePos = a.realPos
-            a.moveStartPos = a.realPos
-            positions.value[id] = a.realPos; handlePositions.value[id] = a.realPos
-            setPending[id] = false
-        }
+        const a = getAnim(id)
+        a.velocity = 0; a.displayPos = a.realPos; a.handlePos = a.realPos
+        a.moveStartPos = a.realPos
+        positions[id] = a.realPos; handlePositions[id] = a.realPos
+        setPending(id, false)
         sendCommand(id, 'stop')
     })
     const handleSettings = (id) => pressBtn(`${id}-cfg`, () => router.push({ path: '/settings', query: { device: id } }))
 
-    // Slider drag handlers (receive position values from BlindSlider component)
     function onBlindDragStart(id, pos) {
         dragging.value[id] = true
         const a = getAnim(id, pos)
-        a.velocity = 0; setPending[id] = false
+        a.velocity = 0; setPending(id, false)
         a.displayPos = pos; a.handlePos = pos
-        positions.value[id] = pos; handlePositions.value[id] = pos
+        positions[id] = pos; handlePositions[id] = pos
     }
 
     function onBlindDragMove(id, pos) {
-        const a = anim[id]
-        if (!a) return
+        const a = getAnim(id)
         a.displayPos = pos; a.handlePos = pos
-        positions.value[id] = pos; handlePositions.value[id] = pos
+        positions[id] = pos; handlePositions[id] = pos
     }
 
     function onBlindDragEnd(id, pos) {
         dragging.value[id] = false
-        const a = anim[id]
-        if (!a) return
+        const a = getAnim(id)
 
-        a.handlePos = pos
-        handlePositions.value[id] = pos
-
-        a.displayPos = a.realPos
-        a.moveStartPos = a.realPos
-        a.moveStartTime = Date.now()
-        positions.value[id] = a.realPos
+        a.handlePos = pos; handlePositions[id] = pos
+        a.displayPos = a.realPos; a.moveStartPos = a.realPos; a.moveStartTime = Date.now()
+        positions[id] = a.realPos
 
         const device = store.blinds[id]
         if (pos < a.realPos) {
             a.velocity = -(100 / ((device?.prefs?.down_time ?? 3000) * 10))
-            setPending[id] = true
+            setPending(id, true)
         } else if (pos > a.realPos) {
             a.velocity = 100 / ((device?.prefs?.up_time ?? 3000) * 10)
-            setPending[id] = true
+            setPending(id, true)
         } else {
-            a.velocity = 0; setPending[id] = false
+            a.velocity = 0; setPending(id, false)
         }
 
         sendCommand(id, 'set', pos)
