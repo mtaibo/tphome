@@ -21,10 +21,8 @@
     const smoothPos = computed(() => positions[props.id]       ?? 0)
     const handlePos = computed(() => handlePositions[props.id] ?? 0)
 
-    // Keep tempPosition in sync with handle when motor is free-running (not set-pending)
-    watch(handlePos, (val) => {
-        if (!isPending(props.id)) tempPosition.value = Math.round(val)
-    })
+    // Keep tempPosition in sync with fill position (animates whether free-running or set-pending)
+    watch(smoothPos, (val) => { tempPosition.value = Math.round(val) })
 
     const snapToReal = () => {
         const a = getAnim(props.id)

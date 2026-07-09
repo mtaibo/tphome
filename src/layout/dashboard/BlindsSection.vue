@@ -162,7 +162,7 @@
                         <h3 class="text-sm font-semibold text-tp-text-primary leading-tight">{{ device.name }}</h3>
                     </div>
                     <div class="flex items-baseline gap-0.5 shrink-0">
-                        <span class="text-sm font-mono font-bold text-tp-text-primary tabular-nums leading-none">{{ Math.round(handlePositions[id] ?? 0) }}</span>
+                        <span class="text-sm font-mono font-bold text-tp-text-primary tabular-nums leading-none">{{ Math.round(positions[id] ?? 0) }}</span>
                         <span class="text-[9px] font-bold text-tp-accent leading-none mb-0.5">%</span>
                     </div>
                 </div>
