@@ -23,7 +23,7 @@
             :class="collapsed ? 'w-0 opacity-0' : 'opacity-100 ml-3'"
         >
             <span class="text-xs font-bold leading-none">Miguel</span>
-            <span class="text-[10px] text-muted italic mt-1">Administrador</span>
+            <span class="text-[10px] text-tp-muted italic mt-1">Administrador</span>
         </div>
     </div>
 </template>

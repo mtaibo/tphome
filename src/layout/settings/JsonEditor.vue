@@ -171,15 +171,15 @@
         <section>
             <div class="flex items-center gap-3 mb-5">
                 <div class="w-2 h-2 rounded-full bg-tp-accent shadow-[0_0_6px_var(--color-tp-accent)]"></div>
-                <h2 class="text-sm font-bold uppercase tracking-widest text-muted">
+                <h2 class="text-sm font-bold uppercase tracking-widest text-tp-muted">
                     JSON de Configuracion
                     <span class="text-tp-accent font-mono ml-1.5">{{ allDevices.length }}</span>
                 </h2>
             </div>
 
-            <div v-if="loading" class="text-sm text-muted/50 italic px-1">Cargando...</div>
+            <div v-if="loading" class="text-sm text-tp-muted/50 italic px-1">Cargando...</div>
 
-            <div v-else-if="allDevices.length === 0" class="text-sm text-muted/50 italic px-1">
+            <div v-else-if="allDevices.length === 0" class="text-sm text-tp-muted/50 italic px-1">
                 No hay dispositivos en el JSON de configuracion.
             </div>
 
@@ -199,10 +199,10 @@
                             class="w-4 h-4 shrink-0"
                             :class="device.type === 'Luz' ? 'text-tp-light-on/70' : 'text-tp-accent/70'"
                         />
-                        <span class="font-mono text-xs text-muted w-16 shrink-0">{{ device.id }}</span>
-                        <span class="text-sm text-tp-text-primary flex-1 truncate">{{ device.name }}</span>
+                        <span class="font-mono text-xs text-tp-muted w-16 shrink-0">{{ device.id }}</span>
+                        <span class="text-sm text-tp-text flex-1 truncate">{{ device.name }}</span>
                         <ChevronDown
-                            class="w-4 h-4 shrink-0 text-muted transition-transform duration-200"
+                            class="w-4 h-4 shrink-0 text-tp-muted transition-transform duration-200"
                             :class="{ 'rotate-180': expandedId === device.id }"
                         />
                     </div>
@@ -215,35 +215,35 @@
                         <div class="border-t border-tp-border/50 px-3 md:px-4 py-4 bg-black/10 space-y-4">
                             <!-- Name -->
                             <div class="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-3">
-                                <label class="text-xs font-mono text-muted/60 w-full md:w-24 shrink-0">Nombre</label>
+                                <label class="text-xs font-mono text-tp-muted/60 w-full md:w-24 shrink-0">Nombre</label>
                                 <input
                                     v-model="device.name"
                                     @input="markDirty(device)"
-                                    class="w-full bg-tp-bg text-sm text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50"
+                                    class="w-full bg-tp-bg text-sm text-tp-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50"
                                     placeholder="Nombre del dispositivo"
                                 />
                             </div>
 
                             <!-- Position -->
                             <div class="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-3">
-                                <label class="text-xs font-mono text-muted/60 w-full md:w-24 shrink-0">Posicion</label>
+                                <label class="text-xs font-mono text-tp-muted/60 w-full md:w-24 shrink-0">Posicion</label>
                                 <div class="flex items-center gap-2">
                                      <div class="flex items-center gap-1.5">
-                                         <span class="text-xs font-mono text-muted/40 font-bold">X</span>
+                                         <span class="text-xs font-mono text-tp-muted/40 font-bold">X</span>
                                            <input
                                                v-model.number="device.mapX"
                                                @input="markDirty(device)"
                                                type="number"
-                                             class="w-20 bg-tp-bg text-sm font-mono text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                             class="w-20 bg-tp-bg text-sm font-mono text-tp-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                          />
                                      </div>
                                      <div class="flex items-center gap-1.5">
-                                         <span class="text-xs font-mono text-muted/40 font-bold">Y</span>
+                                         <span class="text-xs font-mono text-tp-muted/40 font-bold">Y</span>
                                            <input
                                                v-model.number="device.mapY"
                                                @input="markDirty(device)"
                                                type="number"
-                                             class="w-20 bg-tp-bg text-sm font-mono text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                             class="w-20 bg-tp-bg text-sm font-mono text-tp-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                          />
                                      </div>
                                 </div>
@@ -253,31 +253,31 @@
                             <template v-if="device.category === 'blinds'">
                                 <div class="space-y-3">
                                      <div class="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-2">
-                                         <span class="text-xs font-mono text-muted/60 w-full md:w-36 shrink-0">Tiempo de Subida</span>
+                                         <span class="text-xs font-mono text-tp-muted/60 w-full md:w-36 shrink-0">Tiempo de Subida</span>
                                           <input
                                               :value="device.prefs.up_time"
                                               @input="updatePref(device, 'up_time', normalizeInput($event.target.value))"
                                               type="text"
                                               inputmode="decimal"
                                               placeholder="Segundos"
-                                              class="w-24 bg-tp-bg text-sm font-mono text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50"
+                                              class="w-24 bg-tp-bg text-sm font-mono text-tp-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50"
                                           />
-                                         <span class="text-xs text-muted/40 shrink-0">seg</span>
+                                         <span class="text-xs text-tp-muted/40 shrink-0">seg</span>
                                      </div>
                                      <div class="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-2">
-                                         <span class="text-xs font-mono text-muted/60 w-full md:w-36 shrink-0">Tiempo de Bajada</span>
+                                         <span class="text-xs font-mono text-tp-muted/60 w-full md:w-36 shrink-0">Tiempo de Bajada</span>
                                           <input
                                               :value="device.prefs.down_time"
                                               @input="updatePref(device, 'down_time', normalizeInput($event.target.value))"
                                               type="text"
                                               inputmode="decimal"
                                               placeholder="Segundos"
-                                              class="w-24 bg-tp-bg text-sm font-mono text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50"
+                                              class="w-24 bg-tp-bg text-sm font-mono text-tp-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50"
                                           />
-                                         <span class="text-xs text-muted/40 shrink-0">seg</span>
+                                         <span class="text-xs text-tp-muted/40 shrink-0">seg</span>
                                      </div>
                                      <div class="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-2">
-                                         <span class="text-xs font-mono text-muted/60 w-full md:w-36 shrink-0">Posicion de Bajada</span>
+                                         <span class="text-xs font-mono text-tp-muted/60 w-full md:w-36 shrink-0">Posicion de Bajada</span>
                                          <input
                                              :value="device.prefs.down_pos"
                                              @input="updatePref(device, 'down_pos', Math.min(100, Math.max(0, Number($event.target.value))))"
@@ -286,12 +286,12 @@
                                              max="100"
                                              step="1"
                                              placeholder="0-100"
-                                             class="w-24 bg-tp-bg text-sm font-mono text-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                             class="w-24 bg-tp-bg text-sm font-mono text-tp-muted border border-tp-border/30 rounded-lg px-3 py-2 outline-none focus:border-tp-accent/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                          />
-                                         <span class="text-xs text-muted/40 shrink-0">%</span>
+                                         <span class="text-xs text-tp-muted/40 shrink-0">%</span>
                                      </div>
                                     <div class="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-2">
-                                        <span class="text-xs font-mono text-muted/60 w-full md:w-36 shrink-0">Reles Invertidos</span>
+                                        <span class="text-xs font-mono text-tp-muted/60 w-full md:w-36 shrink-0">Reles Invertidos</span>
                                         <button
                                             type="button"
                                             @click.stop="updatePref(device, 'inverted_relays', !device.prefs.inverted_relays)"
@@ -300,7 +300,7 @@
                                                 ? 'bg-tp-accent border-tp-accent'
                                                 : 'bg-tp-bg border-tp-border/50'"
                                         >
-                                            <svg v-if="device.prefs.inverted_relays" class="w-3 h-3 text-tp-text-primary" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <svg v-if="device.prefs.inverted_relays" class="w-3 h-3 text-tp-text" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                                 <polyline points="2.5 7 5.5 10.5 11.5 3.5" />
                                             </svg>
                                         </button>
@@ -316,7 +316,7 @@
                                     class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
                                     :class="hasChanges(device) && !saving
                                         ? 'bg-tp-accent/20 text-tp-accent border border-tp-accent/30 hover:bg-tp-accent/30'
-                                        : 'bg-tp-border/10 text-muted/30 border border-tp-border/20 cursor-not-allowed'"
+                                        : 'bg-tp-border/10 text-tp-muted/30 border border-tp-border/20 cursor-not-allowed'"
                                 >
                                     <Save class="w-3.5 h-3.5" />
                                     {{ saving ? 'Guardando...' : 'Guardar' }}
@@ -326,15 +326,15 @@
                                      :disabled="!hasChanges(device)"
                                      class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
                                      :class="hasChanges(device)
-                                         ? 'text-muted/60 hover:text-muted hover:bg-tp-text-primary/5 border border-tp-border/20'
-                                         : 'text-muted/30 border border-tp-border/20 cursor-not-allowed'"
+                                         ? 'text-tp-muted/60 hover:text-tp-muted hover:bg-tp-text/5 border border-tp-border/20'
+                                         : 'text-tp-muted/30 border border-tp-border/20 cursor-not-allowed'"
                                  >
                                      <RotateCcw class="w-3.5 h-3.5" />
                                      Resetear
                                  </button>
                                  <button
                                      @click.stop="deleteDevice(device)"
-                                     class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-muted/50 hover:text-tp-danger hover:bg-tp-danger/10 border border-tp-border/20 transition-all cursor-pointer"
+                                     class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-tp-muted/50 hover:text-tp-danger hover:bg-tp-danger/10 border border-tp-border/20 transition-all cursor-pointer"
                                  >
                                      <Trash2 class="w-3.5 h-3.5" />
                                      Eliminar
