@@ -92,7 +92,7 @@
                 >
                     <Cpu class="w-4 h-4 shrink-0 text-tp-accent" />
                     <span class="font-mono text-xs text-tp-muted flex-1">{{ device.mac }}</span>
-                    <span class="text-[10px] font-mono uppercase tracking-wider text-tp-muted/50 w-20 shrink-0 truncate">{{ device.chip ?? 'desconocido' }}</span>
+                    <span class="text-2xs font-mono uppercase tracking-wider text-tp-muted/50 w-20 shrink-0 truncate">{{ device.chip ?? 'desconocido' }}</span>
                     <button
                         @click="startConfig(device)"
                         class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-tp-accent/10 border border-tp-accent/20 text-tp-accent hover:bg-tp-accent/20 transition-all text-xs font-bold uppercase tracking-wider cursor-pointer"
@@ -108,7 +108,7 @@
         <!-- Configured devices -->
         <section>
             <div class="flex items-center gap-3 mb-5">
-                <div class="w-2 h-2 rounded-full bg-tp-ok shadow-[0_0_6px_var(--color-tp-ok)]"></div>
+                <div class="w-2 h-2 rounded-full bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]"></div>
                 <h2 class="text-sm font-bold uppercase tracking-widest text-tp-muted">
                     Configurados
                     <span class="text-tp-accent font-mono ml-1.5">{{ allConfigured.length }}</span>
@@ -132,10 +132,10 @@
                     />
                     <span class="font-mono text-xs text-tp-muted w-16 shrink-0">{{ device.id }}</span>
                     <span class="text-sm text-tp-text flex-1 truncate">{{ device.name }}</span>
-                    <span class="text-[10px] font-mono uppercase tracking-wider text-tp-muted/50 w-16 shrink-0">{{ device.type }}</span>
+                    <span class="text-2xs font-mono uppercase tracking-wider text-tp-muted/50 w-16 shrink-0">{{ device.type }}</span>
                     <button
                         @click="deleteDevice(device.type === 'Persiana' ? 'blinds' : 'lights', device.id)"
-                        class="flex items-center justify-center w-8 h-8 rounded-lg text-tp-muted hover:text-tp-danger hover:bg-tp-danger/10 transition-all shrink-0 cursor-pointer"
+                        class="flex items-center justify-center w-8 h-8 rounded-lg text-tp-muted hover:text-tp-off hover:bg-tp-off/10 transition-all shrink-0 cursor-pointer"
                     >
                         <Trash2 class="w-4 h-4" />
                     </button>

@@ -156,8 +156,8 @@
                     <div class="flex items-start gap-2 flex-1 min-w-0">
                         <div class="w-2 h-2 rounded-full shrink-0 mt-[3px] transition-all duration-300"
                              :class="device.connection?.online
-                                 ? 'bg-tp-ok shadow-[0_0_6px_var(--color-tp-ok)]'
-                                 : 'bg-tp-danger'">
+                                 ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]'
+                                 : 'bg-tp-off'">
                         </div>
                         <h3 class="text-sm font-semibold text-tp-text leading-tight">{{ device.name }}</h3>
                     </div>

@@ -110,7 +110,7 @@
                             class="w-full text-sm text-tp-muted file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-tp-accent/10 file:text-tp-accent file:cursor-pointer hover:file:bg-tp-accent/20 cursor-pointer"
                         />
                     </label>
-                    <div v-if="selectedFile" class="shrink-0 mt-5 text-xs text-tp-ok font-mono">
+                    <div v-if="selectedFile" class="shrink-0 mt-5 text-xs text-tp-on font-mono">
                         {{ selectedFile.name }}
                     </div>
                 </div>
@@ -176,8 +176,8 @@
                         <span>{{ uploading ? 'Subiendo...' : 'Subir firmware' }}</span>
                     </button>
 
-                    <span v-if="uploadStatus === 'ok'" class="text-xs text-tp-ok">Subido correctamente</span>
-                    <span v-if="uploadStatus === 'error'" class="text-xs text-tp-danger">Error al subir</span>
+                    <span v-if="uploadStatus === 'ok'" class="text-xs text-tp-on">Subido correctamente</span>
+                    <span v-if="uploadStatus === 'error'" class="text-xs text-tp-off">Error al subir</span>
                 </div>
 
             </div>
@@ -216,8 +216,8 @@
                             <span class="text-xs font-mono text-tp-muted hidden lg:block">{{ fw.chip }}</span>
 
                             <div v-if="fw.active" class="flex items-center gap-1.5 shrink-0">
-                                <Check class="w-3.5 h-3.5 text-tp-ok" />
-                                <span class="text-xs text-tp-ok font-medium">Activo</span>
+                                <Check class="w-3.5 h-3.5 text-tp-on" />
+                                <span class="text-xs text-tp-on font-medium">Activo</span>
                             </div>
 
                             <ChevronDown
@@ -242,14 +242,14 @@
                                     <button
                                         v-if="!fw.active"
                                         @click.stop="activate(fw.id)"
-                                        class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-tp-ok/10 text-tp-ok hover:bg-tp-ok/20 transition-all cursor-pointer"
+                                        class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-tp-on/10 text-tp-on hover:bg-tp-on/20 transition-all cursor-pointer"
                                     >
                                         <Check class="w-3.5 h-3.5" />
                                         Activar
                                     </button>
                                     <button
                                         @click.stop="remove(fw.id)"
-                                        class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-tp-danger/10 text-tp-danger hover:bg-tp-danger/20 transition-all cursor-pointer"
+                                        class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-tp-off/10 text-tp-off hover:bg-tp-off/20 transition-all cursor-pointer"
                                     >
                                         <Trash2 class="w-3.5 h-3.5" />
                                         Eliminar
@@ -269,7 +269,7 @@
                             <span class="text-sm text-tp-text flex-1 truncate min-w-0">{{ fw.name }}</span>
                             <span class="text-xs font-mono text-tp-muted shrink-0 whitespace-nowrap">{{ fw.version }}</span>
                             <div v-if="fw.active" class="shrink-0">
-                                <Check class="w-3.5 h-3.5 text-tp-ok" />
+                                <Check class="w-3.5 h-3.5 text-tp-on" />
                             </div>
                             <ChevronDown
                                 class="w-4 h-4 shrink-0 text-tp-muted transition-transform duration-200"
@@ -293,14 +293,14 @@
                                     <button
                                         v-if="!fw.active"
                                         @click.stop="activate(fw.id)"
-                                        class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-tp-ok/10 text-tp-ok hover:bg-tp-ok/20 transition-all cursor-pointer"
+                                        class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-tp-on/10 text-tp-on hover:bg-tp-on/20 transition-all cursor-pointer"
                                     >
                                         <Check class="w-3.5 h-3.5" />
                                         Activar
                                     </button>
                                     <button
                                         @click.stop="remove(fw.id)"
-                                        class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-tp-danger/10 text-tp-danger hover:bg-tp-danger/20 transition-all cursor-pointer"
+                                        class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-tp-off/10 text-tp-off hover:bg-tp-off/20 transition-all cursor-pointer"
                                     >
                                         <Trash2 class="w-3.5 h-3.5" />
                                         Eliminar

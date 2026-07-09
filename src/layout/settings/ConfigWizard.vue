@@ -82,7 +82,7 @@
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <span class="font-mono text-[10px] text-tp-muted/60 truncate max-w-40">{{ device.mac }}</span>
+                    <span class="font-mono text-2xs text-tp-muted/60 truncate max-w-40">{{ device.mac }}</span>
                     <button
                         @click="emit('cancel')"
                         class="p-1.5 rounded-lg text-tp-muted hover:text-tp-text hover:bg-tp-border/20 transition-colors cursor-pointer"
@@ -97,7 +97,7 @@
                 {{ pickedId ? 'Dispositivo seleccionado: ' + pickedId : 'Haz clic en un dispositivo del plano para asignarlo' }}
             </div>
 
-            <div v-if="error" class="px-6 py-2 text-xs text-tp-danger bg-tp-danger/10 border-b border-tp-danger/20 shrink-0">
+            <div v-if="error" class="px-6 py-2 text-xs text-tp-off bg-tp-off/10 border-b border-tp-off/20 shrink-0">
                 {{ error }}
             </div>
 
@@ -128,7 +128,7 @@
                     :disabled="!pickedId || picking"
                     class="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold uppercase tracking-wider transition-all cursor-pointer"
                     :class="pickedId && !picking
-                        ? 'bg-tp-ok/20 text-tp-ok border border-tp-ok/30 hover:bg-tp-ok/30'
+                        ? 'bg-tp-on/20 text-tp-on border border-tp-on/30 hover:bg-tp-on/30'
                         : 'bg-tp-border/10 text-tp-muted/30 border border-tp-border/20 cursor-not-allowed'"
                 >
                     <Check class="w-4 h-4" />

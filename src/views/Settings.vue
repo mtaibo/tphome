@@ -9,7 +9,7 @@
     import Topbar from '@/layout/Topbar.vue'
 
     const route = useRoute()
-    const { sections, activeSection, activeComponent } = useSections(route.path)
+    const { sections, activeSection, activeComponent, activeSectionName } = useSections(route.path)
 
 </script>
 
@@ -20,7 +20,7 @@
         <Sidebar v-model:activeSection="activeSection" />
 
         <main class="flex flex-col flex-1 pt-20 md:pt-0">
-            <Topbar :activeSection="activeSection" />
+            <Topbar :title="activeSectionName" />
             <component :is="activeComponent" />
         </main>
 
