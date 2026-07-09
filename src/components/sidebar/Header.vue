@@ -23,7 +23,7 @@
             :class="collapsed ? 'opacity-0 w-0' : 'opacity-100'"
         >
             <h1 class="text-xl font-bold tracking-tight whitespace-nowrap">TPHome</h1>
-            <span class="text-[10px] font-mono text-muted/60 tracking-wider whitespace-nowrap">v1.0.0</span>
+            <span class="text-[10px] font-mono text-tp-muted/60 tracking-wider whitespace-nowrap">v1.0.0</span>
         </div>
     </header>
 

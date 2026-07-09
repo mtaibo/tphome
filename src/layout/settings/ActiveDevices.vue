@@ -80,13 +80,13 @@
         <section>
             <div class="flex items-center gap-3 mb-5">
                 <div class="w-2 h-2 rounded-full bg-tp-accent shadow-[0_0_6px_var(--color-tp-accent)]"></div>
-                <h2 class="text-sm font-bold uppercase tracking-widest text-muted">
+                <h2 class="text-sm font-bold uppercase tracking-widest text-tp-muted">
                     Dispositivos
                     <span class="text-tp-accent font-mono ml-1.5">{{ allDevices.length }}</span>
                 </h2>
             </div>
 
-            <div v-if="allDevices.length === 0" class="text-sm text-muted/50 italic px-1">
+            <div v-if="allDevices.length === 0" class="text-sm text-tp-muted/50 italic px-1">
                 No hay dispositivos configurados en el mapa.
             </div>
 
@@ -107,14 +107,14 @@
                                 class="w-4 h-4 shrink-0"
                                 :class="device.type === 'Luz' ? 'text-tp-light-on/70' : 'text-tp-accent/70'"
                             />
-                            <span class="font-mono text-xs text-muted w-16 shrink-0">{{ device.id }}</span>
-                            <span class="text-sm text-tp-text-primary flex-1 truncate">{{ device.name }}</span>
+                            <span class="font-mono text-xs text-tp-muted w-16 shrink-0">{{ device.id }}</span>
+                            <span class="text-sm text-tp-text flex-1 truncate">{{ device.name }}</span>
                             <div
                                 class="w-2 h-2 rounded-full shrink-0"
                                 :class="device.connection?.online ? 'bg-tp-ok shadow-[0_0_6px_var(--color-tp-ok)]' : 'bg-tp-danger'"
                             ></div>
                             <ChevronDown
-                                class="w-4 h-4 shrink-0 text-muted transition-transform duration-200"
+                                class="w-4 h-4 shrink-0 text-tp-muted transition-transform duration-200"
                                 :class="{ 'rotate-180': expandedId === device.id }"
                             />
                         </div>
@@ -126,28 +126,28 @@
                             <div class="border-t border-tp-border/50 px-4 py-2 bg-black/10">
                                 <button
                                     @click.stop="pingDevice(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
                                 >
                                     <Radio class="w-4 h-4 shrink-0" />
                                     <span>Ping</span>
                                 </button>
                                 <button
                                     @click.stop="sendPrefsDevice(device.id, device.prefs)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
                                 >
                                     <Braces class="w-4 h-4 shrink-0" />
                                     <span>Mandar preferencias</span>
                                 </button>
                                 <button
                                     @click.stop="updateFirmware(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
                                 >
                                     <Download class="w-4 h-4 shrink-0" />
                                     <span>Cambiar firmware</span>
                                 </button>
                                 <button
                                     @click.stop="getDeviceInfo(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
                                 >
                                     <Info class="w-4 h-4 shrink-0" />
                                     <span>Actualizar información</span>
@@ -155,14 +155,14 @@
                                 <button
                                     v-if="device.type === 'Persiana'"
                                     @click.stop="resetPosition(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
                                 >
                                     <Crosshair class="w-4 h-4 shrink-0" />
                                     <span>Reiniciar posición</span>
                                 </button>
                                 <button
                                     @click.stop="deleteDevice(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-danger hover:bg-tp-danger/10 transition-all cursor-pointer"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-danger hover:bg-tp-danger/10 transition-all cursor-pointer"
                                 >
                                     <Trash2 class="w-4 h-4 shrink-0" />
                                     <span>Eliminar dispositivo</span>
@@ -182,14 +182,14 @@
                                 class="w-4 h-4 shrink-0"
                                 :class="device.type === 'Luz' ? 'text-tp-light-on/70' : 'text-tp-accent/70'"
                             />
-                            <span class="text-sm text-tp-text-primary flex-1 truncate min-w-0">{{ device.name }}</span>
-                            <span class="text-xs font-mono text-muted shrink-0 whitespace-nowrap">{{ device.id }}</span>
+                            <span class="text-sm text-tp-text flex-1 truncate min-w-0">{{ device.name }}</span>
+                            <span class="text-xs font-mono text-tp-muted shrink-0 whitespace-nowrap">{{ device.id }}</span>
                             <div
                                 class="w-2 h-2 rounded-full shrink-0"
                                 :class="device.connection?.online ? 'bg-tp-ok shadow-[0_0_6px_var(--color-tp-ok)]' : 'bg-tp-danger'"
                             ></div>
                             <ChevronDown
-                                class="w-4 h-4 shrink-0 text-muted transition-transform duration-200"
+                                class="w-4 h-4 shrink-0 text-tp-muted transition-transform duration-200"
                                 :class="{ 'rotate-180': expandedId === device.id }"
                             />
                         </div>
@@ -201,28 +201,28 @@
                             <div class="border-t border-tp-border/50 px-4 py-2 bg-black/10">
                                 <button
                                     @click.stop="pingDevice(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
                                 >
                                     <Radio class="w-4 h-4 shrink-0" />
                                     <span>Ping</span>
                                 </button>
                                 <button
                                     @click.stop="sendPrefsDevice(device.id, device.prefs)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
                                 >
                                     <Braces class="w-4 h-4 shrink-0" />
                                     <span>Mandar preferencias</span>
                                 </button>
                                 <button
                                     @click.stop="updateFirmware(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
                                 >
                                     <Download class="w-4 h-4 shrink-0" />
                                     <span>Cambiar firmware</span>
                                 </button>
                                 <button
                                     @click.stop="getDeviceInfo(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
                                 >
                                     <Info class="w-4 h-4 shrink-0" />
                                     <span>Actualizar información</span>
@@ -230,14 +230,14 @@
                                 <button
                                     v-if="device.type === 'Persiana'"
                                     @click.stop="resetPosition(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
                                 >
                                     <Crosshair class="w-4 h-4 shrink-0" />
                                     <span>Reiniciar posición</span>
                                 </button>
                                 <button
                                     @click.stop="deleteDevice(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted hover:text-tp-danger hover:bg-tp-danger/10 transition-all cursor-pointer"
+                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-danger hover:bg-tp-danger/10 transition-all cursor-pointer"
                                 >
                                     <Trash2 class="w-4 h-4 shrink-0" />
                                     <span>Eliminar dispositivo</span>

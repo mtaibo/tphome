@@ -93,7 +93,7 @@
         <section>
             <div class="flex items-center gap-3 mb-5">
                 <div class="w-2 h-2 rounded-full bg-tp-accent shadow-[0_0_6px_var(--color-tp-accent)]"></div>
-                <h2 class="text-sm font-bold uppercase tracking-widest text-muted">
+                <h2 class="text-sm font-bold uppercase tracking-widest text-tp-muted">
                     Subir firmware
                 </h2>
             </div>
@@ -102,12 +102,12 @@
 
                 <div class="flex items-center gap-3">
                     <label class="flex-1">
-                        <span class="block text-xs text-muted mb-1.5">Archivo .bin</span>
+                        <span class="block text-xs text-tp-muted mb-1.5">Archivo .bin</span>
                         <input
                             type="file"
                             accept=".bin"
                             @change="onFileChange"
-                            class="w-full text-sm text-muted file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-tp-accent/10 file:text-tp-accent file:cursor-pointer hover:file:bg-tp-accent/20 cursor-pointer"
+                            class="w-full text-sm text-tp-muted file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-tp-accent/10 file:text-tp-accent file:cursor-pointer hover:file:bg-tp-accent/20 cursor-pointer"
                         />
                     </label>
                     <div v-if="selectedFile" class="shrink-0 mt-5 text-xs text-tp-ok font-mono">
@@ -117,37 +117,37 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs text-muted mb-1.5">Nombre</label>
+                        <label class="block text-xs text-tp-muted mb-1.5">Nombre</label>
                         <input
                             v-model="form.name"
                             type="text"
                             placeholder="Persiana v2.1"
-                            class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-tp-text-primary placeholder:text-muted/40 focus:outline-none focus:border-tp-accent/50 transition-colors"
+                            class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-tp-text placeholder:text-tp-muted/40 focus:outline-none focus:border-tp-accent/50 transition-colors"
                         />
                     </div>
                     <div>
-                        <label class="block text-xs text-muted mb-1.5">Versión</label>
+                        <label class="block text-xs text-tp-muted mb-1.5">Versión</label>
                         <input
                             v-model="form.version"
                             type="text"
                             placeholder="2.1.0"
-                            class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-tp-text-primary placeholder:text-muted/40 focus:outline-none focus:border-tp-accent/50 transition-colors"
+                            class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-tp-text placeholder:text-tp-muted/40 focus:outline-none focus:border-tp-accent/50 transition-colors"
                         />
                     </div>
                     <div>
-                        <label class="block text-xs text-muted mb-1.5">Chip</label>
+                        <label class="block text-xs text-tp-muted mb-1.5">Chip</label>
                         <input
                             v-model="form.chip"
                             type="text"
                             placeholder="BK7231N"
-                            class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-tp-text-primary placeholder:text-muted/40 focus:outline-none focus:border-tp-accent/50 transition-colors"
+                            class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-tp-text placeholder:text-tp-muted/40 focus:outline-none focus:border-tp-accent/50 transition-colors"
                         />
                     </div>
                     <div>
-                        <label class="block text-xs text-muted mb-1.5">Target</label>
+                        <label class="block text-xs text-tp-muted mb-1.5">Target</label>
                         <select
                             v-model="form.target"
-                            class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-tp-text-primary focus:outline-none focus:border-tp-accent/50 transition-colors"
+                            class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-tp-text focus:outline-none focus:border-tp-accent/50 transition-colors"
                         >
                             <option value="blinds">Persianas</option>
                             <option value="lights">Luces</option>
@@ -157,12 +157,12 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs text-muted mb-1.5">Notas</label>
+                    <label class="block text-xs text-tp-muted mb-1.5">Notas</label>
                     <textarea
                         v-model="form.notes"
                         placeholder="Changelog o notas..."
                         rows="2"
-                        class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-tp-text-primary placeholder:text-muted/40 focus:outline-none focus:border-tp-accent/50 transition-colors resize-none"
+                        class="w-full px-3 py-2 rounded-lg bg-black/20 border border-tp-border text-sm text-tp-text placeholder:text-tp-muted/40 focus:outline-none focus:border-tp-accent/50 transition-colors resize-none"
                     />
                 </div>
 
@@ -187,13 +187,13 @@
         <section>
             <div class="flex items-center gap-3 mb-5">
                 <div class="w-2 h-2 rounded-full bg-tp-accent shadow-[0_0_6px_var(--color-tp-accent)]"></div>
-                <h2 class="text-sm font-bold uppercase tracking-widest text-muted">
+                <h2 class="text-sm font-bold uppercase tracking-widest text-tp-muted">
                     Firmwares
                     <span class="text-tp-accent font-mono ml-1.5">{{ firmwares.length }}</span>
                 </h2>
             </div>
 
-            <div v-if="firmwares.length === 0" class="text-sm text-muted/50 italic px-1">
+            <div v-if="firmwares.length === 0" class="text-sm text-tp-muted/50 italic px-1">
                 No hay firmwares subidos.
             </div>
 
@@ -211,9 +211,9 @@
                             @click="toggleExpanded(fw.id)"
                         >
                             <Cpu class="w-4 h-4 shrink-0 text-tp-accent/70" />
-                            <span class="text-sm text-tp-text-primary flex-1 truncate">{{ fw.name }}</span>
-                            <span class="text-xs font-mono text-muted">{{ fw.version }}</span>
-                            <span class="text-xs font-mono text-muted hidden lg:block">{{ fw.chip }}</span>
+                            <span class="text-sm text-tp-text flex-1 truncate">{{ fw.name }}</span>
+                            <span class="text-xs font-mono text-tp-muted">{{ fw.version }}</span>
+                            <span class="text-xs font-mono text-tp-muted hidden lg:block">{{ fw.chip }}</span>
 
                             <div v-if="fw.active" class="flex items-center gap-1.5 shrink-0">
                                 <Check class="w-3.5 h-3.5 text-tp-ok" />
@@ -221,7 +221,7 @@
                             </div>
 
                             <ChevronDown
-                                class="w-4 h-4 shrink-0 text-muted transition-transform duration-200"
+                                class="w-4 h-4 shrink-0 text-tp-muted transition-transform duration-200"
                                 :class="{ 'rotate-180': expandedId === fw.id }"
                             />
                         </div>
@@ -231,11 +231,11 @@
                             :class="{ 'expand-open': expandedId === fw.id }"
                         >
                             <div class="border-t border-tp-border/50 px-4 py-2 bg-black/10">
-                                <div class="px-3 py-2 text-xs text-muted/60 space-y-1">
-                                    <div><span class="text-muted">Target:</span> {{ fw.target }}</div>
-                                    <div><span class="text-muted">Chip:</span> {{ fw.chip }}</div>
-                                    <div><span class="text-muted">Subido:</span> {{ new Date(fw.uploaded_at).toLocaleString() }}</div>
-                                    <div v-if="fw.notes"><span class="text-muted">Notas:</span> {{ fw.notes }}</div>
+                                <div class="px-3 py-2 text-xs text-tp-muted/60 space-y-1">
+                                    <div><span class="text-tp-muted">Target:</span> {{ fw.target }}</div>
+                                    <div><span class="text-tp-muted">Chip:</span> {{ fw.chip }}</div>
+                                    <div><span class="text-tp-muted">Subido:</span> {{ new Date(fw.uploaded_at).toLocaleString() }}</div>
+                                    <div v-if="fw.notes"><span class="text-tp-muted">Notas:</span> {{ fw.notes }}</div>
                                 </div>
 
                                 <div class="flex items-center gap-2 px-3 pb-2">
@@ -266,13 +266,13 @@
                             @click="toggleExpanded(fw.id)"
                         >
                             <Cpu class="w-4 h-4 shrink-0 text-tp-accent/70" />
-                            <span class="text-sm text-tp-text-primary flex-1 truncate min-w-0">{{ fw.name }}</span>
-                            <span class="text-xs font-mono text-muted shrink-0 whitespace-nowrap">{{ fw.version }}</span>
+                            <span class="text-sm text-tp-text flex-1 truncate min-w-0">{{ fw.name }}</span>
+                            <span class="text-xs font-mono text-tp-muted shrink-0 whitespace-nowrap">{{ fw.version }}</span>
                             <div v-if="fw.active" class="shrink-0">
                                 <Check class="w-3.5 h-3.5 text-tp-ok" />
                             </div>
                             <ChevronDown
-                                class="w-4 h-4 shrink-0 text-muted transition-transform duration-200"
+                                class="w-4 h-4 shrink-0 text-tp-muted transition-transform duration-200"
                                 :class="{ 'rotate-180': expandedId === fw.id }"
                             />
                         </div>
@@ -282,11 +282,11 @@
                             :class="{ 'expand-open': expandedId === fw.id }"
                         >
                             <div class="border-t border-tp-border/50 px-4 py-2 bg-black/10">
-                                <div class="px-3 py-2 text-xs text-muted/60 space-y-1">
-                                    <div><span class="text-muted">Target:</span> {{ fw.target }}</div>
-                                    <div><span class="text-muted">Chip:</span> {{ fw.chip }}</div>
-                                    <div><span class="text-muted">Subido:</span> {{ new Date(fw.uploaded_at).toLocaleString() }}</div>
-                                    <div v-if="fw.notes"><span class="text-muted">Notas:</span> {{ fw.notes }}</div>
+                                <div class="px-3 py-2 text-xs text-tp-muted/60 space-y-1">
+                                    <div><span class="text-tp-muted">Target:</span> {{ fw.target }}</div>
+                                    <div><span class="text-tp-muted">Chip:</span> {{ fw.chip }}</div>
+                                    <div><span class="text-tp-muted">Subido:</span> {{ new Date(fw.uploaded_at).toLocaleString() }}</div>
+                                    <div v-if="fw.notes"><span class="text-tp-muted">Notas:</span> {{ fw.notes }}</div>
                                 </div>
 
                                 <div class="flex items-center gap-2 px-3 pb-2">

@@ -72,20 +72,20 @@
                 <div class="flex items-center gap-4">
                     <button
                         @click="emit('cancel')"
-                        class="flex items-center gap-2 text-muted hover:text-tp-text-primary transition-colors text-sm cursor-pointer"
+                        class="flex items-center gap-2 text-tp-muted hover:text-tp-text transition-colors text-sm cursor-pointer"
                     >
                         <ArrowLeft class="w-4 h-4" />
                         Volver
                     </button>
                     <div class="h-5 w-px bg-tp-border"></div>
-                    <span class="text-sm text-tp-text-primary font-medium">Asignar dispositivo</span>
+                    <span class="text-sm text-tp-text font-medium">Asignar dispositivo</span>
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <span class="font-mono text-[10px] text-muted/60 truncate max-w-40">{{ device.mac }}</span>
+                    <span class="font-mono text-[10px] text-tp-muted/60 truncate max-w-40">{{ device.mac }}</span>
                     <button
                         @click="emit('cancel')"
-                        class="p-1.5 rounded-lg text-muted hover:text-tp-text-primary hover:bg-tp-border/20 transition-colors cursor-pointer"
+                        class="p-1.5 rounded-lg text-tp-muted hover:text-tp-text hover:bg-tp-border/20 transition-colors cursor-pointer"
                     >
                         <X class="w-4 h-4" />
                     </button>
@@ -93,7 +93,7 @@
             </header>
 
             <!-- Instruction -->
-            <div class="px-6 py-3 text-[11px] font-mono uppercase tracking-widest text-muted/50 border-b border-tp-border/50 shrink-0">
+            <div class="px-6 py-3 text-[11px] font-mono uppercase tracking-widest text-tp-muted/50 border-b border-tp-border/50 shrink-0">
                 {{ pickedId ? 'Dispositivo seleccionado: ' + pickedId : 'Haz clic en un dispositivo del plano para asignarlo' }}
             </div>
 
@@ -119,7 +119,7 @@
             <footer class="h-16 px-6 flex items-center justify-end gap-3 shrink-0 border-t border-tp-border">
                 <button
                     @click="emit('cancel')"
-                    class="px-4 py-2 rounded-lg text-sm text-muted hover:text-tp-text-primary hover:bg-tp-border/20 transition-colors cursor-pointer"
+                    class="px-4 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-text hover:bg-tp-border/20 transition-colors cursor-pointer"
                 >
                     Cancelar
                 </button>
@@ -129,7 +129,7 @@
                     class="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold uppercase tracking-wider transition-all cursor-pointer"
                     :class="pickedId && !picking
                         ? 'bg-tp-ok/20 text-tp-ok border border-tp-ok/30 hover:bg-tp-ok/30'
-                        : 'bg-tp-border/10 text-muted/30 border border-tp-border/20 cursor-not-allowed'"
+                        : 'bg-tp-border/10 text-tp-muted/30 border border-tp-border/20 cursor-not-allowed'"
                 >
                     <Check class="w-4 h-4" />
                     {{ picking ? 'Asignando...' : 'Asignar' }}

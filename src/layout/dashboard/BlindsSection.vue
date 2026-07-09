@@ -138,7 +138,7 @@
 
         <!-- Empty state -->
         <div v-if="Object.keys(store.blinds).length === 0"
-             class="flex flex-col items-center justify-center h-full gap-4 text-muted">
+             class="flex flex-col items-center justify-center h-full gap-4 text-tp-muted">
             <Blinds class="w-12 h-12 opacity-20" />
             <p class="text-sm tracking-wide">No hay persianas disponibles</p>
         </div>
@@ -159,10 +159,10 @@
                                  ? 'bg-tp-ok shadow-[0_0_6px_var(--color-tp-ok)]'
                                  : 'bg-tp-danger'">
                         </div>
-                        <h3 class="text-sm font-semibold text-tp-text-primary leading-tight">{{ device.name }}</h3>
+                        <h3 class="text-sm font-semibold text-tp-text leading-tight">{{ device.name }}</h3>
                     </div>
                     <div class="flex items-baseline gap-0.5 shrink-0">
-                        <span class="text-sm font-mono font-bold text-tp-text-primary tabular-nums leading-none">{{ Math.round(positions[id] ?? 0) }}</span>
+                        <span class="text-sm font-mono font-bold text-tp-text tabular-nums leading-none">{{ Math.round(positions[id] ?? 0) }}</span>
                         <span class="text-[9px] font-bold text-tp-accent leading-none mb-0.5">%</span>
                     </div>
                 </div>
@@ -184,22 +184,22 @@
                         <button @click="handleUp(id)"
                                 class="blind-btn"
                                 :class="{ pressing: pressing[`${id}-up`] }">
-                            <ChevronUp class="w-[18px] h-[18px] text-tp-text-primary/80" />
+                            <ChevronUp class="w-[18px] h-[18px] text-tp-text/80" />
                         </button>
                         <button @click="handleStop(id)"
                                 class="blind-btn"
                                 :class="{ pressing: pressing[`${id}-stop`] }">
-                            <Pause class="w-[15px] h-[15px] fill-current text-tp-text-primary/80" />
+                            <Pause class="w-[15px] h-[15px] fill-current text-tp-text/80" />
                         </button>
                         <button @click="handleDown(id)"
                                 class="blind-btn"
                                 :class="{ pressing: pressing[`${id}-down`] }">
-                            <ChevronDown class="w-[18px] h-[18px] text-tp-text-primary/80" />
+                            <ChevronDown class="w-[18px] h-[18px] text-tp-text/80" />
                         </button>
                         <button @click="handleSettings(id)"
                                 class="blind-btn blind-btn-muted"
                                 :class="{ pressing: pressing[`${id}-cfg`] }">
-                            <Settings class="w-[15px] h-[15px] text-muted" />
+                            <Settings class="w-[15px] h-[15px] text-tp-muted" />
                         </button>
                     </div>
                 </div>
