@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, watch, nextTick } from 'vue'
+    import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
     import { X, ChevronUp, ChevronDown, Pause, Blinds, Check } from 'lucide-vue-next'
     import { api } from '@/config/api'
 
@@ -12,6 +12,40 @@
     const tempPosition = ref(props.device.state.position)
     const isLoading    = ref(false)
     const pressing     = ref({})
+
+    // Smooth animation state
+    let realPos  = props.device.state.position
+    let realTime = Date.now()
+    let velocity = 0  // % per millisecond
+    let rafId    = null
+
+    // Track real position updates from WS and derive velocity
+    watch(() => props.device.state.position, (newPos) => {
+        const now = Date.now()
+        const dt  = now - realTime
+        if (dt > 50) velocity = (newPos - realPos) / dt
+        realPos  = newPos
+        realTime = now
+    })
+
+    // When motor stops, kill velocity so we don't drift
+    watch(() => props.device.state.motor_state, () => {
+        velocity = 0
+        realPos  = props.device.state.position
+        realTime = Date.now()
+    })
+
+    function animate() {
+        if (!dragging) {
+            const elapsed  = Math.min(Date.now() - realTime, 1500)
+            const estimated = realPos + velocity * elapsed
+            tempPosition.value = Math.max(0, Math.min(100, Math.round(estimated)))
+        }
+        rafId = requestAnimationFrame(animate)
+    }
+
+    onMounted(()   => { rafId = requestAnimationFrame(animate) })
+    onUnmounted(() => { if (rafId) cancelAnimationFrame(rafId) })
 
     const pressBtn = (key, action) => {
         pressing.value[key] = false
@@ -65,12 +99,13 @@
     function onPointerUp(e) {
         if (!dragging) return
         dragging = false
-        updatePosition(posFromY(e.currentTarget, e.clientY))
+        const pos = posFromY(e.currentTarget, e.clientY)
+        updatePosition(pos)
+        // Reset animation baseline so the rAF loop doesn't jump after drag
+        realPos  = pos
+        realTime = Date.now()
+        velocity = 0
     }
-
-    watch(() => props.device.state.position, (val) => {
-        tempPosition.value = val
-    }, { immediate: true })
 
 </script>
 
