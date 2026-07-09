@@ -21,10 +21,12 @@
     let moveStartTime = Date.now()
     let realPos       = props.device.state.position
     let displayPos    = props.device.state.position
+    let setPending    = false  // true while motor moves toward a slider-set target
     let rafId         = null
 
     const snapToReal = () => {
         velocity           = 0
+        setPending         = false
         displayPos         = realPos
         moveStartPos       = realPos
         moveStartTime      = Date.now()
@@ -32,17 +34,17 @@
         tempPosition.value = Math.round(realPos)
     }
 
-    // WS position update: recalibrate prediction anchor while moving, snap when stopped
+    // WS position update: recalibrate anchor while button-moving; ignore while set-pending
     watch(() => props.device.state.position, (newPos) => {
         realPos = newPos
-        if (velocity === 0) {
-            displayPos = newPos; smoothPos.value = newPos; tempPosition.value = Math.round(newPos)
-        } else {
+        if (velocity !== 0) {
             moveStartPos = newPos; moveStartTime = Date.now()
+        } else if (!setPending) {
+            displayPos = newPos; smoothPos.value = newPos; tempPosition.value = Math.round(newPos)
         }
     })
 
-    // Only snap when motor reaches IDLE (0) — not on MOVING (2) updates
+    // Snap only when motor reaches IDLE (0) — clears setPending and confirms final position
     watch(() => props.device.state.motor_state, (newState) => {
         if (newState === 0) { realPos = props.device.state.position; snapToReal() }
     })
@@ -87,11 +89,13 @@
     }
 
     const handleUp = () => pressBtn('up', () => {
+        setPending = false
         velocity = 100 / ((props.device.prefs?.up_time ?? 3000) * 10)
         moveStartPos = displayPos; moveStartTime = Date.now()
         sendCommand('up')
     })
     const handleDown = () => pressBtn('down', () => {
+        setPending = false
         velocity = -(100 / ((props.device.prefs?.down_time ?? 3000) * 10))
         moveStartPos = displayPos; moveStartTime = Date.now()
         sendCommand('down')
@@ -108,6 +112,7 @@
 
     function onPointerDown(e) {
         dragging = true
+        velocity = 0; setPending = false
         const pos = posFromY(e.currentTarget, e.clientY)
         displayPos = pos; smoothPos.value = pos; tempPosition.value = pos
         e.currentTarget.setPointerCapture(e.pointerId)
@@ -123,9 +128,9 @@
         if (!dragging) return
         dragging = false
         const pos = posFromY(e.currentTarget, e.clientY)
-        displayPos = pos; smoothPos.value = pos
+        displayPos = pos; smoothPos.value = pos; tempPosition.value = pos
+        velocity = 0; setPending = true
         updatePosition(pos)
-        realPos = pos; realTime = Date.now(); velocity = 0
     }
 
 </script>

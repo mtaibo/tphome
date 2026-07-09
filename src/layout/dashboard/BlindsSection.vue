@@ -15,7 +15,8 @@
     const dragState = ref({})
 
     // Per-blind animation state (outside Vue reactivity for perf)
-    const anim = {}
+    const anim       = {}
+    const setPending = {}  // per-blind flag: true while motor moves toward a slider-set target
     let rafId = null
 
     function getAnim(id, initialPos) {
@@ -26,7 +27,7 @@
         return anim[id]
     }
 
-    // WS update: recalibrate anchor while moving; snap on IDLE or when stopped
+    // WS update: recalibrate anchor while button-moving; ignore while set-pending; snap on IDLE
     watch(() => store.blinds, (blinds) => {
         for (const [id, device] of Object.entries(blinds)) {
             if (dragging.value[id]) continue
@@ -34,18 +35,21 @@
             const motorState = device.state?.motor_state ?? 0
             const a = getAnim(id, newPos)
             a.realPos = newPos
-            if (a.velocity === 0 || motorState === 0) {
+            if (motorState === 0) {
+                setPending[id] = false
                 a.velocity = 0; a.displayPos = newPos; a.moveStartPos = newPos; a.moveStartTime = Date.now()
                 positions.value[id] = newPos
-            } else {
+            } else if (a.velocity !== 0) {
                 a.moveStartPos = newPos; a.moveStartTime = Date.now()
+            } else if (!setPending[id]) {
+                a.displayPos = newPos; a.moveStartPos = newPos; a.moveStartTime = Date.now()
+                positions.value[id] = newPos
             }
         }
     }, { immediate: true, deep: true })
 
     function animateLoop() {
         const now = Date.now()
-        lastFrameTime = now
 
         for (const [id, a] of Object.entries(anim)) {
             if (dragging.value[id] || a.velocity === 0) continue
@@ -77,6 +81,7 @@
     const handleUp = (id) => pressBtn(`${id}-up`, () => {
         const device = store.blinds[id]
         const a = getAnim(id, positions.value[id])
+        setPending[id] = false
         a.velocity = 100 / ((device?.prefs?.up_time ?? 3000) * 10)
         a.moveStartPos = a.displayPos; a.moveStartTime = Date.now()
         sendCommand(id, 'up')
@@ -84,6 +89,7 @@
     const handleDown = (id) => pressBtn(`${id}-down`, () => {
         const device = store.blinds[id]
         const a = getAnim(id, positions.value[id])
+        setPending[id] = false
         a.velocity = -(100 / ((device?.prefs?.down_time ?? 3000) * 10))
         a.moveStartPos = a.displayPos; a.moveStartTime = Date.now()
         sendCommand(id, 'down')
@@ -119,9 +125,10 @@
         dragState.value[id] = { active: false }
         dragging.value[id] = false
         const pos = positions.value[id]
-        sendCommand(id, 'set', pos)
         const a = getAnim(id, pos)
-        a.displayPos = pos; a.realPos = pos; a.realTime = Date.now(); a.velocity = 0
+        a.displayPos = pos; a.velocity = 0
+        setPending[id] = true
+        sendCommand(id, 'set', pos)
     }
 
     const TRACK_H  = 180
