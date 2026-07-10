@@ -28,7 +28,7 @@ void loop() {
     /* Update device functions */
     #if defined(DEVICE_TYPE_BLIND)
         Blinds::update();
-    #elif defined(DEVICE_TYPE_LIGH)
+    #elif defined(DEVICE_TYPE_LIGHT)
         Lights::update();
     #endif
 }
