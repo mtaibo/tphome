@@ -9,12 +9,14 @@
     #include "hardware/bk7231n/driver_wifi.h"
 #endif
 
-#define RECONNECT_INTERVAL 5000
+#define RECONNECT_INTERVAL_MIN  5000
+#define RECONNECT_INTERVAL_MAX 60000
 
 namespace Wifi {
 
     struct State {
         uint32_t lastTime = 0;
+        uint32_t reconnectInterval = RECONNECT_INTERVAL_MIN;
         bool isConnected = false;
     };
 
@@ -50,16 +52,18 @@ namespace Wifi {
 
         if (!Hardware::Wifi::isConnected()) {
 
-            if (now - _state.lastTime > RECONNECT_INTERVAL) {
+            if (now - _state.lastTime > _state.reconnectInterval) {
                 WiFi.disconnect(false);
                 _state.lastTime = now;
+                _state.reconnectInterval = min(_state.reconnectInterval * 2, (uint32_t) RECONNECT_INTERVAL_MAX);
                 Hardware::Wifi::begin(Settings::config.wifiSSID, Settings::config.wifiPass);
             }
-        } 
-        
+        }
+
         else {
             _state.isConnected = true;
             _state.lastTime = now;
+            _state.reconnectInterval = RECONNECT_INTERVAL_MIN;
         }
     }
 }
