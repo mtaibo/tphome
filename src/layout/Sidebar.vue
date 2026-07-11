@@ -33,24 +33,24 @@
 <template>
 
     <aside
-        class="z-20 hidden md:flex md:flex-col shadow-xl bg-[#111113] transition-all duration-300 ease-in-out shrink-0"
+        class="z-20 hidden md:flex md:flex-col shadow-xl bg-[#111113] transition-all duration-300 ease-in-out shrink-0 overflow-hidden"
         :class="collapsed ? 'w-16 min-w-16 max-w-16' : 'w-1/5 min-w-44 max-w-60'"
     >
 
-        <div class="flex justify-center pt-4 pb-2">
+        <div class="flex justify-end px-3 pt-4 pb-2">
             <BlindBtn :pressing="false" @click="toggle">
                 <component :is="collapsed ? PanelLeftOpen : PanelLeftClose" class="w-[18px] h-[18px] text-tp-text/80" />
             </BlindBtn>
         </div>
 
-        <nav class="flex-1 p-3 space-y-2">
+        <nav v-show="!collapsed" class="flex-1 p-3 space-y-2">
             <NavButton
                 v-for="item in navSections"
                 :key="item.id"
                 :icon="item.icon"
                 :label="item.name"
                 :active="props.activeSection === item.id"
-                :collapsed="collapsed"
+                :collapsed="false"
                 :nav-item="true"
                 @click="setActive(item.id)"
             />
@@ -58,14 +58,14 @@
                 :icon="route.path === '/settings' ? ArrowLeft : Settings"
                 :label="route.path === '/settings' ? 'Volver' : 'Configuración'"
                 :active="false"
-                :collapsed="collapsed"
+                :collapsed="false"
                 :nav-item="true"
                 @click="route.path === '/settings' ? router.push('/') : router.push('/settings')"
             />
         </nav>
 
-        <footer class="p-4 border-t border-tp-border">
-            <UserCard :collapsed="collapsed" />
+        <footer v-show="!collapsed" class="p-4 border-t border-tp-border">
+            <UserCard :collapsed="false" />
         </footer>
 
     </aside>
