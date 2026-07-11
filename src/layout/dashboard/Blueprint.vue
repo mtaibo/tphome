@@ -58,3 +58,57 @@
     </div>
 
 </template>
+
+<style scoped>
+.blinds-popup-overlay {
+    @apply fixed inset-0 z-[60] flex items-end justify-center pb-8 md:items-center md:pb-0;
+    background: rgba(0, 0, 0, 0.32);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+}
+
+.blinds-popup {
+    @apply w-[92vw] max-w-sm md:max-w-[400px] rounded-[32px] overflow-hidden;
+    background: rgba(26, 26, 28, 0.88);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 0.5px solid rgba(255, 255, 255, 0.14);
+    box-shadow:
+        0 24px 80px rgba(0, 0, 0, 0.65),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.popup-enter-active {
+    transition: opacity 0.40s ease;
+}
+.popup-leave-active {
+    transition: opacity 0.42s ease;
+}
+.popup-enter-from,
+.popup-leave-to {
+    opacity: 0;
+}
+
+.popup-enter-active .blinds-popup,
+.popup-leave-active .blinds-popup {
+    transform-origin: 50% 100%;
+}
+@media (min-width: 768px) {
+    .popup-enter-active .blinds-popup,
+    .popup-leave-active .blinds-popup {
+        transform-origin: 50% 50%;
+    }
+}
+.popup-enter-active .blinds-popup {
+    transition: transform 0.50s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
+}
+.popup-leave-active .blinds-popup {
+    transition: transform 0.42s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.38s ease;
+}
+.popup-enter-from .blinds-popup,
+.popup-leave-to .blinds-popup {
+    transform: scale(0.08);
+    opacity: 0;
+}
+</style>

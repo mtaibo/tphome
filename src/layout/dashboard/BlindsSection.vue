@@ -5,6 +5,7 @@
     import { api } from '@/config/api'
     import { useRouter } from 'vue-router'
     import BlindSlider from '@/components/BlindSlider.vue'
+    import BlindBtn from '@/components/BlindBtn.vue'
     import { positions, handlePositions, getAnim, setPending, isPending } from '@/composables/useBlindAnimations'
 
     const store   = useDevices()
@@ -181,29 +182,36 @@
 
                     <!-- Buttons column -->
                     <div class="flex flex-col justify-between items-center h-[180px]">
-                        <button @click="handleUp(id)"
-                                class="blind-btn"
-                                :class="{ pressing: pressing[`${id}-up`] }">
+                        <BlindBtn :pressing="pressing[`${id}-up`]" @click="handleUp(id)">
                             <ChevronUp class="w-[18px] h-[18px] text-tp-text/80" />
-                        </button>
-                        <button @click="handleStop(id)"
-                                class="blind-btn"
-                                :class="{ pressing: pressing[`${id}-stop`] }">
+                        </BlindBtn>
+                        <BlindBtn :pressing="pressing[`${id}-stop`]" @click="handleStop(id)">
                             <Pause class="w-[15px] h-[15px] fill-current text-tp-text/80" />
-                        </button>
-                        <button @click="handleDown(id)"
-                                class="blind-btn"
-                                :class="{ pressing: pressing[`${id}-down`] }">
+                        </BlindBtn>
+                        <BlindBtn :pressing="pressing[`${id}-down`]" @click="handleDown(id)">
                             <ChevronDown class="w-[18px] h-[18px] text-tp-text/80" />
-                        </button>
-                        <button @click="handleSettings(id)"
-                                class="blind-btn blind-btn-muted"
-                                :class="{ pressing: pressing[`${id}-cfg`] }">
+                        </BlindBtn>
+                        <BlindBtn muted :pressing="pressing[`${id}-cfg`]" @click="handleSettings(id)">
                             <Settings class="w-[15px] h-[15px] text-tp-muted" />
-                        </button>
+                        </BlindBtn>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </template>
+
+<style scoped>
+.blind-card {
+    padding: 16px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.065);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 0.5px solid rgba(255, 255, 255, 0.14);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+}
+</style>
