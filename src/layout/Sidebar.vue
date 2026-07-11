@@ -76,7 +76,7 @@
                     />
                 </nav>
 
-                <footer class="p-4">
+                <footer class="px-4 pt-2 pb-6">
                     <UserCard :collapsed="false" />
                 </footer>
             </div>
