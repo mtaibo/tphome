@@ -51,7 +51,7 @@
             <!-- w-60 = 240px, w-16 = 64px, diferencia = 176px = translate-x-44 -->
             <div
                 class="w-60 h-full flex flex-col bg-[#111113] shadow-xl transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
-                :class="collapsed ? '-translate-x-44' : 'translate-x-0'"
+                :class="collapsed ? '-translate-x-60' : 'translate-x-0'"
             >
                 <div class="h-[72px] shrink-0" />
 
