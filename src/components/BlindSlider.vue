@@ -83,8 +83,8 @@ function onPointerUp(e) {
     position: absolute;
     left: 10px;
     right: 10px;
-    height: 20px;
-    border-radius: 10px;
+    height: 14px;
+    border-radius: 7px;
     background: linear-gradient(
         135deg,
         rgba(255, 255, 255, 0.96) 0%,
