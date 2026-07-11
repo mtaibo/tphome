@@ -160,7 +160,7 @@
                                  ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]'
                                  : 'bg-tp-off'">
                         </div>
-                        <h3 class="text-sm font-semibold text-tp-text leading-tight h-[2.5em] overflow-hidden">{{ device.name }}</h3>
+                        <h3 class="text-sm font-semibold text-tp-text leading-tight max-w-[60px]">{{ device.name }}</h3>
                     </div>
                     <div class="flex items-baseline gap-0.5 shrink-0">
                         <span class="text-sm font-mono font-bold text-tp-text tabular-nums leading-none">{{ Math.round(positions[id] ?? 0) }}</span>
