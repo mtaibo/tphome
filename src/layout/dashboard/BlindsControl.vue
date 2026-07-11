@@ -3,6 +3,7 @@
     import { X, ChevronUp, ChevronDown, Pause, Blinds } from 'lucide-vue-next'
     import { api } from '@/config/api'
     import BlindSlider from '@/components/BlindSlider.vue'
+    import BlindBtn from '@/components/BlindBtn.vue'
     import { positions, handlePositions, getAnim, setPending, isPending } from '@/composables/useBlindAnimations'
 
     const props = defineProps({
@@ -154,11 +155,9 @@
                 </div>
                 <h2 class="text-base font-bold tracking-tight text-tp-text">{{ device.name }}</h2>
             </div>
-            <button @click="pressBtn('close', () => emit('close'))"
-                    class="blind-btn blind-btn-muted"
-                    :class="{ pressing: pressing['close'] }">
+            <BlindBtn muted :pressing="pressing['close']" @click="pressBtn('close', () => emit('close'))">
                 <X class="w-[15px] h-[15px] text-tp-muted" />
-            </button>
+            </BlindBtn>
         </header>
 
         <!-- MOBILE LAYOUT -->
@@ -179,15 +178,15 @@
             </div>
 
             <div class="flex flex-col gap-3">
-                <button @click="handleUp" class="blind-btn" :class="{ pressing: pressing['up'] }">
+                <BlindBtn :pressing="pressing['up']" @click="handleUp">
                     <ChevronUp class="w-[18px] h-[18px] text-tp-text/80" />
-                </button>
-                <button @click="handleStop" class="blind-btn" :class="{ pressing: pressing['stop'] }">
+                </BlindBtn>
+                <BlindBtn :pressing="pressing['stop']" @click="handleStop">
                     <Pause class="w-[15px] h-[15px] fill-current text-tp-text/80" />
-                </button>
-                <button @click="handleDown" class="blind-btn" :class="{ pressing: pressing['down'] }">
+                </BlindBtn>
+                <BlindBtn :pressing="pressing['down']" @click="handleDown">
                     <ChevronDown class="w-[18px] h-[18px] text-tp-text/80" />
-                </button>
+                </BlindBtn>
             </div>
         </div>
 
@@ -209,15 +208,15 @@
             </div>
 
             <div class="flex gap-3">
-                <button @click="handleUp" class="blind-btn" :class="{ pressing: pressing['up'] }">
+                <BlindBtn :pressing="pressing['up']" @click="handleUp">
                     <ChevronUp class="w-[18px] h-[18px] text-tp-text/80" />
-                </button>
-                <button @click="handleStop" class="blind-btn" :class="{ pressing: pressing['stop'] }">
+                </BlindBtn>
+                <BlindBtn :pressing="pressing['stop']" @click="handleStop">
                     <Pause class="w-[15px] h-[15px] fill-current text-tp-text/80" />
-                </button>
-                <button @click="handleDown" class="blind-btn" :class="{ pressing: pressing['down'] }">
+                </BlindBtn>
+                <BlindBtn :pressing="pressing['down']" @click="handleDown">
                     <ChevronDown class="w-[18px] h-[18px] text-tp-text/80" />
-                </button>
+                </BlindBtn>
             </div>
         </div>
     </div>

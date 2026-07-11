@@ -53,3 +53,48 @@ function onPointerUp(e) {
 
     </div>
 </template>
+
+<style scoped>
+.blind-track {
+    position: relative;
+    border-radius: 26px;
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.07) 0%,
+        rgba(255, 255, 255, 0.04) 100%
+    );
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 0.5px solid rgba(255, 255, 255, 0.13);
+    box-shadow:
+        inset 0 2px 8px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.09),
+        0 4px 16px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+    touch-action: none;
+    cursor: grab;
+}
+
+.blind-track:active {
+    cursor: grabbing;
+}
+
+.blind-track-handle {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    height: 20px;
+    border-radius: 10px;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.96) 0%,
+        rgba(255, 255, 255, 0.82) 100%
+    );
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.30),
+        0 1px 3px rgba(0, 0, 0, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+    transition: top 0.08s ease-out;
+    pointer-events: none;
+}
+</style>
