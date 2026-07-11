@@ -192,7 +192,7 @@
                             <ChevronDown class="w-[18px] h-[18px] text-tp-text/80" />
                         </BlindBtn>
                         <BlindBtn muted :pressing="pressing[`${id}-cfg`]" @click="handleSettings(id)">
-                            <Settings class="w-[15px] h-[15px] text-tp-muted" />
+                            <Settings class="w-[15px] h-[15px] text-tp-text" />
                         </BlindBtn>
                     </div>
                 </div>
