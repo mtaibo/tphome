@@ -33,42 +33,55 @@
 <template>
 
     <aside
-        class="z-20 hidden md:flex md:flex-col transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] shrink-0 overflow-hidden"
-        :class="collapsed
-            ? 'w-16 min-w-16 max-w-16 bg-transparent shadow-none'
-            : 'w-1/5 min-w-44 max-w-60 bg-[#111113] shadow-xl'"
+        class="relative z-20 hidden md:flex md:flex-col shrink-0 transition-[width] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+        :class="collapsed ? 'w-16' : 'w-60'"
     >
 
-        <div class="flex justify-end px-3 pt-4 pb-6">
+        <!-- Botón anclado, no se desplaza -->
+        <div class="absolute top-4 right-3 z-20">
             <BlindBtn :pressing="false" @click="toggle">
                 <component :is="collapsed ? PanelLeftOpen : PanelLeftClose" class="w-[18px] h-[18px] text-tp-text/80" />
             </BlindBtn>
         </div>
 
-        <nav v-show="!collapsed" class="flex-1 p-3 space-y-2">
-            <NavButton
-                v-for="item in navSections"
-                :key="item.id"
-                :icon="item.icon"
-                :label="item.name"
-                :active="props.activeSection === item.id"
-                :collapsed="false"
-                :nav-item="true"
-                @click="setActive(item.id)"
-            />
-            <NavButton
-                :icon="route.path === '/settings' ? ArrowLeft : Settings"
-                :label="route.path === '/settings' ? 'Volver' : 'Configuración'"
-                :active="false"
-                :collapsed="false"
-                :nav-item="true"
-                @click="route.path === '/settings' ? router.push('/') : router.push('/settings')"
-            />
-        </nav>
+        <!-- Máscara de recorte: se encoge con el aside -->
+        <div class="absolute inset-0 overflow-hidden z-10">
 
-        <footer v-show="!collapsed" class="p-4">
-            <UserCard :collapsed="false" />
-        </footer>
+            <!-- Panel deslizante: ancho fijo, se mueve hacia la izquierda al colapsar -->
+            <!-- w-60 = 240px, w-16 = 64px, diferencia = 176px = translate-x-44 -->
+            <div
+                class="w-60 h-full flex flex-col bg-[#111113] shadow-xl transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                :class="collapsed ? '-translate-x-44' : 'translate-x-0'"
+            >
+                <div class="h-[72px] shrink-0" />
+
+                <nav class="flex-1 p-3 space-y-2">
+                    <NavButton
+                        v-for="item in navSections"
+                        :key="item.id"
+                        :icon="item.icon"
+                        :label="item.name"
+                        :active="props.activeSection === item.id"
+                        :collapsed="false"
+                        :nav-item="true"
+                        @click="setActive(item.id)"
+                    />
+                    <NavButton
+                        :icon="route.path === '/settings' ? ArrowLeft : Settings"
+                        :label="route.path === '/settings' ? 'Volver' : 'Configuración'"
+                        :active="false"
+                        :collapsed="false"
+                        :nav-item="true"
+                        @click="route.path === '/settings' ? router.push('/') : router.push('/settings')"
+                    />
+                </nav>
+
+                <footer class="p-4">
+                    <UserCard :collapsed="false" />
+                </footer>
+            </div>
+
+        </div>
 
     </aside>
 
