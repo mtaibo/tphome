@@ -61,14 +61,30 @@
 
 <style scoped>
 .blinds-popup-overlay {
-    @apply fixed inset-0 z-[60] flex items-end justify-center pb-8 md:items-center md:pb-0;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 2rem;
     background: rgba(0, 0, 0, 0.32);
     backdrop-filter: blur(7px);
     -webkit-backdrop-filter: blur(7px);
 }
 
+@media (min-width: 768px) {
+    .blinds-popup-overlay {
+        align-items: center;
+        padding-bottom: 0;
+    }
+}
+
 .blinds-popup {
-    @apply w-[92vw] max-w-sm md:max-w-[400px] rounded-[32px] overflow-hidden;
+    width: 92vw;
+    max-width: 24rem;
+    border-radius: 32px;
+    overflow: hidden;
     background: rgba(26, 26, 28, 0.88);
     backdrop-filter: blur(40px) saturate(180%);
     -webkit-backdrop-filter: blur(40px) saturate(180%);
@@ -95,6 +111,9 @@
     transform-origin: 50% 100%;
 }
 @media (min-width: 768px) {
+    .blinds-popup {
+        max-width: 400px;
+    }
     .popup-enter-active .blinds-popup,
     .popup-leave-active .blinds-popup {
         transform-origin: 50% 50%;
