@@ -1,6 +1,6 @@
 <script setup>
 
-    import { ref, computed } from 'vue'
+    import { ref } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
 
     import { Settings, PanelLeftClose, PanelLeftOpen, ArrowLeft } from 'lucide-vue-next'
@@ -18,7 +18,6 @@
 
     const { sections } = useSections(route.path)
 
-    const isDashboard = computed(() => route.path === '/')
     const navSections = computed(() => sections.map(({ id, name, icon }) => ({ id, name, icon })))
 
     const collapsed = ref(false)
@@ -48,6 +47,14 @@
                 :nav-item="true"
                 @click="setActive(item.id)"
             />
+            <NavButton
+                :icon="route.path === '/settings' ? ArrowLeft : Settings"
+                :label="route.path === '/settings' ? 'Volver' : 'Configuración'"
+                :active="false"
+                :collapsed="collapsed"
+                :nav-item="true"
+                @click="route.path === '/settings' ? router.push('/') : router.push('/settings')"
+            />
         </nav>
 
         <footer class="p-4 border-t border-tp-border space-y-2">
@@ -58,24 +65,6 @@
                 :collapsed="collapsed"
                 :nav-item="false"
                 @click="toggle"
-            />
-
-            <NavButton
-                v-if="isDashboard"
-                :icon="Settings"
-                label="Configuración"
-                :collapsed="collapsed"
-                :nav-item="false"
-                @click="router.push('/settings')"
-            />
-
-            <NavButton
-                v-else
-                :icon="ArrowLeft"
-                label="Volver"
-                :collapsed="collapsed"
-                :nav-item="false"
-                @click="router.push('/')"
             />
 
             <UserCard :collapsed="collapsed" />
