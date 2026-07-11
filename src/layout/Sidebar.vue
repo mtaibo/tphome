@@ -34,7 +34,7 @@
 
     <aside
         class="relative z-20 hidden md:flex md:flex-col shrink-0 transition-[width] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
-        :class="collapsed ? 'w-16' : 'w-60'"
+        :class="collapsed ? 'w-20' : 'w-60'"
     >
 
         <!-- Botón anclado, no se desplaza -->
