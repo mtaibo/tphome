@@ -18,9 +18,9 @@
         const padding = props.collapsed ? (props.navItem ? 'px-[10px]' : 'px-[6px]') : 'px-4'
 
         let stateClass
-        if (props.navItem && props.active) stateClass = 'bg-tp-surface text-white font-semibold'
-        else if (props.navItem) stateClass = 'text-white/60 bg-transparent hover:bg-white/10 hover:text-white'
-        else stateClass = 'text-white/60 bg-transparent hover:text-white'
+        if (props.navItem && props.active) stateClass = 'bg-tp-surface'
+        else if (props.navItem) stateClass = 'bg-transparent hover:bg-white/10'
+        else stateClass = 'bg-transparent'
 
         return `${base} ${padding} ${stateClass}`
     })
@@ -34,11 +34,11 @@
         :title="collapsed ? label : ''"
         @click="$emit('click')"
     >
-        <component :is="icon" class="w-5 h-5 shrink-0" />
+        <component :is="icon" class="w-5 h-5 shrink-0 text-tp-accent" />
 
         <span
-            class="font-medium text-sm whitespace-nowrap overflow-hidden transition-[width,opacity] duration-300"
-            :class="collapsed ? 'w-0 opacity-0' : 'opacity-100 ml-4'"
+            class="text-white text-sm whitespace-nowrap overflow-hidden transition-[width,opacity] duration-300"
+            :class="[collapsed ? 'w-0 opacity-0' : 'opacity-100 ml-4', navItem && active ? 'font-bold' : 'font-medium']"
         >
             {{ label }}
         </span>
