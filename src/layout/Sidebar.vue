@@ -33,13 +33,13 @@
 <template>
 
     <aside
-        class="z-20 hidden md:flex md:flex-col transition-all duration-300 ease-in-out shrink-0 overflow-hidden"
+        class="z-20 hidden md:flex md:flex-col transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] shrink-0 overflow-hidden"
         :class="collapsed
             ? 'w-16 min-w-16 max-w-16 bg-transparent shadow-none'
             : 'w-1/5 min-w-44 max-w-60 bg-[#111113] shadow-xl'"
     >
 
-        <div class="flex justify-end px-3 pt-4 pb-2">
+        <div class="flex justify-end px-3 pt-4 pb-6">
             <BlindBtn :pressing="false" @click="toggle">
                 <component :is="collapsed ? PanelLeftOpen : PanelLeftClose" class="w-[18px] h-[18px] text-tp-text/80" />
             </BlindBtn>
@@ -66,7 +66,7 @@
             />
         </nav>
 
-        <footer v-show="!collapsed" class="p-4 border-t border-tp-border">
+        <footer v-show="!collapsed" class="p-4">
             <UserCard :collapsed="false" />
         </footer>
 
