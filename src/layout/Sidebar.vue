@@ -9,6 +9,7 @@
 
     import NavButton from '@/components/sidebar/NavButton.vue'
     import UserCard from '@/components/sidebar/UserCard.vue'
+    import BlindBtn from '@/components/BlindBtn.vue'
 
     const props = defineProps({ activeSection: { type: String } })
     const emit = defineEmits(['update:activeSection'])
@@ -36,6 +37,12 @@
         :class="collapsed ? 'w-16 min-w-16 max-w-16' : 'w-1/5 min-w-44 max-w-60'"
     >
 
+        <div class="flex justify-center pt-4 pb-2">
+            <BlindBtn :pressing="false" @click="toggle">
+                <component :is="collapsed ? PanelLeftOpen : PanelLeftClose" class="w-[18px] h-[18px] text-tp-text/80" />
+            </BlindBtn>
+        </div>
+
         <nav class="flex-1 p-3 space-y-2">
             <NavButton
                 v-for="item in navSections"
@@ -57,18 +64,8 @@
             />
         </nav>
 
-        <footer class="p-4 border-t border-tp-border space-y-2">
-
-            <NavButton
-                :icon="collapsed ? PanelLeftOpen : PanelLeftClose"
-                label="Colapsar"
-                :collapsed="collapsed"
-                :nav-item="false"
-                @click="toggle"
-            />
-
+        <footer class="p-4 border-t border-tp-border">
             <UserCard :collapsed="collapsed" />
-
         </footer>
 
     </aside>
