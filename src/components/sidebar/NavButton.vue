@@ -19,7 +19,7 @@
 
         let stateClass
         if (props.navItem && props.active) stateClass = 'bg-tp-surface'
-        else if (props.navItem) stateClass = 'bg-transparent hover:bg-white/10'
+        else if (props.navItem) stateClass = 'bg-transparent'
         else stateClass = 'bg-transparent'
 
         return `${base} ${padding} ${stateClass}`
