@@ -33,8 +33,10 @@
 <template>
 
     <aside
-        class="z-20 hidden md:flex md:flex-col shadow-xl bg-[#111113] transition-all duration-300 ease-in-out shrink-0 overflow-hidden"
-        :class="collapsed ? 'w-16 min-w-16 max-w-16' : 'w-1/5 min-w-44 max-w-60'"
+        class="z-20 hidden md:flex md:flex-col transition-all duration-300 ease-in-out shrink-0 overflow-hidden"
+        :class="collapsed
+            ? 'w-16 min-w-16 max-w-16 bg-transparent shadow-none'
+            : 'w-1/5 min-w-44 max-w-60 bg-[#111113] shadow-xl'"
     >
 
         <div class="flex justify-end px-3 pt-4 pb-2">
