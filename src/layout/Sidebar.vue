@@ -7,7 +7,6 @@
 
     import { useSections } from '@/config/sections.js'
 
-    import Header from '@/components/sidebar/Header.vue'
     import NavButton from '@/components/sidebar/NavButton.vue'
     import UserCard from '@/components/sidebar/UserCard.vue'
 
@@ -37,8 +36,6 @@
         class="z-20 hidden md:flex md:flex-col border-r border-tp-border shadow-xl bg-tp-surface transition-all duration-300 ease-in-out shrink-0"
         :class="collapsed ? 'w-16 min-w-16 max-w-16' : 'w-1/5 min-w-44 max-w-60'"
     >
-
-        <Header :collapsed="collapsed" />
 
         <nav class="flex-1 p-3 space-y-2">
             <NavButton
