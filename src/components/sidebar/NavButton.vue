@@ -18,7 +18,7 @@
         const padding = props.collapsed ? (props.navItem ? 'px-[10px]' : 'px-[6px]') : 'px-4'
 
         let stateClass
-        if (props.navItem && props.active) stateClass = 'bg-tp-accent/10 text-tp-accent font-semibold'
+        if (props.navItem && props.active) stateClass = 'bg-tp-surface text-white font-semibold'
         else if (props.navItem) stateClass = 'text-white/60 bg-transparent hover:bg-white/10 hover:text-white'
         else stateClass = 'text-white/60 bg-transparent hover:text-white'
 
