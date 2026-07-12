@@ -59,18 +59,18 @@
                     />
 
                     <div
-                        class="flex items-center justify-between px-2 pt-4 pb-1 cursor-pointer group"
+                        class="flex items-center justify-between px-2 pt-4 pb-1"
                         @mouseenter="separatorHovered = true"
                         @mouseleave="separatorHovered = false"
-                        @click="settingsOpen = !settingsOpen"
                     >
-                        <p class="text-[11px] font-semibold text-tp-muted">Configuración</p>
+                        <p class="text-xs font-semibold text-tp-muted">Configuración</p>
                         <ChevronRight
-                            class="w-3 h-3 text-tp-muted transition-all duration-200"
+                            class="w-3.5 h-3.5 text-tp-muted transition-all duration-200 cursor-pointer"
                             :class="[
                                 separatorHovered ? 'opacity-100' : 'opacity-0',
                                 settingsOpen ? 'rotate-90' : 'rotate-0'
                             ]"
+                            @click="settingsOpen = !settingsOpen"
                         />
                     </div>
 
