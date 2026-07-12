@@ -65,7 +65,7 @@
                     >
                         <p class="text-xs font-semibold text-tp-muted select-none">Configuración</p>
                         <ChevronRight
-                            class="w-4 h-4 text-tp-muted transition-all duration-200 cursor-pointer"
+                            class="w-4 h-4 text-tp-muted transition-all duration-200"
                             :class="[
                                 separatorHovered ? 'opacity-100' : 'opacity-0',
                                 settingsOpen ? 'rotate-90' : 'rotate-0'
