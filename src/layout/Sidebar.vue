@@ -63,7 +63,7 @@
                         @mouseenter="separatorHovered = true"
                         @mouseleave="separatorHovered = false"
                     >
-                        <p class="text-xs font-semibold text-tp-muted">Configuración</p>
+                        <p class="text-xs font-semibold text-tp-muted select-none">Configuración</p>
                         <ChevronRight
                             class="w-4 h-4 text-tp-muted transition-all duration-200 cursor-pointer"
                             :class="[
