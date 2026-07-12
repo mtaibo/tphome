@@ -1,15 +1,9 @@
 <script setup>
 
     import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-    import { useRouter, useRoute } from 'vue-router'
-
-    import { Settings, ArrowLeft } from 'lucide-vue-next'
 
     const props = defineProps({ activeSection: String, sections: Array })
     const emit = defineEmits(['update:activeSection'])
-
-    const router = useRouter()
-    const route = useRoute()
 
     const navRef = ref(null)
     const hoverIndex = ref(-1)
@@ -19,12 +13,7 @@
     const startY = ref(0)
     const directionLock = ref(null)
 
-    const tabs = computed(() => [
-        ...props.sections,
-        route.path === '/'
-            ? { id: 'settings', icon: Settings, action: () => router.push('/settings') }
-            : { id: 'back', icon: ArrowLeft, action: () => router.push('/') }
-    ])
+    const tabs = computed(() => props.sections)
 
     const visualIndex = computed(() =>
         isDragging.value && hoverIndex.value >= 0
@@ -71,8 +60,7 @@
     watch([visualIndex, isDragging], updateBubble, { flush: 'post' })
 
     function activate(item) {
-        if (item.action) item.action()
-        else emit('update:activeSection', item.id)
+        emit('update:activeSection', item.id)
     }
 
     function getButtonIndex(nav, clientX) {
