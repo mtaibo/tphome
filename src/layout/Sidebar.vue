@@ -1,7 +1,7 @@
 <script setup>
 
     import { ref } from 'vue'
-    import { PanelLeftClose, PanelLeftOpen } from 'lucide-vue-next'
+    import { PanelLeftClose, PanelLeftOpen, ChevronRight } from 'lucide-vue-next'
 
     import { dashboardSections, settingsSections } from '@/config/sections.js'
 
@@ -14,6 +14,9 @@
 
     const collapsed = ref(false)
     const toggle = () => { collapsed.value = !collapsed.value }
+
+    const settingsOpen = ref(false)
+    const separatorHovered = ref(false)
 
     function setActive(id) {
         emit('update:activeSection', id)
@@ -55,20 +58,34 @@
                         @click="setActive(item.id)"
                     />
 
-                    <div class="px-2 pt-4 pb-1">
-                        <p class="text-[11px] font-semibold text-tp-muted uppercase tracking-widest">Configuración</p>
+                    <div
+                        class="flex items-center justify-between px-2 pt-4 pb-1 cursor-pointer group"
+                        @mouseenter="separatorHovered = true"
+                        @mouseleave="separatorHovered = false"
+                        @click="settingsOpen = !settingsOpen"
+                    >
+                        <p class="text-[11px] font-semibold text-tp-muted">Configuración</p>
+                        <ChevronRight
+                            class="w-3 h-3 text-tp-muted transition-all duration-200"
+                            :class="[
+                                separatorHovered ? 'opacity-100' : 'opacity-0',
+                                settingsOpen ? 'rotate-90' : 'rotate-0'
+                            ]"
+                        />
                     </div>
 
-                    <NavButton
-                        v-for="item in settingsSections"
-                        :key="item.id"
-                        :icon="item.icon"
-                        :label="item.name"
-                        :active="props.activeSection === item.id"
-                        :collapsed="false"
-                        :nav-item="true"
-                        @click="setActive(item.id)"
-                    />
+                    <template v-if="settingsOpen">
+                        <NavButton
+                            v-for="item in settingsSections"
+                            :key="item.id"
+                            :icon="item.icon"
+                            :label="item.name"
+                            :active="props.activeSection === item.id"
+                            :collapsed="false"
+                            :nav-item="true"
+                            @click="setActive(item.id)"
+                        />
+                    </template>
 
                 </nav>
 
