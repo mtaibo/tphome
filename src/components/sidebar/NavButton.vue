@@ -14,7 +14,7 @@
 
     const buttonClass = computed(() => {
 
-        const base = 'w-full flex items-center py-2.5 rounded-lg transition-[background-color,padding] duration-300 cursor-pointer'
+        const base = 'w-full flex items-center py-2.5 rounded-lg transition-[background-color,padding] duration-300'
         const padding = props.collapsed ? (props.navItem ? 'px-[10px]' : 'px-[6px]') : 'px-4'
 
         let stateClass
