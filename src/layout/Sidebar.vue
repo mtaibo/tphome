@@ -15,7 +15,7 @@
     const collapsed = ref(false)
     const toggle = () => { collapsed.value = !collapsed.value }
 
-    const settingsOpen = ref(false)
+    const settingsOpen = ref(true)
     const separatorHovered = ref(false)
 
     function setActive(id) {
@@ -65,7 +65,7 @@
                     >
                         <p class="text-xs font-semibold text-tp-muted">Configuración</p>
                         <ChevronRight
-                            class="w-3.5 h-3.5 text-tp-muted transition-all duration-200 cursor-pointer"
+                            class="w-4 h-4 text-tp-muted transition-all duration-200 cursor-pointer"
                             :class="[
                                 separatorHovered ? 'opacity-100' : 'opacity-0',
                                 settingsOpen ? 'rotate-90' : 'rotate-0'
