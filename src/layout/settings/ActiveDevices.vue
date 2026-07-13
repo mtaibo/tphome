@@ -134,14 +134,6 @@
         </section>
 
         <section>
-            <div class="flex items-center gap-3 mb-5">
-                <div class="w-2 h-2 rounded-full bg-tp-accent shadow-[0_0_6px_var(--color-tp-accent)]"></div>
-                <h2 class="text-sm font-bold uppercase tracking-widest text-tp-muted">
-                    Dispositivos
-                    <span class="text-tp-accent font-mono ml-1.5">{{ allDevices.length }}</span>
-                </h2>
-            </div>
-
             <div v-if="allDevices.length === 0" class="text-sm text-tp-muted/50 italic px-1">
                 No hay dispositivos configurados en el mapa.
             </div>
