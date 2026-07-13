@@ -6,27 +6,26 @@ defineProps({
 </script>
 
 <template>
-    <button class="blind-btn" :class="{ 'blind-btn-muted': muted, pressing }">
+    <button class="btn" :class="{ 'btn-muted': muted, pressing }">
         <slot />
     </button>
 </template>
 
 <style scoped>
-@keyframes blind-btn-press {
+@keyframes btn-press {
     0%   { transform: scale(1); }
     28%  { transform: scale(0.86); }
     66%  { transform: scale(1.08); }
     100% { transform: scale(1); }
 }
 
-.blind-btn {
+.btn {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
     flex-shrink: 0;
     background: linear-gradient(
         145deg,
@@ -45,7 +44,7 @@ defineProps({
     transition: box-shadow 0.18s ease, background 0.18s ease;
 }
 
-.blind-btn:hover {
+.btn:hover {
     background: linear-gradient(
         145deg,
         rgba(255, 255, 255, 0.20) 0%,
@@ -59,7 +58,7 @@ defineProps({
         0 1px 3px rgba(0, 0, 0, 0.14);
 }
 
-.blind-btn-muted {
+.btn-muted {
     background: linear-gradient(
         145deg,
         rgba(255, 255, 255, 0.07) 0%,
@@ -72,7 +71,7 @@ defineProps({
         0 2px 8px rgba(0, 0, 0, 0.16);
 }
 
-.blind-btn.pressing {
-    animation: blind-btn-press 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+.btn.pressing {
+    animation: btn-press 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 </style>

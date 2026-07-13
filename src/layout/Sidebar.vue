@@ -7,7 +7,7 @@
 
     import NavButton from '@/components/sidebar/NavButton.vue'
     import UserCard  from '@/components/sidebar/UserCard.vue'
-    import BlindBtn  from '@/components/BlindBtn.vue'
+    import Btn from '@/components/Btn.vue'
 
     const props = defineProps({ activeSection: { type: String } })
     const emit = defineEmits(['update:activeSection'])
@@ -32,9 +32,9 @@
     >
 
         <div class="absolute top-4 right-3 z-20">
-            <BlindBtn :pressing="false" @click="toggle">
+            <Btn :pressing="false" @click="toggle">
                 <component :is="collapsed ? PanelLeftOpen : PanelLeftClose" class="w-[18px] h-[18px] text-tp-text/80" />
-            </BlindBtn>
+            </Btn>
         </div>
 
         <div class="absolute inset-0 overflow-hidden z-10">

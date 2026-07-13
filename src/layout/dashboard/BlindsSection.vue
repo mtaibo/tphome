@@ -5,7 +5,7 @@
     import { api } from '@/config/api'
     import { useRouter } from 'vue-router'
     import BlindSlider from '@/components/BlindSlider.vue'
-    import BlindBtn from '@/components/BlindBtn.vue'
+    import Btn from '@/components/Btn.vue'
     import { positions, handlePositions, getAnim, setPending, isPending } from '@/composables/useBlindAnimations'
 
     const store   = useDevices()
@@ -182,18 +182,18 @@
 
                     <!-- Buttons column -->
                     <div class="flex flex-col justify-between items-center h-[180px]">
-                        <BlindBtn :pressing="pressing[`${id}-up`]" @click="handleUp(id)">
+                        <Btn :pressing="pressing[`${id}-up`]" @click="handleUp(id)">
                             <ChevronUp class="w-[18px] h-[18px] text-tp-text/80" />
-                        </BlindBtn>
-                        <BlindBtn :pressing="pressing[`${id}-stop`]" @click="handleStop(id)">
+                        </Btn>
+                        <Btn :pressing="pressing[`${id}-stop`]" @click="handleStop(id)">
                             <Pause class="w-[15px] h-[15px] fill-current text-tp-text/80" />
-                        </BlindBtn>
-                        <BlindBtn :pressing="pressing[`${id}-down`]" @click="handleDown(id)">
+                        </Btn>
+                        <Btn :pressing="pressing[`${id}-down`]" @click="handleDown(id)">
                             <ChevronDown class="w-[18px] h-[18px] text-tp-text/80" />
-                        </BlindBtn>
-                        <BlindBtn muted :pressing="pressing[`${id}-cfg`]" @click="handleSettings(id)">
+                        </Btn>
+                        <Btn muted :pressing="pressing[`${id}-cfg`]" @click="handleSettings(id)">
                             <Settings class="w-[15px] h-[15px] text-tp-text" />
-                        </BlindBtn>
+                        </Btn>
                     </div>
                 </div>
             </div>
