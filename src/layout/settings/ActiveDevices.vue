@@ -13,6 +13,7 @@
     const route = useRoute()
 
     const expandedId = ref(null)
+    const lightsOpen = ref(true)
 
     const pendingDevices = ref([])
     const selectedPending = ref(null)
@@ -48,10 +49,13 @@
         expandedId.value = expandedId.value === id ? null : id
     }
 
+    const lights = computed(() =>
+        Object.entries(store.lights).map(([id, d]) => ({ id, ...d, type: 'Luz', category: 'lights' }))
+    )
+
     const allDevices = computed(() => {
-        const lights = Object.entries(store.lights).map(([id, d]) => ({ id, ...d, type: 'Luz', category: 'lights' }))
         const blinds = Object.entries(store.blinds).map(([id, d]) => ({ id, ...d, type: 'Persiana', category: 'blinds' }))
-        return [...blinds, ...lights]
+        return [...blinds, ...lights.value]
     })
 
     async function pingDevice(id) {
@@ -113,205 +117,149 @@
 
         <div class="flex-1 overflow-y-auto p-8 flex flex-col gap-8">
 
-        <section v-if="pendingDevices.length > 0">
-            <div class="flex items-center gap-3 mb-5">
-                <div class="w-2 h-2 rounded-full bg-tp-off shadow-[0_0_6px_var(--color-tp-off)] animate-pulse"></div>
-                <h2 class="text-sm font-bold uppercase tracking-widest text-tp-muted">
-                    Sin configurar
-                    <span class="text-tp-off font-mono ml-1.5">{{ pendingDevices.length }}</span>
-                </h2>
-            </div>
+            <section v-if="pendingDevices.length > 0">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-2 h-2 rounded-full bg-tp-off shadow-[0_0_6px_var(--color-tp-off)] animate-pulse"></div>
+                    <h2 class="text-sm font-bold uppercase tracking-widest text-tp-muted">
+                        Sin configurar
+                        <span class="text-tp-off font-mono ml-1.5">{{ pendingDevices.length }}</span>
+                    </h2>
+                </div>
 
-            <div class="space-y-2">
-                <div
-                    v-for="device in pendingDevices"
-                    :key="device.mac"
-                    class="flex items-center gap-4 px-4 py-3 rounded-xl bg-tp-surface border border-tp-off/30 hover:border-tp-off/50 transition-colors"
-                >
-                    <div class="w-2 h-2 rounded-full shrink-0 bg-tp-off shadow-[0_0_6px_var(--color-tp-off)] animate-pulse"></div>
-                    <Cpu class="w-4 h-4 shrink-0 text-tp-muted" />
-                    <span class="font-mono text-xs text-tp-muted flex-1">{{ device.mac }}</span>
-                    <button
-                        @click="startConfig(device)"
-                        class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-tp-accent/10 border border-tp-accent/20 text-tp-accent hover:bg-tp-accent/20 transition-all text-xs font-bold uppercase tracking-wider cursor-pointer"
+                <div class="space-y-2">
+                    <div
+                        v-for="device in pendingDevices"
+                        :key="device.mac"
+                        class="flex items-center gap-4 px-4 py-3 rounded-xl bg-tp-surface border border-tp-off/30 hover:border-tp-off/50 transition-colors"
                     >
-                        <Settings class="w-3.5 h-3.5" />
-                        Configurar
-                    </button>
+                        <div class="w-2 h-2 rounded-full shrink-0 bg-tp-off shadow-[0_0_6px_var(--color-tp-off)] animate-pulse"></div>
+                        <Cpu class="w-4 h-4 shrink-0 text-tp-muted" />
+                        <span class="font-mono text-xs text-tp-muted flex-1">{{ device.mac }}</span>
+                        <button
+                            @click="startConfig(device)"
+                            class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-tp-accent/10 border border-tp-accent/20 text-tp-accent hover:bg-tp-accent/20 transition-all text-xs font-bold uppercase tracking-wider cursor-pointer"
+                        >
+                            <Settings class="w-3.5 h-3.5" />
+                            Configurar
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section>
-            <div v-if="allDevices.length === 0" class="text-sm text-tp-muted/50 italic px-1">
-                No hay dispositivos configurados en el mapa.
-            </div>
+            <section v-if="allDevices.length === 0">
+                <div class="text-sm text-tp-muted/50 italic px-1">
+                    No hay dispositivos configurados en el mapa.
+                </div>
+            </section>
 
-            <div v-else class="space-y-2">
-                <div
-                    v-for="device in allDevices"
-                    :key="device.id"
-                    class="rounded-xl bg-tp-surface border border-tp-border hover:border-tp-border/60 transition-colors overflow-hidden"
-                >
-                    <!-- Desktop layout -->
-                    <div class="hidden md:block">
-                        <div
-                            class="flex items-center gap-4 px-4 py-3 cursor-pointer select-none"
-                            @click="toggleExpanded(device.id)"
-                        >
-                            <component
-                                :is="device.type === 'Luz' ? Lightbulb : Blinds"
-                                class="w-4 h-4 shrink-0"
-                                :class="device.type === 'Luz' ? 'text-tp-light-on/70' : 'text-tp-accent/70'"
-                            />
-                            <span class="font-mono text-xs text-tp-muted w-16 shrink-0">{{ device.id }}</span>
-                            <span class="text-sm text-tp-text flex-1 truncate">{{ device.name }}</span>
-                            <div
-                                class="w-2 h-2 rounded-full shrink-0"
-                                :class="device.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"
-                            ></div>
-                            <ChevronDown
-                                class="w-4 h-4 shrink-0 text-tp-muted transition-transform duration-200"
-                                :class="{ 'rotate-180': expandedId === device.id }"
-                            />
-                        </div>
+            <section v-else>
 
-                        <div
-                            class="expand-content"
-                            :class="{ 'expand-open': expandedId === device.id }"
-                        >
-                            <div class="border-t border-tp-border/50 px-4 py-2 bg-black/10">
-                                <button
-                                    @click.stop="pingDevice(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
-                                >
-                                    <Radio class="w-4 h-4 shrink-0" />
-                                    <span>Ping</span>
-                                </button>
-                                <button
-                                    @click.stop="sendPrefsDevice(device.id, device.prefs)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
-                                >
-                                    <Braces class="w-4 h-4 shrink-0" />
-                                    <span>Mandar preferencias</span>
-                                </button>
-                                <button
-                                    @click.stop="updateFirmware(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
-                                >
-                                    <Download class="w-4 h-4 shrink-0" />
-                                    <span>Cambiar firmware</span>
-                                </button>
-                                <button
-                                    @click.stop="getDeviceInfo(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
-                                >
-                                    <Info class="w-4 h-4 shrink-0" />
-                                    <span>Actualizar información</span>
-                                </button>
-                                <button
-                                    v-if="device.type === 'Persiana'"
-                                    @click.stop="resetPosition(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
-                                >
-                                    <Crosshair class="w-4 h-4 shrink-0" />
-                                    <span>Reiniciar posición</span>
-                                </button>
-                                <button
-                                    @click.stop="deleteDevice(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-off hover:bg-tp-off/10 transition-all cursor-pointer"
-                                >
-                                    <Trash2 class="w-4 h-4 shrink-0" />
-                                    <span>Eliminar dispositivo</span>
-                                </button>
-                            </div>
-                        </div>
+                <!-- Lights group -->
+                <div v-if="lights.length > 0" class="mb-6">
+                    <div
+                        class="px-1 pb-3 pt-1 select-none"
+                        @click="lightsOpen = !lightsOpen"
+                    >
+                        <p class="text-xs font-semibold text-white">Lights</p>
                     </div>
 
-                    <!-- Mobile layout -->
-                    <div class="md:hidden">
+                    <div v-if="lightsOpen" class="space-y-2">
                         <div
-                            class="flex items-center gap-3 px-4 py-3 cursor-pointer select-none"
-                            @click="toggleExpanded(device.id)"
+                            v-for="device in lights"
+                            :key="device.id"
+                            class="device-card"
                         >
-                            <component
-                                :is="device.type === 'Luz' ? Lightbulb : Blinds"
-                                class="w-4 h-4 shrink-0"
-                                :class="device.type === 'Luz' ? 'text-tp-light-on/70' : 'text-tp-accent/70'"
-                            />
-                            <span class="text-sm text-tp-text flex-1 truncate min-w-0">{{ device.name }}</span>
-                            <span class="text-xs font-mono text-tp-muted shrink-0 whitespace-nowrap">{{ device.id }}</span>
-                            <div
-                                class="w-2 h-2 rounded-full shrink-0"
-                                :class="device.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"
-                            ></div>
-                            <ChevronDown
-                                class="w-4 h-4 shrink-0 text-tp-muted transition-transform duration-200"
-                                :class="{ 'rotate-180': expandedId === device.id }"
-                            />
-                        </div>
+                            <!-- Desktop layout -->
+                            <div class="hidden md:block">
+                                <div
+                                    class="flex items-center gap-4 px-4 py-3 cursor-pointer select-none"
+                                    @click="toggleExpanded(device.id)"
+                                >
+                                    <Lightbulb class="w-4 h-4 shrink-0 text-tp-light-on/70" />
+                                    <span class="font-mono text-xs text-tp-muted w-16 shrink-0">{{ device.id }}</span>
+                                    <span class="text-sm text-tp-text flex-1 truncate">{{ device.name }}</span>
+                                    <div
+                                        class="w-2 h-2 rounded-full shrink-0"
+                                        :class="device.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"
+                                    ></div>
+                                    <ChevronDown
+                                        class="w-4 h-4 shrink-0 text-tp-muted transition-transform duration-200"
+                                        :class="{ 'rotate-180': expandedId === device.id }"
+                                    />
+                                </div>
 
-                        <div
-                            class="expand-content"
-                            :class="{ 'expand-open': expandedId === device.id }"
-                        >
-                            <div class="border-t border-tp-border/50 px-4 py-2 bg-black/10">
-                                <button
-                                    @click.stop="pingDevice(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
+                                <div class="expand-content" :class="{ 'expand-open': expandedId === device.id }">
+                                    <div class="expand-panel px-4 py-2">
+                                        <button @click.stop="pingDevice(device.id)" class="action-btn">
+                                            <Radio class="w-4 h-4 shrink-0" /><span>Ping</span>
+                                        </button>
+                                        <button @click.stop="sendPrefsDevice(device.id, device.prefs)" class="action-btn">
+                                            <Braces class="w-4 h-4 shrink-0" /><span>Mandar preferencias</span>
+                                        </button>
+                                        <button @click.stop="updateFirmware(device.id)" class="action-btn">
+                                            <Download class="w-4 h-4 shrink-0" /><span>Cambiar firmware</span>
+                                        </button>
+                                        <button @click.stop="getDeviceInfo(device.id)" class="action-btn">
+                                            <Info class="w-4 h-4 shrink-0" /><span>Actualizar información</span>
+                                        </button>
+                                        <button @click.stop="deleteDevice(device.id)" class="action-btn action-btn-danger">
+                                            <Trash2 class="w-4 h-4 shrink-0" /><span>Eliminar dispositivo</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mobile layout -->
+                            <div class="md:hidden">
+                                <div
+                                    class="flex items-center gap-3 px-4 py-3 cursor-pointer select-none"
+                                    @click="toggleExpanded(device.id)"
                                 >
-                                    <Radio class="w-4 h-4 shrink-0" />
-                                    <span>Ping</span>
-                                </button>
-                                <button
-                                    @click.stop="sendPrefsDevice(device.id, device.prefs)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
-                                >
-                                    <Braces class="w-4 h-4 shrink-0" />
-                                    <span>Mandar preferencias</span>
-                                </button>
-                                <button
-                                    @click.stop="updateFirmware(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
-                                >
-                                    <Download class="w-4 h-4 shrink-0" />
-                                    <span>Cambiar firmware</span>
-                                </button>
-                                <button
-                                    @click.stop="getDeviceInfo(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
-                                >
-                                    <Info class="w-4 h-4 shrink-0" />
-                                    <span>Actualizar información</span>
-                                </button>
-                                <button
-                                    v-if="device.type === 'Persiana'"
-                                    @click.stop="resetPosition(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-accent hover:bg-tp-accent/10 transition-all cursor-pointer"
-                                >
-                                    <Crosshair class="w-4 h-4 shrink-0" />
-                                    <span>Reiniciar posición</span>
-                                </button>
-                                <button
-                                    @click.stop="deleteDevice(device.id)"
-                                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-tp-muted hover:text-tp-off hover:bg-tp-off/10 transition-all cursor-pointer"
-                                >
-                                    <Trash2 class="w-4 h-4 shrink-0" />
-                                    <span>Eliminar dispositivo</span>
-                                </button>
+                                    <Lightbulb class="w-4 h-4 shrink-0 text-tp-light-on/70" />
+                                    <span class="text-sm text-tp-text flex-1 truncate min-w-0">{{ device.name }}</span>
+                                    <span class="text-xs font-mono text-tp-muted shrink-0 whitespace-nowrap">{{ device.id }}</span>
+                                    <div
+                                        class="w-2 h-2 rounded-full shrink-0"
+                                        :class="device.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"
+                                    ></div>
+                                    <ChevronDown
+                                        class="w-4 h-4 shrink-0 text-tp-muted transition-transform duration-200"
+                                        :class="{ 'rotate-180': expandedId === device.id }"
+                                    />
+                                </div>
+
+                                <div class="expand-content" :class="{ 'expand-open': expandedId === device.id }">
+                                    <div class="expand-panel px-4 py-2">
+                                        <button @click.stop="pingDevice(device.id)" class="action-btn">
+                                            <Radio class="w-4 h-4 shrink-0" /><span>Ping</span>
+                                        </button>
+                                        <button @click.stop="sendPrefsDevice(device.id, device.prefs)" class="action-btn">
+                                            <Braces class="w-4 h-4 shrink-0" /><span>Mandar preferencias</span>
+                                        </button>
+                                        <button @click.stop="updateFirmware(device.id)" class="action-btn">
+                                            <Download class="w-4 h-4 shrink-0" /><span>Cambiar firmware</span>
+                                        </button>
+                                        <button @click.stop="getDeviceInfo(device.id)" class="action-btn">
+                                            <Info class="w-4 h-4 shrink-0" /><span>Actualizar información</span>
+                                        </button>
+                                        <button @click.stop="deleteDevice(device.id)" class="action-btn action-btn-danger">
+                                            <Trash2 class="w-4 h-4 shrink-0" /><span>Eliminar dispositivo</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <ConfigWizard
-            v-if="selectedPending"
-            :device="selectedPending"
-            @done="onConfigDone"
-            @cancel="onConfigCancel"
-        />
+            </section>
+
+            <ConfigWizard
+                v-if="selectedPending"
+                :device="selectedPending"
+                @done="onConfigDone"
+                @cancel="onConfigCancel"
+            />
 
         </div>
 
@@ -320,6 +268,36 @@
 </template>
 
 <style scoped>
+    .device-card {
+        border-radius: 14px;
+        background: linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.09) 0%,
+            rgba(255, 255, 255, 0.04) 100%
+        );
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 0.5px solid rgba(255, 255, 255, 0.14);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.20),
+            inset 0 -0.5px 0 rgba(0, 0, 0, 0.12),
+            0 4px 16px rgba(0, 0, 0, 0.18);
+        overflow: hidden;
+        transition: background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .device-card:hover {
+        background: linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.13) 0%,
+            rgba(255, 255, 255, 0.07) 100%
+        );
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.26),
+            inset 0 -0.5px 0 rgba(0, 0, 0, 0.12),
+            0 6px 20px rgba(0, 0, 0, 0.24);
+    }
+
     .expand-content {
         max-height: 0;
         overflow: hidden;
@@ -328,5 +306,33 @@
 
     .expand-open {
         max-height: 300px;
+    }
+
+    .expand-panel {
+        border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+        background: rgba(0, 0, 0, 0.12);
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        color: var(--color-tp-muted);
+        transition: color 0.15s ease, background 0.15s ease;
+        cursor: pointer;
+    }
+
+    .action-btn:hover {
+        color: var(--color-tp-accent);
+        background: color-mix(in srgb, var(--color-tp-accent) 10%, transparent);
+    }
+
+    .action-btn-danger:hover {
+        color: var(--color-tp-off);
+        background: color-mix(in srgb, var(--color-tp-off) 10%, transparent);
     }
 </style>
