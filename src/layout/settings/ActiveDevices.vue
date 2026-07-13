@@ -1,12 +1,13 @@
 <script setup>
 
     import { ref, computed, onMounted } from 'vue'
-    import { Lightbulb, Blinds, Trash2, Radio, Info, Braces, ChevronDown, Download, Crosshair, Cpu, Settings } from 'lucide-vue-next'
+    import { Lightbulb, Blinds, Trash2, Radio, Info, Braces, ChevronDown, Download, Crosshair, Cpu, Settings, ChevronLeft } from 'lucide-vue-next'
     import { useRoute } from 'vue-router'
 
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
     import ConfigWizard from './ConfigWizard.vue'
+    import BlindBtn from '@/components/BlindBtn.vue'
 
     const store = useDevices()
     const route = useRoute()
@@ -102,7 +103,15 @@
 
 <template>
 
-    <div class="h-full flex flex-col p-8 gap-8 overflow-y-auto">
+    <div class="h-full flex flex-col relative">
+
+        <div class="absolute top-4 left-8 z-10 hidden md:block">
+            <BlindBtn :pressing="false">
+                <ChevronLeft class="w-[18px] h-[18px] text-tp-text/80" />
+            </BlindBtn>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-8 flex flex-col gap-8">
 
         <section v-if="pendingDevices.length > 0">
             <div class="flex items-center gap-3 mb-5">
@@ -303,6 +312,8 @@
             @done="onConfigDone"
             @cancel="onConfigCancel"
         />
+
+        </div>
 
     </div>
 
