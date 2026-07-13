@@ -7,7 +7,7 @@
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
     import ConfigWizard from './ConfigWizard.vue'
-    import BlindBtn from '@/components/BlindBtn.vue'
+    import Btn from '@/components/Btn.vue'
 
     const store = useDevices()
     const route = useRoute()
@@ -106,9 +106,9 @@
     <div class="h-full flex flex-col relative">
 
         <div class="absolute top-4 left-8 z-10 hidden md:block">
-            <BlindBtn :pressing="false">
+            <Btn :pressing="false">
                 <ChevronLeft class="w-[18px] h-[18px] text-tp-text/80" />
-            </BlindBtn>
+            </Btn>
         </div>
 
         <div class="flex-1 overflow-y-auto p-8 flex flex-col gap-8">
