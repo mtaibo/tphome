@@ -1,19 +1,46 @@
 <script setup>
 
     import { ref, computed, onMounted } from 'vue'
-    import { Lightbulb, Blinds, Trash2, Radio, Info, Braces, ChevronDown, Download, Crosshair } from 'lucide-vue-next'
+    import { Lightbulb, Blinds, Trash2, Radio, Info, Braces, ChevronDown, Download, Crosshair, Cpu, Settings } from 'lucide-vue-next'
     import { useRoute } from 'vue-router'
 
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
+    import ConfigWizard from './ConfigWizard.vue'
 
     const store = useDevices()
     const route = useRoute()
 
     const expandedId = ref(null)
 
+    const pendingDevices = ref([])
+    const selectedPending = ref(null)
+
+    async function fetchPending() {
+        try {
+            pendingDevices.value = (await api.getPending()).map(m => ({ mac: m }))
+        } catch (error) {
+            console.error('TPHome - Error fetching pending devices:', error)
+        }
+    }
+
+    function startConfig(device) {
+        selectedPending.value = device
+    }
+
+    function onConfigDone() {
+        selectedPending.value = null
+        fetchPending()
+        store.setup()
+    }
+
+    function onConfigCancel() {
+        selectedPending.value = null
+    }
+
     onMounted(() => {
         if (route.query.device) expandedId.value = route.query.device
+        fetchPending()
     })
 
     function toggleExpanded(id) {
@@ -76,6 +103,35 @@
 <template>
 
     <div class="h-full flex flex-col p-8 gap-8 overflow-y-auto">
+
+        <section v-if="pendingDevices.length > 0">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-2 h-2 rounded-full bg-tp-off shadow-[0_0_6px_var(--color-tp-off)] animate-pulse"></div>
+                <h2 class="text-sm font-bold uppercase tracking-widest text-tp-muted">
+                    Sin configurar
+                    <span class="text-tp-off font-mono ml-1.5">{{ pendingDevices.length }}</span>
+                </h2>
+            </div>
+
+            <div class="space-y-2">
+                <div
+                    v-for="device in pendingDevices"
+                    :key="device.mac"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl bg-tp-surface border border-tp-off/30 hover:border-tp-off/50 transition-colors"
+                >
+                    <div class="w-2 h-2 rounded-full shrink-0 bg-tp-off shadow-[0_0_6px_var(--color-tp-off)] animate-pulse"></div>
+                    <Cpu class="w-4 h-4 shrink-0 text-tp-muted" />
+                    <span class="font-mono text-xs text-tp-muted flex-1">{{ device.mac }}</span>
+                    <button
+                        @click="startConfig(device)"
+                        class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-tp-accent/10 border border-tp-accent/20 text-tp-accent hover:bg-tp-accent/20 transition-all text-xs font-bold uppercase tracking-wider cursor-pointer"
+                    >
+                        <Settings class="w-3.5 h-3.5" />
+                        Configurar
+                    </button>
+                </div>
+            </div>
+        </section>
 
         <section>
             <div class="flex items-center gap-3 mb-5">
@@ -248,6 +304,13 @@
                 </div>
             </div>
         </section>
+
+        <ConfigWizard
+            v-if="selectedPending"
+            :device="selectedPending"
+            @done="onConfigDone"
+            @cancel="onConfigCancel"
+        />
 
     </div>
 
