@@ -49,13 +49,13 @@
         expandedId.value = expandedId.value === id ? null : id
     }
 
-    const lights = computed(() =>
+    const lightDevices = computed(() =>
         Object.entries(store.lights).map(([id, d]) => ({ id, ...d, type: 'Luz', category: 'lights' }))
     )
 
     const allDevices = computed(() => {
         const blinds = Object.entries(store.blinds).map(([id, d]) => ({ id, ...d, type: 'Persiana', category: 'blinds' }))
-        return [...blinds, ...lights.value]
+        return [...blinds, ...lightDevices.value]
     })
 
     async function pingDevice(id) {
@@ -146,16 +146,13 @@
                 </div>
             </section>
 
-            <section v-if="allDevices.length === 0">
-                <div class="text-sm text-tp-muted/50 italic px-1">
+            <section>
+                <div v-if="allDevices.length === 0" class="text-sm text-tp-muted/50 italic px-1">
                     No hay dispositivos configurados en el mapa.
                 </div>
-            </section>
-
-            <section v-else>
 
                 <!-- Lights group -->
-                <div v-if="lights.length > 0" class="mb-6">
+                <div v-if="lightDevices.length > 0" class="mb-6">
                     <div
                         class="px-1 pb-3 pt-1 select-none"
                         @click="lightsOpen = !lightsOpen"
@@ -165,7 +162,7 @@
 
                     <div v-if="lightsOpen" class="space-y-2">
                         <div
-                            v-for="device in lights"
+                            v-for="device in lightDevices"
                             :key="device.id"
                             class="device-card"
                         >
