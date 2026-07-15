@@ -109,15 +109,15 @@
 
 <template>
 
-    <div class="h-full flex flex-col relative">
+    <div class="h-full flex flex-col">
 
-        <div class="absolute top-4 left-8 z-10 hidden md:block">
+        <div class="hidden md:flex items-center px-8 h-[72px] shrink-0">
             <Btn :pressing="false">
                 <ChevronLeft class="w-[18px] h-[18px] text-tp-text/80" />
             </Btn>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-8 flex flex-col gap-8">
+        <div class="flex-1 overflow-y-auto px-8 pb-8 flex flex-col gap-8">
 
             <section v-if="pendingDevices.length > 0">
                 <div class="flex items-center gap-3 mb-5">
