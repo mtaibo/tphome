@@ -154,10 +154,10 @@
                 <!-- Blinds group -->
                 <div v-if="blindDevices.length > 0" class="mb-6">
                     <div class="px-1 pb-3 pt-1 select-none cursor-default">
-                        <p class="text-xs font-semibold text-white">Persianas</p>
+                        <p class="text-base font-semibold text-white">Persianas</p>
                     </div>
 
-                    <div class="rounded-xl overflow-hidden bg-[#111113] divide-y divide-white/[0.06]">
+                    <div class="rounded-2xl overflow-hidden bg-[#111113] divide-y divide-white/[0.06]">
                         <div
                             v-for="device in blindDevices"
                             :key="device.id"
@@ -165,7 +165,7 @@
                             <!-- Desktop layout -->
                             <div class="hidden md:block">
                                 <div
-                                    class="flex items-center gap-4 px-4 py-3 cursor-pointer select-none"
+                                    class="flex items-center gap-4 px-4 py-3 select-none"
                                     @click="toggleExpanded(device.id)"
                                 >
                                     <Blinds class="w-4 h-4 shrink-0 text-white" />
@@ -208,7 +208,7 @@
                             <!-- Mobile layout -->
                             <div class="md:hidden">
                                 <div
-                                    class="flex items-center gap-3 px-4 py-3 cursor-pointer select-none"
+                                    class="flex items-center gap-3 px-4 py-3 select-none"
                                     @click="toggleExpanded(device.id)"
                                 >
                                     <Blinds class="w-4 h-4 shrink-0 text-white" />
@@ -254,10 +254,10 @@
                 <!-- Lights group -->
                 <div v-if="lightDevices.length > 0" class="mb-6">
                     <div class="px-1 pb-3 pt-1 select-none cursor-default">
-                        <p class="text-xs font-semibold text-white">Luces</p>
+                        <p class="text-base font-semibold text-white">Luces</p>
                     </div>
 
-                    <div class="rounded-xl overflow-hidden bg-[#111113] divide-y divide-white/[0.06]">
+                    <div class="rounded-2xl overflow-hidden bg-[#111113] divide-y divide-white/[0.06]">
                         <div
                             v-for="device in lightDevices"
                             :key="device.id"
@@ -265,7 +265,7 @@
                             <!-- Desktop layout -->
                             <div class="hidden md:block">
                                 <div
-                                    class="flex items-center gap-4 px-4 py-3 cursor-pointer select-none"
+                                    class="flex items-center gap-4 px-4 py-3 select-none"
                                     @click="toggleExpanded(device.id)"
                                 >
                                     <Lightbulb class="w-4 h-4 shrink-0 text-white" />
@@ -305,7 +305,7 @@
                             <!-- Mobile layout -->
                             <div class="md:hidden">
                                 <div
-                                    class="flex items-center gap-3 px-4 py-3 cursor-pointer select-none"
+                                    class="flex items-center gap-3 px-4 py-3 select-none"
                                     @click="toggleExpanded(device.id)"
                                 >
                                     <Lightbulb class="w-4 h-4 shrink-0 text-white" />
