@@ -13,8 +13,6 @@
     const route = useRoute()
 
     const expandedId = ref(null)
-    const lightsOpen = ref(true)
-    const blindsOpen = ref(true)
 
     const pendingDevices = ref([])
     const selectedPending = ref(null)
@@ -111,7 +109,7 @@
 
     <div class="h-full flex flex-col">
 
-        <div class="hidden md:flex items-center px-8 h-[72px] shrink-0">
+        <div class="hidden md:flex items-center px-8 h-[96px] shrink-0">
             <Btn :pressing="false">
                 <ChevronLeft class="w-[18px] h-[18px] text-tp-text/80" />
             </Btn>
@@ -155,14 +153,11 @@
 
                 <!-- Blinds group -->
                 <div v-if="blindDevices.length > 0" class="mb-6">
-                    <div
-                        class="px-1 pb-3 pt-1 select-none cursor-pointer"
-                        @click="blindsOpen = !blindsOpen"
-                    >
+                    <div class="px-1 pb-3 pt-1">
                         <p class="text-xs font-semibold text-white">Persianas</p>
                     </div>
 
-                    <div v-if="blindsOpen" class="space-y-2">
+                    <div class="space-y-2">
                         <div
                             v-for="device in blindDevices"
                             :key="device.id"
@@ -259,14 +254,11 @@
 
                 <!-- Lights group -->
                 <div v-if="lightDevices.length > 0" class="mb-6">
-                    <div
-                        class="px-1 pb-3 pt-1 select-none cursor-pointer"
-                        @click="lightsOpen = !lightsOpen"
-                    >
+                    <div class="px-1 pb-3 pt-1">
                         <p class="text-xs font-semibold text-white">Luces</p>
                     </div>
 
-                    <div v-if="lightsOpen" class="space-y-2">
+                    <div class="space-y-2">
                         <div
                             v-for="device in lightDevices"
                             :key="device.id"
