@@ -1,7 +1,7 @@
 <script setup>
 
-    import { ref, computed, onMounted } from 'vue'
-    import { Lightbulb, Blinds, Trash2, Radio, Info, Braces, ChevronDown, Download, Crosshair, Cpu, Settings, ChevronLeft } from 'lucide-vue-next'
+    import { ref, computed, reactive, onMounted } from 'vue'
+    import { Lightbulb, Blinds, Trash2, Radio, Info, ChevronRight, Crosshair, Cpu, Settings, ChevronLeft, Save, Zap } from 'lucide-vue-next'
     import { useRoute } from 'vue-router'
 
     import { useDevices } from '@/config/devices'
@@ -12,7 +12,7 @@
     const store = useDevices()
     const route = useRoute()
 
-    const expandedId = ref(null)
+    // --- List view ---
 
     const pendingDevices = ref([])
     const selectedPending = ref(null)
@@ -25,82 +25,92 @@
         }
     }
 
-    function startConfig(device) {
-        selectedPending.value = device
-    }
+    function startConfig(device) { selectedPending.value = device }
+    function onConfigDone() { selectedPending.value = null; fetchPending(); store.setup() }
+    function onConfigCancel() { selectedPending.value = null }
 
-    function onConfigDone() {
-        selectedPending.value = null
-        fetchPending()
-        store.setup()
-    }
-
-    function onConfigCancel() {
-        selectedPending.value = null
-    }
-
-    onMounted(() => {
-        if (route.query.device) expandedId.value = route.query.device
-        fetchPending()
-    })
-
-    function toggleExpanded(id) {
-        expandedId.value = expandedId.value === id ? null : id
-    }
+    onMounted(fetchPending)
 
     const lightDevices = computed(() =>
         Object.entries(store.storage.lights ?? {}).map(([id, d]) => ({ id, ...d, type: 'Luz', category: 'lights' }))
     )
-
     const blindDevices = computed(() =>
         Object.entries(store.storage.blinds ?? {}).map(([id, d]) => ({ id, ...d, type: 'Persiana', category: 'blinds' }))
     )
-
     const allDevices = computed(() => [...blindDevices.value, ...lightDevices.value])
 
-    async function pingDevice(id) {
-        try { await api.sendCommand(id, 'ping') }
-        catch (error) { console.error('TPHome - Ping error:', error) }
+    // --- Detail view ---
+
+    const selectedDevice = ref(null)
+    const devicePrefs = reactive({})
+    const firmwareList = ref([])
+    const selectedFirmware = ref(null)
+    const savingPrefs = ref(false)
+    const flashingFirmware = ref(false)
+
+    async function openDevice(device) {
+        selectedDevice.value = device
+        Object.keys(devicePrefs).forEach(k => delete devicePrefs[k])
+        Object.assign(devicePrefs, device.prefs ?? {})
+        selectedFirmware.value = null
+        firmwareList.value = []
+        try { firmwareList.value = await api.getFirmwares() } catch {}
     }
 
-    async function getDeviceInfo(id) {
-        try { await api.getDeviceInfo(id) }
-        catch (error) { console.error('TPHome - Info error:', error) }
+    function closeDevice() { selectedDevice.value = null }
+
+    async function pingDevice() {
+        try { await api.sendCommand(selectedDevice.value.id, 'ping') }
+        catch (e) { console.error('TPHome - Ping error:', e) }
     }
 
-    async function sendPrefsDevice(id, prefs) {
-        try { await api.sendPrefs(id, prefs) }
-        catch (error) { console.error('TPHome - Prefs error:', error) }
+    async function getDeviceInfo() {
+        try { await api.getDeviceInfo(selectedDevice.value.id) }
+        catch (e) { console.error('TPHome - Info error:', e) }
     }
 
-    async function resetPosition(id) {
-        if (!confirm(`¿Reiniciar posición de ${id} al 50%?`)) return
-        try { await api.resetPosition(id) }
-        catch (error) { console.error('TPHome - Reset position error:', error) }
+    async function resetPosition() {
+        if (!confirm(`¿Reiniciar posición de ${selectedDevice.value.id} al 50%?`)) return
+        try { await api.resetPosition(selectedDevice.value.id) }
+        catch (e) { console.error('TPHome - Reset position error:', e) }
     }
 
-    async function deleteDevice(id) {
-        if (!confirm(`¿Borrar ${id}?`)) return
+    async function deleteDevice() {
+        if (!confirm(`¿Borrar ${selectedDevice.value.name}?`)) return
         try {
-            await api.deleteDevice(id)
+            await api.deleteDevice(selectedDevice.value.id)
+            closeDevice()
             await store.setup()
-        } catch (error) {
-            console.error('TPHome - Error deleting device:', error)
-        }
+        } catch (e) { console.error('TPHome - Delete error:', e) }
     }
 
-    async function updateFirmware(id) {
-        if (!confirm(`¿Actualizar firmware de ${id}? El dispositivo descargará el firmware activo.`)) return
+    async function savePrefs() {
+        savingPrefs.value = true
         try {
-            const firmwares = await api.getFirmwares()
-            const activeFw = firmwares.find(fw => fw.active)
-            if (!activeFw) {
-                alert('No hay firmware activo. Activa uno primero.')
-                return
+            const { id, category } = selectedDevice.value
+            const original = selectedDevice.value.prefs ?? {}
+            const parsed = {}
+            for (const [k, v] of Object.entries(devicePrefs)) {
+                const orig = original[k]
+                if (typeof orig === 'number') parsed[k] = Number(v)
+                else if (typeof orig === 'boolean') parsed[k] = (v === 'true' || v === true)
+                else parsed[k] = v
             }
-            await api.sendOTA(id, activeFw.version)
-        }
-        catch (error) { console.error('TPHome - OTA error:', error) }
+            const config = await api.getConfig('devices')
+            config[category][id].prefs = parsed
+            await api.postConfig('devices', config)
+            store.storage[category][id].prefs = parsed
+            await api.sendPrefs(id, parsed)
+        } catch (e) { console.error('TPHome - Save prefs error:', e) }
+        finally { savingPrefs.value = false }
+    }
+
+    async function flashFirmware() {
+        if (!selectedFirmware.value) return
+        flashingFirmware.value = true
+        try { await api.sendOTA(selectedDevice.value.id, selectedFirmware.value) }
+        catch (e) { console.error('TPHome - OTA error:', e) }
+        finally { flashingFirmware.value = false }
     }
 
 </script>
@@ -109,13 +119,16 @@
 
     <div class="h-full flex flex-col">
 
-        <div class="hidden md:flex items-center px-8 h-[96px] shrink-0">
-            <Btn :pressing="false">
+        <!-- Desktop header -->
+        <div class="hidden md:flex items-center gap-4 px-8 h-[96px] shrink-0">
+            <Btn :pressing="false" @click="closeDevice">
                 <ChevronLeft class="w-[18px] h-[18px] text-tp-text/80" />
             </Btn>
+            <span v-if="selectedDevice" class="text-lg font-semibold text-tp-text">{{ selectedDevice.name }}</span>
         </div>
 
-        <div class="flex-1 overflow-y-auto px-8 pb-8 flex flex-col gap-8">
+        <!-- LIST VIEW -->
+        <div v-if="!selectedDevice" class="flex-1 overflow-y-auto px-8 pb-8 flex flex-col gap-8">
 
             <section v-if="pendingDevices.length > 0">
                 <div class="flex items-center gap-3 mb-5">
@@ -125,7 +138,6 @@
                         <span class="text-tp-off font-mono ml-1.5">{{ pendingDevices.length }}</span>
                     </h2>
                 </div>
-
                 <div class="space-y-2">
                     <div
                         v-for="device in pendingDevices"
@@ -148,7 +160,7 @@
 
             <section>
                 <div v-if="allDevices.length === 0" class="text-sm text-tp-muted/50 italic px-1">
-                    No hay dispositivos configurados en el mapa.
+                    No hay dispositivos configurados.
                 </div>
 
                 <!-- Blinds group -->
@@ -156,97 +168,18 @@
                     <div class="px-1 pb-3 pt-1 select-none cursor-default">
                         <p class="text-base font-semibold text-white">Persianas</p>
                     </div>
-
-                    <div class="rounded-2xl overflow-hidden bg-[#111113] divide-y divide-white/[0.06]">
+                    <div class="rounded-2xl overflow-hidden bg-[#111113] device-list">
                         <div
                             v-for="device in blindDevices"
                             :key="device.id"
+                            class="flex items-center gap-4 px-4 py-3 cursor-pointer select-none"
+                            @click="openDevice(device)"
                         >
-                            <!-- Desktop layout -->
-                            <div class="hidden md:block">
-                                <div
-                                    class="flex items-center gap-4 px-4 py-3 select-none"
-                                    @click="toggleExpanded(device.id)"
-                                >
-                                    <Blinds class="w-4 h-4 shrink-0 text-white" />
-                                    <span class="font-mono text-xs text-tp-muted w-16 shrink-0">{{ device.id }}</span>
-                                    <span class="text-sm text-tp-text flex-1 truncate">{{ device.name }}</span>
-                                    <div
-                                        class="w-2 h-2 rounded-full shrink-0"
-                                        :class="device.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"
-                                    ></div>
-                                    <ChevronDown
-                                        class="w-4 h-4 shrink-0 text-tp-muted transition-transform duration-200"
-                                        :class="{ 'rotate-180': expandedId === device.id }"
-                                    />
-                                </div>
-
-                                <div class="expand-content" :class="{ 'expand-open': expandedId === device.id }">
-                                    <div class="expand-panel px-4 py-2">
-                                        <button @click.stop="pingDevice(device.id)" class="action-btn">
-                                            <Radio class="w-4 h-4 shrink-0" /><span>Ping</span>
-                                        </button>
-                                        <button @click.stop="sendPrefsDevice(device.id, device.prefs)" class="action-btn">
-                                            <Braces class="w-4 h-4 shrink-0" /><span>Mandar preferencias</span>
-                                        </button>
-                                        <button @click.stop="resetPosition(device.id)" class="action-btn">
-                                            <Crosshair class="w-4 h-4 shrink-0" /><span>Reiniciar posición</span>
-                                        </button>
-                                        <button @click.stop="updateFirmware(device.id)" class="action-btn">
-                                            <Download class="w-4 h-4 shrink-0" /><span>Cambiar firmware</span>
-                                        </button>
-                                        <button @click.stop="getDeviceInfo(device.id)" class="action-btn">
-                                            <Info class="w-4 h-4 shrink-0" /><span>Actualizar información</span>
-                                        </button>
-                                        <button @click.stop="deleteDevice(device.id)" class="action-btn action-btn-danger">
-                                            <Trash2 class="w-4 h-4 shrink-0" /><span>Eliminar dispositivo</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Mobile layout -->
-                            <div class="md:hidden">
-                                <div
-                                    class="flex items-center gap-3 px-4 py-3 select-none"
-                                    @click="toggleExpanded(device.id)"
-                                >
-                                    <Blinds class="w-4 h-4 shrink-0 text-white" />
-                                    <span class="text-sm text-tp-text flex-1 truncate min-w-0">{{ device.name }}</span>
-                                    <span class="text-xs font-mono text-tp-muted shrink-0 whitespace-nowrap">{{ device.id }}</span>
-                                    <div
-                                        class="w-2 h-2 rounded-full shrink-0"
-                                        :class="device.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"
-                                    ></div>
-                                    <ChevronDown
-                                        class="w-4 h-4 shrink-0 text-tp-muted transition-transform duration-200"
-                                        :class="{ 'rotate-180': expandedId === device.id }"
-                                    />
-                                </div>
-
-                                <div class="expand-content" :class="{ 'expand-open': expandedId === device.id }">
-                                    <div class="expand-panel px-4 py-2">
-                                        <button @click.stop="pingDevice(device.id)" class="action-btn">
-                                            <Radio class="w-4 h-4 shrink-0" /><span>Ping</span>
-                                        </button>
-                                        <button @click.stop="sendPrefsDevice(device.id, device.prefs)" class="action-btn">
-                                            <Braces class="w-4 h-4 shrink-0" /><span>Mandar preferencias</span>
-                                        </button>
-                                        <button @click.stop="resetPosition(device.id)" class="action-btn">
-                                            <Crosshair class="w-4 h-4 shrink-0" /><span>Reiniciar posición</span>
-                                        </button>
-                                        <button @click.stop="updateFirmware(device.id)" class="action-btn">
-                                            <Download class="w-4 h-4 shrink-0" /><span>Cambiar firmware</span>
-                                        </button>
-                                        <button @click.stop="getDeviceInfo(device.id)" class="action-btn">
-                                            <Info class="w-4 h-4 shrink-0" /><span>Actualizar información</span>
-                                        </button>
-                                        <button @click.stop="deleteDevice(device.id)" class="action-btn action-btn-danger">
-                                            <Trash2 class="w-4 h-4 shrink-0" /><span>Eliminar dispositivo</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                            <Blinds class="w-4 h-4 shrink-0 text-white" />
+                            <span class="font-mono text-xs text-tp-muted w-16 shrink-0 hidden md:block">{{ device.id }}</span>
+                            <span class="text-sm text-tp-text flex-1 truncate">{{ device.name }}</span>
+                            <div class="w-2 h-2 rounded-full shrink-0" :class="device.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"></div>
+                            <ChevronRight class="w-4 h-4 shrink-0 text-tp-muted/50" />
                         </div>
                     </div>
                 </div>
@@ -256,95 +189,21 @@
                     <div class="px-1 pb-3 pt-1 select-none cursor-default">
                         <p class="text-base font-semibold text-white">Luces</p>
                     </div>
-
-                    <div class="rounded-2xl overflow-hidden bg-[#111113] divide-y divide-white/[0.06]">
+                    <div class="rounded-2xl overflow-hidden bg-[#111113] device-list">
                         <div
                             v-for="device in lightDevices"
                             :key="device.id"
+                            class="flex items-center gap-4 px-4 py-3 cursor-pointer select-none"
+                            @click="openDevice(device)"
                         >
-                            <!-- Desktop layout -->
-                            <div class="hidden md:block">
-                                <div
-                                    class="flex items-center gap-4 px-4 py-3 select-none"
-                                    @click="toggleExpanded(device.id)"
-                                >
-                                    <Lightbulb class="w-4 h-4 shrink-0 text-white" />
-                                    <span class="font-mono text-xs text-tp-muted w-16 shrink-0">{{ device.id }}</span>
-                                    <span class="text-sm text-tp-text flex-1 truncate">{{ device.name }}</span>
-                                    <div
-                                        class="w-2 h-2 rounded-full shrink-0"
-                                        :class="device.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"
-                                    ></div>
-                                    <ChevronDown
-                                        class="w-4 h-4 shrink-0 text-tp-muted transition-transform duration-200"
-                                        :class="{ 'rotate-180': expandedId === device.id }"
-                                    />
-                                </div>
-
-                                <div class="expand-content" :class="{ 'expand-open': expandedId === device.id }">
-                                    <div class="expand-panel px-4 py-2">
-                                        <button @click.stop="pingDevice(device.id)" class="action-btn">
-                                            <Radio class="w-4 h-4 shrink-0" /><span>Ping</span>
-                                        </button>
-                                        <button @click.stop="sendPrefsDevice(device.id, device.prefs)" class="action-btn">
-                                            <Braces class="w-4 h-4 shrink-0" /><span>Mandar preferencias</span>
-                                        </button>
-                                        <button @click.stop="updateFirmware(device.id)" class="action-btn">
-                                            <Download class="w-4 h-4 shrink-0" /><span>Cambiar firmware</span>
-                                        </button>
-                                        <button @click.stop="getDeviceInfo(device.id)" class="action-btn">
-                                            <Info class="w-4 h-4 shrink-0" /><span>Actualizar información</span>
-                                        </button>
-                                        <button @click.stop="deleteDevice(device.id)" class="action-btn action-btn-danger">
-                                            <Trash2 class="w-4 h-4 shrink-0" /><span>Eliminar dispositivo</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Mobile layout -->
-                            <div class="md:hidden">
-                                <div
-                                    class="flex items-center gap-3 px-4 py-3 select-none"
-                                    @click="toggleExpanded(device.id)"
-                                >
-                                    <Lightbulb class="w-4 h-4 shrink-0 text-white" />
-                                    <span class="text-sm text-tp-text flex-1 truncate min-w-0">{{ device.name }}</span>
-                                    <span class="text-xs font-mono text-tp-muted shrink-0 whitespace-nowrap">{{ device.id }}</span>
-                                    <div
-                                        class="w-2 h-2 rounded-full shrink-0"
-                                        :class="device.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"
-                                    ></div>
-                                    <ChevronDown
-                                        class="w-4 h-4 shrink-0 text-tp-muted transition-transform duration-200"
-                                        :class="{ 'rotate-180': expandedId === device.id }"
-                                    />
-                                </div>
-
-                                <div class="expand-content" :class="{ 'expand-open': expandedId === device.id }">
-                                    <div class="expand-panel px-4 py-2">
-                                        <button @click.stop="pingDevice(device.id)" class="action-btn">
-                                            <Radio class="w-4 h-4 shrink-0" /><span>Ping</span>
-                                        </button>
-                                        <button @click.stop="sendPrefsDevice(device.id, device.prefs)" class="action-btn">
-                                            <Braces class="w-4 h-4 shrink-0" /><span>Mandar preferencias</span>
-                                        </button>
-                                        <button @click.stop="updateFirmware(device.id)" class="action-btn">
-                                            <Download class="w-4 h-4 shrink-0" /><span>Cambiar firmware</span>
-                                        </button>
-                                        <button @click.stop="getDeviceInfo(device.id)" class="action-btn">
-                                            <Info class="w-4 h-4 shrink-0" /><span>Actualizar información</span>
-                                        </button>
-                                        <button @click.stop="deleteDevice(device.id)" class="action-btn action-btn-danger">
-                                            <Trash2 class="w-4 h-4 shrink-0" /><span>Eliminar dispositivo</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                            <Lightbulb class="w-4 h-4 shrink-0 text-white" />
+                            <span class="font-mono text-xs text-tp-muted w-16 shrink-0 hidden md:block">{{ device.id }}</span>
+                            <span class="text-sm text-tp-text flex-1 truncate">{{ device.name }}</span>
+                            <div class="w-2 h-2 rounded-full shrink-0" :class="device.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"></div>
+                            <ChevronRight class="w-4 h-4 shrink-0 text-tp-muted/50" />
                         </div>
                     </div>
                 </div>
-
             </section>
 
             <ConfigWizard
@@ -356,46 +215,179 @@
 
         </div>
 
+        <!-- DETAIL VIEW -->
+        <div v-else class="flex-1 overflow-y-auto px-8 pb-8 flex flex-col gap-6">
+
+            <!-- Mobile back + title -->
+            <div class="md:hidden flex items-center gap-3 pt-4">
+                <Btn :pressing="false" @click="closeDevice">
+                    <ChevronLeft class="w-[18px] h-[18px] text-tp-text/80" />
+                </Btn>
+                <span class="text-lg font-semibold text-tp-text">{{ selectedDevice.name }}</span>
+            </div>
+
+            <!-- Device info strip -->
+            <div class="flex items-center gap-3 px-1">
+                <component :is="selectedDevice.category === 'blinds' ? Blinds : Lightbulb" class="w-5 h-5 text-white shrink-0" />
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-tp-text font-medium truncate">{{ selectedDevice.name }}</p>
+                    <p class="font-mono text-xs text-tp-muted">{{ selectedDevice.id }}</p>
+                </div>
+                <div
+                    class="w-2 h-2 rounded-full shrink-0"
+                    :class="selectedDevice.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"
+                ></div>
+            </div>
+
+            <!-- Actions -->
+            <div>
+                <p class="text-base font-semibold text-white px-1 pb-3">Acciones</p>
+                <div class="rounded-2xl overflow-hidden bg-[#111113] device-list">
+                    <button @click="pingDevice()" class="action-row">
+                        <Radio class="w-4 h-4 shrink-0" /><span>Ping</span>
+                    </button>
+                    <button @click="getDeviceInfo()" class="action-row">
+                        <Info class="w-4 h-4 shrink-0" /><span>Actualizar información</span>
+                    </button>
+                    <button v-if="selectedDevice.category === 'blinds'" @click="resetPosition()" class="action-row">
+                        <Crosshair class="w-4 h-4 shrink-0" /><span>Reiniciar posición</span>
+                    </button>
+                    <button @click="deleteDevice()" class="action-row action-row-danger">
+                        <Trash2 class="w-4 h-4 shrink-0" /><span>Eliminar dispositivo</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Prefs editor -->
+            <div v-if="Object.keys(devicePrefs).length > 0">
+                <p class="text-base font-semibold text-white px-1 pb-3">Preferencias</p>
+                <div class="rounded-2xl overflow-hidden bg-[#111113] device-list mb-3">
+                    <div
+                        v-for="(value, key) in devicePrefs"
+                        :key="key"
+                        class="flex items-center gap-4 px-4 py-3"
+                    >
+                        <span class="text-sm text-tp-text flex-1">{{ key }}</span>
+                        <input
+                            v-model="devicePrefs[key]"
+                            class="pref-input"
+                            :type="typeof value === 'number' ? 'number' : 'text'"
+                        />
+                    </div>
+                </div>
+                <button @click="savePrefs()" :disabled="savingPrefs" class="action-primary">
+                    <Save class="w-4 h-4 shrink-0" />
+                    <span>{{ savingPrefs ? 'Guardando…' : 'Guardar y enviar' }}</span>
+                </button>
+            </div>
+
+            <!-- Firmware selector -->
+            <div>
+                <p class="text-base font-semibold text-white px-1 pb-3">Firmware</p>
+                <div v-if="firmwareList.length === 0" class="text-sm text-tp-muted/50 italic px-1 mb-3">
+                    No hay firmwares disponibles.
+                </div>
+                <div v-else class="rounded-2xl overflow-hidden bg-[#111113] device-list mb-3">
+                    <div
+                        v-for="fw in firmwareList"
+                        :key="fw.version"
+                        class="flex items-center gap-4 px-4 py-3 cursor-pointer select-none"
+                        @click="selectedFirmware = fw.version"
+                    >
+                        <div class="w-4 h-4 rounded-full border border-tp-muted/40 flex items-center justify-center shrink-0">
+                            <div v-if="selectedFirmware === fw.version" class="w-2 h-2 rounded-full bg-tp-accent"></div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm text-tp-text truncate">{{ fw.name }}</p>
+                            <p class="text-xs font-mono text-tp-muted">v{{ fw.version }} · {{ fw.chip }}</p>
+                        </div>
+                        <span v-if="fw.active" class="text-xs text-tp-on font-mono uppercase tracking-wider shrink-0">Activo</span>
+                    </div>
+                </div>
+                <button @click="flashFirmware()" :disabled="!selectedFirmware || flashingFirmware" class="action-primary">
+                    <Zap class="w-4 h-4 shrink-0" />
+                    <span>{{ flashingFirmware ? 'Subiendo…' : 'Subir firmware' }}</span>
+                </button>
+            </div>
+
+        </div>
+
     </div>
 
 </template>
 
 <style scoped>
-    .expand-content {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.4s ease-out;
+    .device-list > div {
+        position: relative;
+    }
+    .device-list > div + div::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 16px;
+        right: 16px;
+        height: 0.5px;
+        background: rgba(255, 255, 255, 0.06);
+        pointer-events: none;
     }
 
-    .expand-open {
-        max-height: 300px;
-    }
-
-    .expand-panel {
-        border-top: 0.5px solid rgba(255, 255, 255, 0.08);
-        background: rgba(0, 0, 0, 0.12);
-    }
-
-    .action-btn {
+    .action-row {
         display: flex;
         align-items: center;
         gap: 12px;
         width: 100%;
-        padding: 8px 12px;
-        border-radius: 8px;
+        padding: 12px 16px;
         font-size: 0.875rem;
         color: var(--color-tp-muted);
         transition: color 0.15s ease, background 0.15s ease;
         cursor: pointer;
+        text-align: left;
     }
-
-    .action-btn:hover {
+    .action-row:hover {
         color: var(--color-tp-accent);
-        background: color-mix(in srgb, var(--color-tp-accent) 10%, transparent);
+        background: color-mix(in srgb, var(--color-tp-accent) 8%, transparent);
+    }
+    .action-row-danger:hover {
+        color: var(--color-tp-off);
+        background: color-mix(in srgb, var(--color-tp-off) 8%, transparent);
     }
 
-    .action-btn-danger:hover {
-        color: var(--color-tp-off);
-        background: color-mix(in srgb, var(--color-tp-off) 10%, transparent);
+    .pref-input {
+        background: rgba(255, 255, 255, 0.06);
+        border: 0.5px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        padding: 5px 10px;
+        font-size: 0.8125rem;
+        font-family: monospace;
+        color: var(--color-tp-text);
+        width: 120px;
+        text-align: right;
+        outline: none;
+        transition: border-color 0.15s ease;
+    }
+    .pref-input:focus {
+        border-color: var(--color-tp-accent);
+    }
+
+    .action-primary {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--color-tp-accent) 15%, transparent);
+        border: 0.5px solid color-mix(in srgb, var(--color-tp-accent) 30%, transparent);
+        color: var(--color-tp-accent);
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s ease;
+    }
+    .action-primary:hover:not(:disabled) {
+        background: color-mix(in srgb, var(--color-tp-accent) 25%, transparent);
+    }
+    .action-primary:disabled {
+        opacity: 0.4;
+        cursor: default;
     }
 </style>
