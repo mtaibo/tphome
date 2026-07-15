@@ -153,15 +153,14 @@
 
                 <!-- Blinds group -->
                 <div v-if="blindDevices.length > 0" class="mb-6">
-                    <div class="px-1 pb-3 pt-1">
+                    <div class="px-1 pb-3 pt-1 select-none cursor-default">
                         <p class="text-xs font-semibold text-white">Persianas</p>
                     </div>
 
-                    <div class="space-y-2">
+                    <div class="rounded-xl overflow-hidden bg-[#111113] divide-y divide-white/[0.06]">
                         <div
                             v-for="device in blindDevices"
                             :key="device.id"
-                            class="device-card"
                         >
                             <!-- Desktop layout -->
                             <div class="hidden md:block">
@@ -169,7 +168,7 @@
                                     class="flex items-center gap-4 px-4 py-3 cursor-pointer select-none"
                                     @click="toggleExpanded(device.id)"
                                 >
-                                    <Blinds class="w-4 h-4 shrink-0 text-tp-accent/70" />
+                                    <Blinds class="w-4 h-4 shrink-0 text-white" />
                                     <span class="font-mono text-xs text-tp-muted w-16 shrink-0">{{ device.id }}</span>
                                     <span class="text-sm text-tp-text flex-1 truncate">{{ device.name }}</span>
                                     <div
@@ -212,7 +211,7 @@
                                     class="flex items-center gap-3 px-4 py-3 cursor-pointer select-none"
                                     @click="toggleExpanded(device.id)"
                                 >
-                                    <Blinds class="w-4 h-4 shrink-0 text-tp-accent/70" />
+                                    <Blinds class="w-4 h-4 shrink-0 text-white" />
                                     <span class="text-sm text-tp-text flex-1 truncate min-w-0">{{ device.name }}</span>
                                     <span class="text-xs font-mono text-tp-muted shrink-0 whitespace-nowrap">{{ device.id }}</span>
                                     <div
@@ -254,15 +253,14 @@
 
                 <!-- Lights group -->
                 <div v-if="lightDevices.length > 0" class="mb-6">
-                    <div class="px-1 pb-3 pt-1">
+                    <div class="px-1 pb-3 pt-1 select-none cursor-default">
                         <p class="text-xs font-semibold text-white">Luces</p>
                     </div>
 
-                    <div class="space-y-2">
+                    <div class="rounded-xl overflow-hidden bg-[#111113] divide-y divide-white/[0.06]">
                         <div
                             v-for="device in lightDevices"
                             :key="device.id"
-                            class="device-card"
                         >
                             <!-- Desktop layout -->
                             <div class="hidden md:block">
@@ -270,7 +268,7 @@
                                     class="flex items-center gap-4 px-4 py-3 cursor-pointer select-none"
                                     @click="toggleExpanded(device.id)"
                                 >
-                                    <Lightbulb class="w-4 h-4 shrink-0 text-tp-light-on/70" />
+                                    <Lightbulb class="w-4 h-4 shrink-0 text-white" />
                                     <span class="font-mono text-xs text-tp-muted w-16 shrink-0">{{ device.id }}</span>
                                     <span class="text-sm text-tp-text flex-1 truncate">{{ device.name }}</span>
                                     <div
@@ -310,7 +308,7 @@
                                     class="flex items-center gap-3 px-4 py-3 cursor-pointer select-none"
                                     @click="toggleExpanded(device.id)"
                                 >
-                                    <Lightbulb class="w-4 h-4 shrink-0 text-tp-light-on/70" />
+                                    <Lightbulb class="w-4 h-4 shrink-0 text-white" />
                                     <span class="text-sm text-tp-text flex-1 truncate min-w-0">{{ device.name }}</span>
                                     <span class="text-xs font-mono text-tp-muted shrink-0 whitespace-nowrap">{{ device.id }}</span>
                                     <div
@@ -363,36 +361,6 @@
 </template>
 
 <style scoped>
-    .device-card {
-        border-radius: 14px;
-        background: linear-gradient(
-            145deg,
-            rgba(255, 255, 255, 0.09) 0%,
-            rgba(255, 255, 255, 0.04) 100%
-        );
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border: 0.5px solid rgba(255, 255, 255, 0.14);
-        box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.20),
-            inset 0 -0.5px 0 rgba(0, 0, 0, 0.12),
-            0 4px 16px rgba(0, 0, 0, 0.18);
-        overflow: hidden;
-        transition: background 0.18s ease, box-shadow 0.18s ease;
-    }
-
-    .device-card:hover {
-        background: linear-gradient(
-            145deg,
-            rgba(255, 255, 255, 0.13) 0%,
-            rgba(255, 255, 255, 0.07) 100%
-        );
-        box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.26),
-            inset 0 -0.5px 0 rgba(0, 0, 0, 0.12),
-            0 6px 20px rgba(0, 0, 0, 0.24);
-    }
-
     .expand-content {
         max-height: 0;
         overflow: hidden;
