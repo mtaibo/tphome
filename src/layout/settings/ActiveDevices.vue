@@ -121,10 +121,13 @@
 
         <!-- Desktop header -->
         <div v-if="selectedDevice" class="hidden md:flex items-center gap-4 px-8 h-[72px] shrink-0">
-            <Btn v-if="selectedDevice" :pressing="false" @click="closeDevice">
+            <Btn :pressing="false" @click="closeDevice">
                 <ChevronLeft class="w-[18px] h-[18px] text-tp-text/80" />
             </Btn>
-            <span v-if="selectedDevice" class="text-lg font-semibold text-tp-text">{{ selectedDevice.name }}</span>
+            <component :is="selectedDevice.category === 'blinds' ? Blinds : Lightbulb" class="w-5 h-5 text-white shrink-0" />
+            <div class="w-2 h-2 rounded-full shrink-0" :class="selectedDevice.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"></div>
+            <span class="font-mono text-xs text-tp-muted shrink-0">{{ selectedDevice.id }}</span>
+            <span class="text-lg font-semibold text-tp-text">{{ selectedDevice.name }}</span>
         </div>
 
         <!-- LIST VIEW -->
@@ -222,19 +225,6 @@
                     <ChevronLeft class="w-[18px] h-[18px] text-tp-text/80" />
                 </Btn>
                 <span class="text-lg font-semibold text-tp-text">{{ selectedDevice.name }}</span>
-            </div>
-
-            <!-- Device info strip -->
-            <div class="flex items-center gap-3 px-1">
-                <component :is="selectedDevice.category === 'blinds' ? Blinds : Lightbulb" class="w-5 h-5 text-white shrink-0" />
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm text-tp-text font-medium truncate">{{ selectedDevice.name }}</p>
-                    <p class="font-mono text-xs text-tp-muted">{{ selectedDevice.id }}</p>
-                </div>
-                <div
-                    class="w-2 h-2 rounded-full shrink-0"
-                    :class="selectedDevice.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"
-                ></div>
             </div>
 
             <!-- Actions -->
