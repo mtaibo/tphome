@@ -172,7 +172,7 @@
                         <div
                             v-for="device in blindDevices"
                             :key="device.id"
-                            class="flex items-center gap-4 px-4 py-3 cursor-pointer select-none"
+                            class="flex items-center gap-4 px-4 py-3 select-none"
                             @click="openDevice(device)"
                         >
                             <Blinds class="w-4 h-4 shrink-0 text-white" />
@@ -193,7 +193,7 @@
                         <div
                             v-for="device in lightDevices"
                             :key="device.id"
-                            class="flex items-center gap-4 px-4 py-3 cursor-pointer select-none"
+                            class="flex items-center gap-4 px-4 py-3 select-none"
                             @click="openDevice(device)"
                         >
                             <Lightbulb class="w-4 h-4 shrink-0 text-white" />
@@ -291,7 +291,7 @@
                     <div
                         v-for="fw in firmwareList"
                         :key="fw.version"
-                        class="flex items-center gap-4 px-4 py-3 cursor-pointer select-none"
+                        class="flex items-center gap-4 px-4 py-3 select-none"
                         @click="selectedFirmware = fw.version"
                     >
                         <div class="w-4 h-4 rounded-full border border-tp-muted/40 flex items-center justify-center shrink-0">
