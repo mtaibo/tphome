@@ -175,8 +175,10 @@
                             class="flex items-center gap-4 px-4 py-3 select-none"
                             @click="openDevice(device)"
                         >
-                            <Blinds class="w-4 h-4 shrink-0 text-white" />
-                            <span class="font-mono text-xs text-tp-muted w-16 shrink-0 hidden md:block">{{ device.id }}</span>
+                            <div class="flex items-center gap-2 shrink-0 hidden md:flex">
+                                <span class="text-xs text-tp-muted">Persiana</span>
+                                <span class="font-mono text-xs text-tp-muted/50">{{ device.id }}</span>
+                            </div>
                             <span class="text-sm text-tp-text flex-1 truncate">{{ device.name }}</span>
                             <div class="w-2 h-2 rounded-full shrink-0" :class="device.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"></div>
                             <ChevronRight class="w-4 h-4 shrink-0 text-tp-muted/50" />
@@ -196,8 +198,10 @@
                             class="flex items-center gap-4 px-4 py-3 select-none"
                             @click="openDevice(device)"
                         >
-                            <Lightbulb class="w-4 h-4 shrink-0 text-white" />
-                            <span class="font-mono text-xs text-tp-muted w-16 shrink-0 hidden md:block">{{ device.id }}</span>
+                            <div class="flex items-center gap-2 shrink-0 hidden md:flex">
+                                <span class="text-xs text-tp-muted">Luz</span>
+                                <span class="font-mono text-xs text-tp-muted/50">{{ device.id }}</span>
+                            </div>
                             <span class="text-sm text-tp-text flex-1 truncate">{{ device.name }}</span>
                             <div class="w-2 h-2 rounded-full shrink-0" :class="device.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"></div>
                             <ChevronRight class="w-4 h-4 shrink-0 text-tp-muted/50" />
