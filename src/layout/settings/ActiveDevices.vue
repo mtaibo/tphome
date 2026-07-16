@@ -120,7 +120,7 @@
     <div class="h-full flex flex-col">
 
         <!-- Desktop header -->
-        <div class="hidden md:flex items-center gap-4 px-8 h-[72px] shrink-0">
+        <div v-if="selectedDevice" class="hidden md:flex items-center gap-4 px-8 h-[72px] shrink-0">
             <Btn v-if="selectedDevice" :pressing="false" @click="closeDevice">
                 <ChevronLeft class="w-[18px] h-[18px] text-tp-text/80" />
             </Btn>
