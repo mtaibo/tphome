@@ -131,7 +131,7 @@
         </div>
 
         <!-- LIST VIEW -->
-        <div v-if="!selectedDevice" class="flex-1 overflow-y-auto px-8 pb-8 flex flex-col gap-8">
+        <div v-if="!selectedDevice" class="flex-1 overflow-y-auto px-8 pt-6 pb-8 flex flex-col gap-8">
 
             <section v-if="pendingDevices.length > 0">
                 <div class="flex items-center gap-3 mb-5">
