@@ -1,6 +1,6 @@
 <script setup>
 
-    import { ref, computed, reactive, onMounted } from 'vue'
+    import { ref, computed, reactive, onMounted, nextTick } from 'vue'
     import { Lightbulb, Blinds, Trash2, Radio, Info, ChevronRight, Crosshair, Cpu, Settings, ChevronLeft, Save, Zap } from 'lucide-vue-next'
     import { useRoute } from 'vue-router'
 
@@ -43,8 +43,49 @@
 
     const selectedDevice = ref(null)
     const devicePrefs = reactive({})
+    const originalPrefs = reactive({})
+    const deviceMap = reactive({})
+    const originalMap = reactive({})
     const firmwareList = ref([])
     const selectedFirmware = ref(null)
+    const prefLabels = {
+        up_time:         'Tiempo de subida',
+        down_time:       'Tiempo de bajada',
+        down_pos:        'Posición de bajada',
+        inverted_relays: 'Invertir relés',
+    }
+
+    const mapLabels = {
+        x:      'X',
+        y:      'Y',
+        width:  'Ancho',
+        height: 'Alto',
+    }
+
+    const prefsChanged = computed(() =>
+        Object.keys(devicePrefs).some(k => String(devicePrefs[k]) !== String(originalPrefs[k]))
+    )
+
+    const mapChanged = computed(() =>
+        Object.keys(deviceMap).some(k => String(deviceMap[k]) !== String(originalMap[k]))
+    )
+
+    const timeKeys = new Set(['up_time', 'down_time'])
+    const percentKeys = new Set(['down_pos'])
+    const focusedPrefKey = ref(null)
+
+    function formatPrefDisplay(key, value) {
+        if (timeKeys.has(key))    return (Number(value) / 100).toFixed(2) + ' s'
+        if (percentKeys.has(key)) return (Number(value) / 100).toFixed(2) + ' %'
+        return value
+    }
+
+    async function startEditPref(key) {
+        focusedPrefKey.value = key
+        await nextTick()
+        document.querySelector(`[data-pref-input="${key}"]`)?.focus()
+    }
+
     const savingPrefs = ref(false)
     const flashingFirmware = ref(false)
 
@@ -52,6 +93,12 @@
         selectedDevice.value = device
         Object.keys(devicePrefs).forEach(k => delete devicePrefs[k])
         Object.assign(devicePrefs, device.prefs ?? {})
+        Object.keys(originalPrefs).forEach(k => delete originalPrefs[k])
+        Object.assign(originalPrefs, device.prefs ?? {})
+        Object.keys(deviceMap).forEach(k => delete deviceMap[k])
+        Object.assign(deviceMap, device.map ?? {})
+        Object.keys(originalMap).forEach(k => delete originalMap[k])
+        Object.assign(originalMap, device.map ?? {})
         selectedFirmware.value = null
         firmwareList.value = []
         try { firmwareList.value = await api.getFirmwares() } catch {}
@@ -101,8 +148,28 @@
             await api.postConfig('devices', config)
             store.storage[category][id].prefs = parsed
             await api.sendPrefs(id, parsed)
+            Object.keys(originalPrefs).forEach(k => delete originalPrefs[k])
+            Object.assign(originalPrefs, parsed)
         } catch (e) { console.error('TPHome - Save prefs error:', e) }
         finally { savingPrefs.value = false }
+    }
+
+    const savingMap = ref(false)
+
+    async function saveMap() {
+        savingMap.value = true
+        try {
+            const { id, category } = selectedDevice.value
+            const parsed = {}
+            for (const [k, v] of Object.entries(deviceMap)) parsed[k] = Number(v)
+            const config = await api.getConfig('devices')
+            config[category][id].map = parsed
+            await api.postConfig('devices', config)
+            store.storage[category][id].map = parsed
+            Object.keys(originalMap).forEach(k => delete originalMap[k])
+            Object.assign(originalMap, parsed)
+        } catch (e) { console.error('TPHome - Save map error:', e) }
+        finally { savingMap.value = false }
     }
 
     async function flashFirmware() {
@@ -125,9 +192,8 @@
                 <ChevronLeft class="w-[18px] h-[18px] text-tp-text/80" />
             </Btn>
             <component :is="selectedDevice.category === 'blinds' ? Blinds : Lightbulb" class="w-5 h-5 text-white shrink-0" />
-            <div class="w-2 h-2 rounded-full shrink-0" :class="selectedDevice.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"></div>
-            <span class="font-mono text-xs text-tp-muted shrink-0">{{ selectedDevice.id }}</span>
             <span class="text-lg font-semibold text-tp-text">{{ selectedDevice.name }}</span>
+            <div class="w-2 h-2 rounded-full shrink-0" :class="selectedDevice.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"></div>
         </div>
 
         <!-- LIST VIEW -->
@@ -228,7 +294,7 @@
             </div>
 
             <!-- Actions -->
-            <div>
+            <div class="pt-2">
                 <p class="text-base font-semibold text-white px-1 pb-3">Acciones</p>
                 <div class="rounded-2xl overflow-hidden bg-[#111113] device-list">
                     <button @click="pingDevice()" class="action-row">
@@ -246,56 +312,104 @@
                 </div>
             </div>
 
-            <!-- Prefs editor -->
-            <div v-if="Object.keys(devicePrefs).length > 0">
-                <p class="text-base font-semibold text-white px-1 pb-3">Preferencias</p>
-                <div class="rounded-2xl overflow-hidden bg-[#111113] device-list mb-3">
-                    <div
-                        v-for="(value, key) in devicePrefs"
-                        :key="key"
-                        class="flex items-center gap-4 px-4 py-3"
-                    >
-                        <span class="text-sm text-tp-text flex-1">{{ key }}</span>
-                        <input
-                            v-model="devicePrefs[key]"
-                            class="pref-input"
-                            :type="typeof value === 'number' ? 'number' : 'text'"
-                        />
-                    </div>
-                </div>
-                <button @click="savePrefs()" :disabled="savingPrefs" class="action-primary">
-                    <Save class="w-4 h-4 shrink-0" />
-                    <span>{{ savingPrefs ? 'Guardando…' : 'Guardar y enviar' }}</span>
-                </button>
-            </div>
+            <!-- Prefs + Firmware side by side -->
+            <div class="flex gap-6 items-start">
 
-            <!-- Firmware selector -->
-            <div>
-                <p class="text-base font-semibold text-white px-1 pb-3">Firmware</p>
-                <div v-if="firmwareList.length === 0" class="text-sm text-tp-muted/50 italic px-1 mb-3">
-                    No hay firmwares disponibles.
-                </div>
-                <div v-else class="rounded-2xl overflow-hidden bg-[#111113] device-list mb-3">
-                    <div
-                        v-for="fw in firmwareList"
-                        :key="fw.version"
-                        class="flex items-center gap-4 px-4 py-3 select-none"
-                        @click="selectedFirmware = fw.version"
-                    >
-                        <div class="w-4 h-4 rounded-full border border-tp-muted/40 flex items-center justify-center shrink-0">
-                            <div v-if="selectedFirmware === fw.version" class="w-2 h-2 rounded-full bg-tp-accent"></div>
+                <!-- Prefs editor -->
+                <div v-if="Object.keys(devicePrefs).length > 0" class="flex-1 min-w-0">
+                    <p class="text-base font-semibold text-white px-1 pb-3">Preferencias</p>
+                    <div class="rounded-2xl overflow-hidden bg-[#111113] device-list mb-3">
+                        <div
+                            v-for="(value, key) in devicePrefs"
+                            :key="key"
+                            class="flex items-center gap-4 px-4 py-3"
+                        >
+                            <span class="text-sm text-tp-text flex-1">{{ prefLabels[key] ?? key }}</span>
+                            <div
+                                v-if="typeof value === 'boolean'"
+                                class="pref-checkbox select-none"
+                                :class="devicePrefs[key] ? 'pref-checkbox--on' : ''"
+                                @click="devicePrefs[key] = !devicePrefs[key]"
+                            />
+                            <div
+                                v-else-if="(timeKeys.has(key) || percentKeys.has(key)) && focusedPrefKey !== key"
+                                class="pref-input pref-input-display"
+                                @click="startEditPref(key)"
+                            >{{ formatPrefDisplay(key, devicePrefs[key]) }}</div>
+                            <input
+                                v-else
+                                v-model="devicePrefs[key]"
+                                class="pref-input"
+                                :data-pref-input="key"
+                                :type="typeof value === 'number' ? 'number' : 'text'"
+                                @blur="focusedPrefKey = null"
+                            />
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm text-tp-text truncate">{{ fw.name }}</p>
-                            <p class="text-xs font-mono text-tp-muted">v{{ fw.version }} · {{ fw.chip }}</p>
-                        </div>
-                        <span v-if="fw.active" class="text-xs text-tp-on font-mono uppercase tracking-wider shrink-0">Activo</span>
                     </div>
+                    <Transition name="btn-fade">
+                        <button v-if="prefsChanged || savingPrefs" @click="savePrefs()" class="action-primary">
+                            <Save class="w-4 h-4 shrink-0" />
+                            <span>{{ savingPrefs ? 'Guardando…' : 'Guardar y enviar' }}</span>
+                        </button>
+                    </Transition>
                 </div>
-                <button @click="flashFirmware()" :disabled="!selectedFirmware || flashingFirmware" class="action-primary">
-                    <Zap class="w-4 h-4 shrink-0" />
-                    <span>{{ flashingFirmware ? 'Subiendo…' : 'Subir firmware' }}</span>
-                </button>
+
+                <!-- Map editor -->
+                <div v-if="Object.keys(deviceMap).length > 0" class="flex-1 min-w-0">
+                    <p class="text-base font-semibold text-white px-1 pb-3">Posición</p>
+                    <div class="rounded-2xl overflow-hidden bg-[#111113] device-list mb-3">
+                        <div
+                            v-for="(value, key) in deviceMap"
+                            :key="key"
+                            class="flex items-center gap-4 px-4 py-3"
+                        >
+                            <span class="text-sm text-tp-text flex-1">{{ mapLabels[key] ?? key }}</span>
+                            <input
+                                v-model="deviceMap[key]"
+                                type="number"
+                                class="pref-input"
+                            />
+                        </div>
+                    </div>
+                    <Transition name="btn-fade">
+                        <button v-if="mapChanged || savingMap" @click="saveMap()" class="action-primary">
+                            <Save class="w-4 h-4 shrink-0" />
+                            <span>{{ savingMap ? 'Guardando…' : 'Guardar y enviar' }}</span>
+                        </button>
+                    </Transition>
+                </div>
+
+                <!-- Firmware selector -->
+                <div class="flex-1 min-w-0">
+                    <p class="text-base font-semibold text-white px-1 pb-3">Firmware</p>
+                    <div v-if="firmwareList.length === 0" class="text-sm text-tp-muted/50 italic px-1 mb-3">
+                        No hay firmwares disponibles.
+                    </div>
+                    <div v-else class="rounded-2xl overflow-hidden bg-[#111113] device-list mb-3">
+                        <div
+                            v-for="fw in firmwareList"
+                            :key="fw.version"
+                            class="flex items-center gap-4 px-4 py-3 select-none"
+                            @click="selectedFirmware = selectedFirmware === fw.version ? null : fw.version"
+                        >
+                            <div class="w-4 h-4 rounded-full border border-tp-muted/40 flex items-center justify-center shrink-0">
+                                <div v-if="selectedFirmware === fw.version" class="w-2 h-2 rounded-full bg-tp-accent"></div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-tp-text truncate">{{ fw.name }}</p>
+                                <p class="text-xs font-mono text-tp-muted">v{{ fw.version }} · {{ fw.chip }}</p>
+                            </div>
+                            <span v-if="fw.active" class="text-xs text-tp-on font-mono uppercase tracking-wider shrink-0">Activo</span>
+                        </div>
+                    </div>
+                    <Transition name="btn-fade">
+                        <button v-if="selectedFirmware || flashingFirmware" @click="flashFirmware()" class="action-primary">
+                            <Zap class="w-4 h-4 shrink-0" />
+                            <span>{{ flashingFirmware ? 'Subiendo…' : 'Subir firmware' }}</span>
+                        </button>
+                    </Transition>
+                </div>
+
             </div>
 
         </div>
@@ -328,33 +442,62 @@
         font-size: 0.875rem;
         color: var(--color-tp-muted);
         transition: color 0.15s ease, background 0.15s ease;
-        cursor: pointer;
+        cursor: default;
         text-align: left;
     }
     .action-row:hover {
-        color: var(--color-tp-accent);
-        background: color-mix(in srgb, var(--color-tp-accent) 8%, transparent);
+        color: var(--color-tp-text);
     }
     .action-row-danger:hover {
-        color: var(--color-tp-off);
-        background: color-mix(in srgb, var(--color-tp-off) 8%, transparent);
+        color: var(--color-tp-text);
+    }
+
+    .pref-input-display {
+        cursor: default;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .pref-checkbox {
+        position: relative;
+        width: 20px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 0.5px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        cursor: default;
+        transition: background 0.15s ease, border-color 0.15s ease;
+        flex-shrink: 0;
+    }
+    .pref-checkbox--on {
+        background: var(--color-tp-accent);
+        border-color: var(--color-tp-accent);
     }
 
     .pref-input {
+        cursor: default;
         background: rgba(255, 255, 255, 0.06);
         border: 0.5px solid rgba(255, 255, 255, 0.12);
         border-radius: 8px;
         padding: 5px 10px;
         font-size: 0.8125rem;
-        font-family: monospace;
+        font-family: inherit;
         color: var(--color-tp-text);
-        width: 120px;
+        width: 80px;
         text-align: right;
         outline: none;
         transition: border-color 0.15s ease;
     }
     .pref-input:focus {
-        border-color: var(--color-tp-accent);
+        outline: none;
+    }
+    .pref-input::-webkit-outer-spin-button,
+    .pref-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+    }
+    .pref-input[type=number] {
+        -moz-appearance: textfield;
     }
 
     .action-primary {
@@ -362,20 +505,48 @@
         align-items: center;
         gap: 8px;
         padding: 10px 18px;
-        border-radius: 12px;
-        background: color-mix(in srgb, var(--color-tp-accent) 15%, transparent);
-        border: 0.5px solid color-mix(in srgb, var(--color-tp-accent) 30%, transparent);
-        color: var(--color-tp-accent);
+        border-radius: 14px;
+        background: linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.14) 0%,
+            rgba(255, 255, 255, 0.07) 50%,
+            rgba(255, 255, 255, 0.10) 100%
+        );
+        backdrop-filter: blur(24px) saturate(200%);
+        -webkit-backdrop-filter: blur(24px) saturate(200%);
+        border: 0.5px solid rgba(255, 255, 255, 0.22);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.36),
+            inset 0 -0.5px 0 rgba(0, 0, 0, 0.18),
+            0 4px 12px rgba(0, 0, 0, 0.24),
+            0 1px 3px rgba(0, 0, 0, 0.14);
+        color: var(--color-tp-text);
         font-size: 0.875rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.15s ease;
-    }
-    .action-primary:hover:not(:disabled) {
-        background: color-mix(in srgb, var(--color-tp-accent) 25%, transparent);
-    }
-    .action-primary:disabled {
-        opacity: 0.4;
+        font-weight: 500;
         cursor: default;
+        transition: background 0.18s ease, box-shadow 0.18s ease;
+    }
+    .action-primary:hover {
+        background: linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.20) 0%,
+            rgba(255, 255, 255, 0.11) 50%,
+            rgba(255, 255, 255, 0.16) 100%
+        );
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.42),
+            inset 0 -0.5px 0 rgba(0, 0, 0, 0.18),
+            0 6px 18px rgba(0, 0, 0, 0.30),
+            0 1px 3px rgba(0, 0, 0, 0.14);
+    }
+
+    .btn-fade-enter-active,
+    .btn-fade-leave-active {
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .btn-fade-enter-from,
+    .btn-fade-leave-to {
+        opacity: 0;
+        transform: translateY(4px);
     }
 </style>
