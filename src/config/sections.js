@@ -21,9 +21,15 @@ export const settingsSections = [
 
 export const allSections = [...dashboardSections, ...settingsSections]
 
-export function useSections() {
+const activeSection = ref(dashboardSections[0]?.id || '')
+export const pendingDeviceId = ref(null)
 
-    const activeSection = ref(dashboardSections[0]?.id || '')
+export function navigateToDevice(deviceId) {
+    pendingDeviceId.value = deviceId
+    activeSection.value = 'active'
+}
+
+export function useSections() {
 
     const activeComponent = computed(() =>
         allSections.find(s => s.id === activeSection.value)?.component || null
