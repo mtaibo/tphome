@@ -1,11 +1,10 @@
 
 import { ref, computed } from 'vue'
-import { LayoutDashboard, Blinds, Lightbulb, Wand2, Smartphone, Code, Cpu } from 'lucide-vue-next'
+import { LayoutDashboard, Blinds, Lightbulb, Wand2, Smartphone, Cpu } from 'lucide-vue-next'
 
 import Blueprint      from '@/layout/dashboard/Blueprint.vue'
 import BlindsSection  from '@/layout/dashboard/BlindsSection.vue'
 import ActiveDevices  from '@/layout/settings/ActiveDevices.vue'
-import JsonEditor     from '@/layout/settings/JsonEditor.vue'
 import FirmwareManager from '@/layout/settings/FirmwareManager.vue'
 
 export const dashboardSections = [
@@ -17,7 +16,6 @@ export const dashboardSections = [
 
 export const settingsSections = [
     { id: 'active',   name: 'Dispositivos', icon: Smartphone, component: ActiveDevices },
-    { id: 'json',     name: 'JSON',         icon: Code,       component: JsonEditor },
     { id: 'firmware', name: 'Firmware',     icon: Cpu,        component: FirmwareManager },
 ]
 
