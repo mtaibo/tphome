@@ -1,16 +1,14 @@
 <script setup>
 
-    import { ref, computed, reactive, onMounted, nextTick } from 'vue'
+    import { ref, computed, reactive, onMounted, nextTick, watch } from 'vue'
     import { Lightbulb, Blinds, Trash2, Radio, Info, ChevronRight, Crosshair, Cpu, Settings, ChevronLeft, Save, Zap } from 'lucide-vue-next'
-    import { useRoute } from 'vue-router'
-
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
+    import { pendingDeviceId } from '@/config/sections.js'
     import ConfigWizard from './ConfigWizard.vue'
     import Btn from '@/components/Btn.vue'
 
     const store = useDevices()
-    const route = useRoute()
 
     // --- List view ---
 
@@ -179,6 +177,17 @@
         catch (e) { console.error('TPHome - OTA error:', e) }
         finally { flashingFirmware.value = false }
     }
+
+    watch(pendingDeviceId, (id) => {
+        if (!id) return
+        for (const [category, devices] of Object.entries(store.storage)) {
+            if (id in devices) {
+                openDevice({ ...devices[id], id, category })
+                break
+            }
+        }
+        pendingDeviceId.value = null
+    }, { immediate: true })
 
 </script>
 

@@ -1,19 +1,19 @@
 <script setup>
     import { ref, watch, nextTick } from 'vue'
-    import { ChevronUp, ChevronDown, Pause, Settings, Blinds } from 'lucide-vue-next'
+    import { ChevronUp, ChevronDown, ChevronRight, Pause, Settings, Blinds } from 'lucide-vue-next'
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
-    import { useRouter } from 'vue-router'
+    import { navigateToDevice } from '@/config/sections.js'
     import BlindSlider from '@/components/BlindSlider.vue'
     import Btn from '@/components/Btn.vue'
     import { positions, handlePositions, getAnim, setPending, isPending } from '@/composables/useBlindAnimations'
 
     const store   = useDevices()
-    const router  = useRouter()
 
-    const loading  = ref({})
-    const dragging = ref({})
-    const pressing = ref({})
+    const loading       = ref({})
+    const dragging      = ref({})
+    const pressing      = ref({})
+    const positionInput = ref({})
 
     // WS update: recalibrate anchor while moving; auto-detect direction when motor is
     // running but velocity is unknown (e.g. blind was started from another view)
@@ -95,7 +95,15 @@
         setPending(id, false)
         sendCommand(id, 'stop')
     })
-    const handleSettings = (id) => pressBtn(`${id}-cfg`, () => router.push({ path: '/settings', query: { device: id } }))
+    const handleSettings = (id) => pressBtn(`${id}-cfg`, () => navigateToDevice(id))
+
+    function sendPosition(id) {
+        const raw = positionInput.value[id]
+        const pos = Math.min(100, Math.max(0, Number(raw)))
+        if (isNaN(pos)) return
+        positionInput.value[id] = ''
+        onBlindDragEnd(id, pos)
+    }
 
     function onBlindDragStart(id, pos) {
         dragging.value[id] = true
@@ -196,6 +204,22 @@
                         </Btn>
                     </div>
                 </div>
+
+                <!-- Position input -->
+                <div class="flex items-center gap-2 mt-3">
+                    <input
+                        v-model="positionInput[id]"
+                        type="number"
+                        min="0"
+                        max="100"
+                        placeholder="0 – 100"
+                        class="pos-input"
+                        @keydown.enter="sendPosition(id)"
+                    />
+                    <Btn @click="sendPosition(id)">
+                        <ChevronRight class="w-[18px] h-[18px] text-tp-text/80" />
+                    </Btn>
+                </div>
             </div>
         </div>
     </div>
@@ -214,4 +238,25 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.12),
         inset 0 -1px 0 rgba(0, 0, 0, 0.15);
 }
+
+
+.pos-input {
+    flex: 1;
+    min-width: 0;
+    height: 40px;
+    padding: 0 10px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.14);
+    border: none;
+    font-size: 0.8125rem;
+    color: var(--color-tp-text);
+    outline: none;
+    text-align: center;
+}
+
+.pos-input::placeholder { color: var(--color-tp-muted); }
+.pos-input::-webkit-outer-spin-button,
+.pos-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.pos-input[type=number] { -moz-appearance: textfield; }
+
 </style>

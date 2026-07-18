@@ -12,10 +12,10 @@
     const props = defineProps({ activeSection: { type: String } })
     const emit = defineEmits(['update:activeSection'])
 
-    const collapsed = ref(false)
+    const collapsed = ref(true)
     const toggle = () => { collapsed.value = !collapsed.value }
 
-    const settingsOpen = ref(true)
+    const settingsOpen = ref(false)
     const separatorHovered = ref(false)
 
     function setActive(id) {

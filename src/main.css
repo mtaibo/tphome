@@ -48,6 +48,9 @@
     font-family: inherit;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   *::-webkit-scrollbar {
