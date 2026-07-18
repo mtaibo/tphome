@@ -14,6 +14,7 @@
     // This avoids generating phantom walls where a room-corner y/x passes through another room's interior.
     const wallSegments = computed(() => {
         const rooms = map.storage.rooms
+        if (!rooms) return { exterior: [], interiorPath: '' }
         const xs = [...new Set(rooms.flatMap(r => [r.x, r.x + r.w]))].sort((a, b) => a - b)
         const ys = [...new Set(rooms.flatMap(r => [r.y, r.y + r.h]))].sort((a, b) => a - b)
         const inRoom = (x, y) => rooms.some(r => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h)
@@ -140,7 +141,7 @@
 
     <defs>
         <mask id="door-mask">
-            <rect :width="map.storage.viewBox.split(' ')[2]" :height="map.storage.viewBox.split(' ')[3]" fill="white"/>
+            <rect :width="map.storage.viewBox?.split(' ')[2]" :height="map.storage.viewBox?.split(' ')[3]" fill="white"/>
             <line
                 v-for="(door, i) in map.storage.doors"
                 :key="i"
