@@ -1,26 +1,20 @@
 <script setup>
 
     import { ref } from 'vue'
-    import { PanelLeftClose, PanelLeftOpen, ChevronRight } from 'lucide-vue-next'
 
-    import { dashboardSections, settingsSections } from '@/config/sections.js'
+    import { PanelLeftClose, PanelLeftOpen } from 'lucide-vue-next'
 
-    import NavButton from '@/components/sidebar/NavButton.vue'
-    import UserCard  from '@/components/sidebar/UserCard.vue'
-    import Btn from '@/components/Btn.vue'
+    import Btn          from '@/components/Btn.vue'
+    import UserCard     from '@/components/sidebar/UserCard.vue'
+    import NavButton    from '@/components/sidebar/NavButton.vue'
+    import NavSeparator from '@/components/sidebar/NavSeparator.vue'
 
-    const props = defineProps({ activeSection: { type: String } })
-    const emit = defineEmits(['update:activeSection'])
+    import { useSections } from '@/config/sections.js'
+    const { activeSection, dashboardSections, settingsSections } = useSections()
 
     const collapsed = ref(true)
-    const toggle = () => { collapsed.value = !collapsed.value }
-
     const settingsOpen = ref(false)
-    const separatorHovered = ref(false)
-
-    function setActive(id) {
-        emit('update:activeSection', id)
-    }
+    const setActive = (id) => { activeSection.value = id }
 
 </script>
 
@@ -32,7 +26,7 @@
     >
 
         <div class="absolute top-4 right-3 z-20">
-            <Btn :pressing="false" @click="toggle">
+            <Btn :pressing="false" @click="collapsed = !collapsed">
                 <component :is="collapsed ? PanelLeftOpen : PanelLeftClose" class="w-[18px] h-[18px] text-tp-text/80" />
             </Btn>
         </div>
@@ -52,27 +46,13 @@
                         :key="item.id"
                         :icon="item.icon"
                         :label="item.name"
-                        :active="props.activeSection === item.id"
+                        :active="activeSection === item.id"
                         :collapsed="false"
                         :nav-item="true"
                         @click="setActive(item.id)"
                     />
 
-                    <div
-                        class="flex items-center justify-between px-2 pt-4 pb-1"
-                        @mouseenter="separatorHovered = true"
-                        @mouseleave="separatorHovered = false"
-                    >
-                        <p class="text-xs font-semibold text-tp-muted select-none">Configuración</p>
-                        <ChevronRight
-                            class="w-4 h-4 text-tp-muted transition-all duration-200"
-                            :class="[
-                                separatorHovered ? 'opacity-100' : 'opacity-0',
-                                settingsOpen ? 'rotate-90' : 'rotate-0'
-                            ]"
-                            @click="settingsOpen = !settingsOpen"
-                        />
-                    </div>
+                    <NavSeparator label="Configuración" :open="settingsOpen" @toggle="settingsOpen = !settingsOpen" />
 
                     <template v-if="settingsOpen">
                         <NavButton
@@ -80,7 +60,7 @@
                             :key="item.id"
                             :icon="item.icon"
                             :label="item.name"
-                            :active="props.activeSection === item.id"
+                            :active="activeSection === item.id"
                             :collapsed="false"
                             :nav-item="true"
                             @click="setActive(item.id)"
