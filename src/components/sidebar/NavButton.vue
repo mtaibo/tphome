@@ -3,27 +3,20 @@
     import { computed } from 'vue'
 
     const props = defineProps({
-        icon: { type: Object, required: true },
-        label: { type: String, required: true },
-        active: { type: Boolean, default: false },
+        icon:      { type: Object,  required: true },
+        label:     { type: String,  required: true },
+        active:    { type: Boolean, default: false },
         collapsed: { type: Boolean, default: false },
-        navItem: { type: Boolean, default: false }
+        navItem:   { type: Boolean, default: false }
     })
 
     defineEmits(['click'])
 
-    const buttonClass = computed(() => {
-
-        const base = 'w-full flex items-center py-2.5 rounded-lg transition-[background-color,padding] duration-300'
-        const padding = props.collapsed ? (props.navItem ? 'px-[10px]' : 'px-[6px]') : 'px-4'
-
-        let stateClass
-        if (props.navItem && props.active) stateClass = 'bg-tp-surface'
-        else if (props.navItem) stateClass = 'bg-transparent'
-        else stateClass = 'bg-transparent'
-
-        return `${base} ${padding} ${stateClass}`
-    })
+    const buttonClass = computed(() => [
+        'w-full flex items-center py-2.5 rounded-lg transition-[background-color,padding] duration-300',
+        props.collapsed ? (props.navItem ? 'px-[10px]' : 'px-[6px]') : 'px-4',
+        props.navItem && props.active ? 'bg-tp-surface' : 'bg-transparent',
+    ].join(' '))
 
 </script>
 

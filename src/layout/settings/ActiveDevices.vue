@@ -1,18 +1,19 @@
 <script setup>
 
-    import { ref, computed, reactive, onMounted, nextTick, watch } from 'vue'
+    import { ref, computed, watch, onMounted } from 'vue'
     import { Lightbulb, Blinds, Trash2, Radio, Info, ChevronRight, Crosshair, Cpu, Settings, ChevronLeft, Save, Zap } from 'lucide-vue-next'
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
     import { pendingDeviceId } from '@/config/sections.js'
     import ConfigWizard from './ConfigWizard.vue'
     import Btn from '@/components/Btn.vue'
+    import { useDeviceDetail } from '@/composables/useDeviceDetail'
 
     const store = useDevices()
 
     // --- List view ---
 
-    const pendingDevices = ref([])
+    const pendingDevices  = ref([])
     const selectedPending = ref(null)
 
     async function fetchPending() {
@@ -23,160 +24,39 @@
         }
     }
 
-    function startConfig(device) { selectedPending.value = device }
-    function onConfigDone() { selectedPending.value = null; fetchPending(); store.setup() }
-    function onConfigCancel() { selectedPending.value = null }
+    function startConfig(device)  { selectedPending.value = device }
+    function onConfigDone()        { selectedPending.value = null; fetchPending(); store.setup() }
+    function onConfigCancel()      { selectedPending.value = null }
 
     onMounted(fetchPending)
 
     const lightDevices = computed(() =>
-        Object.entries(store.storage.lights ?? {}).map(([id, d]) => ({ id, ...d, type: 'Luz', category: 'lights' }))
+        Object.entries(store.storage.lights ?? {}).map(([id, d]) => ({ id, ...d, category: 'lights' }))
     )
     const blindDevices = computed(() =>
-        Object.entries(store.storage.blinds ?? {}).map(([id, d]) => ({ id, ...d, type: 'Persiana', category: 'blinds' }))
+        Object.entries(store.storage.blinds ?? {}).map(([id, d]) => ({ id, ...d, category: 'blinds' }))
     )
     const allDevices = computed(() => [...blindDevices.value, ...lightDevices.value])
 
     // --- Detail view ---
 
-    const selectedDevice = ref(null)
-    const devicePrefs = reactive({})
-    const originalPrefs = reactive({})
-    const deviceMap = reactive({})
-    const originalMap = reactive({})
-    const firmwareList = ref([])
-    const selectedFirmware = ref(null)
-    const prefLabels = {
-        up_time:         'Tiempo de subida',
-        down_time:       'Tiempo de bajada',
-        down_pos:        'Posición de bajada',
-        inverted_relays: 'Invertir relés',
-    }
-
-    const mapLabels = {
-        x:      'X',
-        y:      'Y',
-        width:  'Ancho',
-        height: 'Alto',
-    }
-
-    const prefsChanged = computed(() =>
-        Object.keys(devicePrefs).some(k => String(devicePrefs[k]) !== String(originalPrefs[k]))
-    )
-
-    const mapChanged = computed(() =>
-        Object.keys(deviceMap).some(k => String(deviceMap[k]) !== String(originalMap[k]))
-    )
-
-    const timeKeys = new Set(['up_time', 'down_time'])
-    const percentKeys = new Set(['down_pos'])
-    const focusedPrefKey = ref(null)
-
-    function formatPrefDisplay(key, value) {
-        if (timeKeys.has(key))    return (Number(value) / 100).toFixed(2) + ' s'
-        if (percentKeys.has(key)) return (Number(value) / 100).toFixed(2) + ' %'
-        return value
-    }
-
-    async function startEditPref(key) {
-        focusedPrefKey.value = key
-        await nextTick()
-        document.querySelector(`[data-pref-input="${key}"]`)?.focus()
-    }
-
-    const savingPrefs = ref(false)
-    const flashingFirmware = ref(false)
-
-    async function openDevice(device) {
-        selectedDevice.value = device
-        Object.keys(devicePrefs).forEach(k => delete devicePrefs[k])
-        Object.assign(devicePrefs, device.prefs ?? {})
-        Object.keys(originalPrefs).forEach(k => delete originalPrefs[k])
-        Object.assign(originalPrefs, device.prefs ?? {})
-        Object.keys(deviceMap).forEach(k => delete deviceMap[k])
-        Object.assign(deviceMap, device.map ?? {})
-        Object.keys(originalMap).forEach(k => delete originalMap[k])
-        Object.assign(originalMap, device.map ?? {})
-        selectedFirmware.value = null
-        firmwareList.value = []
-        try { firmwareList.value = await api.getFirmwares() } catch {}
-    }
-
-    function closeDevice() { selectedDevice.value = null }
-
-    async function pingDevice() {
-        try { await api.sendCommand(selectedDevice.value.id, 'ping') }
-        catch (e) { console.error('TPHome - Ping error:', e) }
-    }
-
-    async function getDeviceInfo() {
-        try { await api.getDeviceInfo(selectedDevice.value.id) }
-        catch (e) { console.error('TPHome - Info error:', e) }
-    }
-
-    async function resetPosition() {
-        if (!confirm(`¿Reiniciar posición de ${selectedDevice.value.id} al 50%?`)) return
-        try { await api.resetPosition(selectedDevice.value.id) }
-        catch (e) { console.error('TPHome - Reset position error:', e) }
-    }
-
-    async function deleteDevice() {
-        if (!confirm(`¿Borrar ${selectedDevice.value.name}?`)) return
-        try {
-            await api.deleteDevice(selectedDevice.value.id)
-            closeDevice()
-            await store.setup()
-        } catch (e) { console.error('TPHome - Delete error:', e) }
-    }
-
-    async function savePrefs() {
-        savingPrefs.value = true
-        try {
-            const { id, category } = selectedDevice.value
-            const original = selectedDevice.value.prefs ?? {}
-            const parsed = {}
-            for (const [k, v] of Object.entries(devicePrefs)) {
-                const orig = original[k]
-                if (typeof orig === 'number') parsed[k] = Number(v)
-                else if (typeof orig === 'boolean') parsed[k] = (v === 'true' || v === true)
-                else parsed[k] = v
-            }
-            const config = await api.getConfig('devices')
-            config[category][id].prefs = parsed
-            await api.postConfig('devices', config)
-            store.storage[category][id].prefs = parsed
-            await api.sendPrefs(id, parsed)
-            Object.keys(originalPrefs).forEach(k => delete originalPrefs[k])
-            Object.assign(originalPrefs, parsed)
-        } catch (e) { console.error('TPHome - Save prefs error:', e) }
-        finally { savingPrefs.value = false }
-    }
-
-    const savingMap = ref(false)
-
-    async function saveMap() {
-        savingMap.value = true
-        try {
-            const { id, category } = selectedDevice.value
-            const parsed = {}
-            for (const [k, v] of Object.entries(deviceMap)) parsed[k] = Number(v)
-            const config = await api.getConfig('devices')
-            config[category][id].map = parsed
-            await api.postConfig('devices', config)
-            store.storage[category][id].map = parsed
-            Object.keys(originalMap).forEach(k => delete originalMap[k])
-            Object.assign(originalMap, parsed)
-        } catch (e) { console.error('TPHome - Save map error:', e) }
-        finally { savingMap.value = false }
-    }
-
-    async function flashFirmware() {
-        if (!selectedFirmware.value) return
-        flashingFirmware.value = true
-        try { await api.sendOTA(selectedDevice.value.id, selectedFirmware.value) }
-        catch (e) { console.error('TPHome - OTA error:', e) }
-        finally { flashingFirmware.value = false }
-    }
+    const {
+        selectedDevice, devicePrefs, deviceMap,
+        firmwareList, selectedFirmware,
+        savingPrefs, savingMap, flashingFirmware,
+        focusedPrefKey, prefLabels, mapLabels,
+        timeKeys, percentKeys, prefsChanged, mapChanged,
+        formatPrefDisplay, startEditPref,
+        open:          openDevice,
+        close:         closeDevice,
+        ping:          pingDevice,
+        getInfo:       getDeviceInfo,
+        resetPosition,
+        deleteDevice,
+        savePrefs,
+        saveMap,
+        flashFirmware,
+    } = useDeviceDetail()
 
     watch(pendingDeviceId, (id) => {
         if (!id) return
@@ -241,11 +121,8 @@
                     No hay dispositivos configurados.
                 </div>
 
-                <!-- Blinds group -->
                 <div v-if="blindDevices.length > 0" class="mb-6">
-                    <div class="px-1 pb-3 pt-1 select-none cursor-default">
-                        <p class="text-base font-semibold text-white">Persianas</p>
-                    </div>
+                    <p class="text-base font-semibold text-white px-1 pb-3 pt-1">Persianas</p>
                     <div class="rounded-2xl overflow-hidden bg-[#111113] device-list">
                         <div
                             v-for="device in blindDevices"
@@ -261,11 +138,8 @@
                     </div>
                 </div>
 
-                <!-- Lights group -->
                 <div v-if="lightDevices.length > 0" class="mb-6">
-                    <div class="px-1 pb-3 pt-1 select-none cursor-default">
-                        <p class="text-base font-semibold text-white">Luces</p>
-                    </div>
+                    <p class="text-base font-semibold text-white px-1 pb-3 pt-1">Luces</p>
                     <div class="rounded-2xl overflow-hidden bg-[#111113] device-list">
                         <div
                             v-for="device in lightDevices"
@@ -321,7 +195,7 @@
                 </div>
             </div>
 
-            <!-- Prefs + Firmware side by side -->
+            <!-- Prefs + Map + Firmware -->
             <div class="flex gap-6 items-start">
 
                 <!-- Prefs editor -->
@@ -336,19 +210,19 @@
                             <span class="text-sm text-tp-text flex-1">{{ prefLabels[key] ?? key }}</span>
                             <div
                                 v-if="typeof value === 'boolean'"
-                                class="pref-checkbox select-none"
+                                class="pref-checkbox"
                                 :class="devicePrefs[key] ? 'pref-checkbox--on' : ''"
                                 @click="devicePrefs[key] = !devicePrefs[key]"
                             />
                             <div
                                 v-else-if="(timeKeys.has(key) || percentKeys.has(key)) && focusedPrefKey !== key"
-                                class="pref-input pref-input-display"
+                                class="field-input field-input-display w-20"
                                 @click="startEditPref(key)"
                             >{{ formatPrefDisplay(key, devicePrefs[key]) }}</div>
                             <input
                                 v-else
                                 v-model="devicePrefs[key]"
-                                class="pref-input"
+                                class="field-input w-20"
                                 :data-pref-input="key"
                                 :type="typeof value === 'number' ? 'number' : 'text'"
                                 @blur="focusedPrefKey = null"
@@ -373,11 +247,7 @@
                             class="flex items-center gap-4 px-4 py-3"
                         >
                             <span class="text-sm text-tp-text flex-1">{{ mapLabels[key] ?? key }}</span>
-                            <input
-                                v-model="deviceMap[key]"
-                                type="number"
-                                class="pref-input"
-                            />
+                            <input v-model="deviceMap[key]" type="number" class="field-input w-20" />
                         </div>
                     </div>
                     <Transition name="btn-fade">
@@ -428,20 +298,6 @@
 </template>
 
 <style scoped>
-    .device-list > div {
-        position: relative;
-    }
-    .device-list > div + div::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 16px;
-        right: 16px;
-        height: 0.5px;
-        background: rgba(255, 255, 255, 0.06);
-        pointer-events: none;
-    }
-
     .action-row {
         display: flex;
         align-items: center;
@@ -450,19 +306,12 @@
         padding: 12px 16px;
         font-size: 0.875rem;
         color: var(--color-tp-muted);
-        transition: color 0.15s ease, background 0.15s ease;
-        cursor: default;
+        transition: color 0.15s ease;
         text-align: left;
     }
-    .action-row:hover {
-        color: var(--color-tp-text);
-    }
-    .action-row-danger:hover {
-        color: var(--color-tp-text);
-    }
+    .action-row:hover { color: var(--color-tp-text); }
 
-    .pref-input-display {
-        cursor: default;
+    .field-input-display {
         display: flex;
         align-items: center;
         justify-content: flex-end;
@@ -475,78 +324,12 @@
         background: rgba(255, 255, 255, 0.06);
         border: 0.5px solid rgba(255, 255, 255, 0.12);
         border-radius: 8px;
-        cursor: default;
         transition: background 0.15s ease, border-color 0.15s ease;
         flex-shrink: 0;
     }
     .pref-checkbox--on {
         background: var(--color-tp-accent);
         border-color: var(--color-tp-accent);
-    }
-
-    .pref-input {
-        cursor: default;
-        background: rgba(255, 255, 255, 0.06);
-        border: 0.5px solid rgba(255, 255, 255, 0.12);
-        border-radius: 8px;
-        padding: 5px 10px;
-        font-size: 0.8125rem;
-        font-family: inherit;
-        color: var(--color-tp-text);
-        width: 80px;
-        text-align: right;
-        outline: none;
-        transition: border-color 0.15s ease;
-    }
-    .pref-input:focus {
-        outline: none;
-    }
-    .pref-input::-webkit-outer-spin-button,
-    .pref-input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-    }
-    .pref-input[type=number] {
-        -moz-appearance: textfield;
-    }
-
-    .action-primary {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 18px;
-        border-radius: 14px;
-        background: linear-gradient(
-            145deg,
-            rgba(255, 255, 255, 0.14) 0%,
-            rgba(255, 255, 255, 0.07) 50%,
-            rgba(255, 255, 255, 0.10) 100%
-        );
-        backdrop-filter: blur(24px) saturate(200%);
-        -webkit-backdrop-filter: blur(24px) saturate(200%);
-        border: 0.5px solid rgba(255, 255, 255, 0.22);
-        box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.36),
-            inset 0 -0.5px 0 rgba(0, 0, 0, 0.18),
-            0 4px 12px rgba(0, 0, 0, 0.24),
-            0 1px 3px rgba(0, 0, 0, 0.14);
-        color: var(--color-tp-text);
-        font-size: 0.875rem;
-        font-weight: 500;
-        cursor: default;
-        transition: background 0.18s ease, box-shadow 0.18s ease;
-    }
-    .action-primary:hover {
-        background: linear-gradient(
-            145deg,
-            rgba(255, 255, 255, 0.20) 0%,
-            rgba(255, 255, 255, 0.11) 50%,
-            rgba(255, 255, 255, 0.16) 100%
-        );
-        box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.42),
-            inset 0 -0.5px 0 rgba(0, 0, 0, 0.18),
-            0 6px 18px rgba(0, 0, 0, 0.30),
-            0 1px 3px rgba(0, 0, 0, 0.14);
     }
 
     .btn-fade-enter-active,

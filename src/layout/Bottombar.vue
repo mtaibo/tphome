@@ -13,12 +13,10 @@
     const startY = ref(0)
     const directionLock = ref(null)
 
-    const tabs = computed(() => props.sections)
-
     const visualIndex = computed(() =>
         isDragging.value && hoverIndex.value >= 0
             ? hoverIndex.value
-            : tabs.value.findIndex(t => t.id === props.activeSection)
+            : props.sections.findIndex(t => t.id === props.activeSection)
     )
 
     const bubbleStyle = ref({ opacity: 0 })
@@ -28,16 +26,10 @@
     function updateBubble() {
         const idx = visualIndex.value
         const nav = navRef.value
-        if (idx < 0 || !nav) {
-            bubbleStyle.value = { opacity: 0 }
-            return
-        }
+        if (idx < 0 || !nav) { bubbleStyle.value = { opacity: 0 }; return }
 
         const button = nav.querySelectorAll('.tab-item')[idx]
-        if (!button) {
-            bubbleStyle.value = { opacity: 0 }
-            return
-        }
+        if (!button) { bubbleStyle.value = { opacity: 0 }; return }
 
         const btnRect = button.getBoundingClientRect()
         if (btnRect.width === 0 && retryCount < 10) {
@@ -48,20 +40,17 @@
         retryCount = 0
 
         const navRect = nav.getBoundingClientRect()
-
         bubbleStyle.value = {
-            opacity: isDragging.value ? 0.85 : 1,
+            opacity:   isDragging.value ? 0.85 : 1,
             transform: `translateX(${btnRect.left - navRect.left}px) scale(${isDragging.value ? 1.5 : 1})`,
-            width: `${btnRect.width}px`,
-            height: `${btnRect.height}px`
+            width:     `${btnRect.width}px`,
+            height:    `${btnRect.height}px`,
         }
     }
 
     watch([visualIndex, isDragging], updateBubble, { flush: 'post' })
 
-    function activate(item) {
-        emit('update:activeSection', item.id)
-    }
+    function activate(item) { emit('update:activeSection', item.id) }
 
     function getButtonIndex(nav, clientX) {
         const navRect = nav.getBoundingClientRect()
@@ -84,30 +73,22 @@
 
     function onPointerMove(e) {
         if (!navRef.value || !isPointerDown.value) return
-        
         const touch = e.touches?.[0] || e
-        const clientX = touch.clientX
-        const clientY = touch.clientY
-        
-        const deltaX = Math.abs(clientX - startX.value)
-        const deltaY = Math.abs(clientY - startY.value)
-        
+        const deltaX = Math.abs(touch.clientX - startX.value)
+        const deltaY = Math.abs(touch.clientY - startY.value)
+
         if (directionLock.value === null && (deltaX > 5 || deltaY > 5)) {
             directionLock.value = deltaY > deltaX ? 'vertical' : 'horizontal'
         }
-        
         if (directionLock.value === 'vertical') return
-        
-        const index = getButtonIndex(navRef.value, clientX)
-        if (index >= 0) {
-            hoverIndex.value = index
-            isDragging.value = true
-        }
+
+        const index = getButtonIndex(navRef.value, touch.clientX)
+        if (index >= 0) { hoverIndex.value = index; isDragging.value = true }
     }
 
     function onPointerEnd() {
         if (isDragging.value && hoverIndex.value >= 0) {
-            const item = tabs.value[hoverIndex.value]
+            const item = props.sections[hoverIndex.value]
             if (item) activate(item)
         }
         isDragging.value = false
@@ -117,14 +98,14 @@
     }
 
     const listeners = [
-        ['mousedown', onPointerDown],
-        ['touchstart', onPointerDown, { passive: true }],
-        ['mousemove', onPointerMove],
-        ['touchmove', onPointerMove, { passive: true }],
-        ['mouseup', onPointerEnd],
-        ['touchend', onPointerEnd],
-        ['touchcancel', onPointerEnd],
-        ['mouseleave', onPointerEnd],
+        ['mousedown',    onPointerDown],
+        ['touchstart',   onPointerDown, { passive: true }],
+        ['mousemove',    onPointerMove],
+        ['touchmove',    onPointerMove, { passive: true }],
+        ['mouseup',      onPointerEnd],
+        ['touchend',     onPointerEnd],
+        ['touchcancel',  onPointerEnd],
+        ['mouseleave',   onPointerEnd],
     ]
 
     onMounted(() => {
@@ -132,9 +113,7 @@
         listeners.forEach(([event, handler, opts]) =>
             navRef.value.addEventListener(event, handler, opts)
         )
-        
-        const resizeObserver = new ResizeObserver(updateBubble)
-        resizeObserver.observe(navRef.value)
+        new ResizeObserver(updateBubble).observe(navRef.value)
     })
 
     onUnmounted(() => {
@@ -151,7 +130,7 @@
     <nav ref="navRef" class="liquid-bar" :class="{ dragging: isDragging }">
         <div class="bubble-indicator" :style="bubbleStyle"></div>
         <button
-            v-for="(item, index) in tabs"
+            v-for="(item, index) in props.sections"
             :key="item.id"
             @click="activate(item)"
             class="tab-item"
