@@ -27,7 +27,7 @@
 
     <div class="page-layout">
 
-        <Sidebar v-model:activeSection="activeSection" />
+        <Sidebar />
 
         <main class="flex flex-col flex-1 h-full md:pt-0">
             <Topbar :title="activeSectionName" />
