@@ -2,50 +2,39 @@ import axios from 'axios'
 
 const client = axios.create({
     baseURL: '/api',
-    headers: {
-        'Content-Type': 'application/json'
-    }
+    headers: { 'Content-Type': 'application/json' }
 })
 
 export const api = {
 
-    /* Function to get devices from api db */
     async getDevices() {
         const response = await client.get('/devices')
         return response.data
     },
 
-    /* Function to get pending devices from api db */
     async getPending() {
         const response = await client.get('/devices/pending')
         return response.data
     },
 
-    /* Function to get the devices or the map config json file */
     async getConfig(subject) {
-        let path = `/config/${subject}`
-        const response = await client.get(path)
+        const response = await client.get(`/config/${subject}`)
         return response.data
     },
 
-    /* Function to publish the devices or the map new config json file */
     async postConfig(subject, newConfig) {
-        let path = `/config/${subject}`
-        return client.put(path, newConfig)
+        return client.put(`/config/${subject}`, newConfig)
     },
 
-    /* Function to build commands requests */
     async sendCommand(id, command, value = null) {
-
-        let path = `/commands/${id}/${command}`
-        if (command === 'set' && value !== null) path = `/commands/${id}/set/${value}`
-
+        const path = command === 'set' && value !== null
+            ? `/commands/${id}/set/${value}`
+            : `/commands/${id}/${command}`
         return client.post(path)
     },
 
     async sendPrefs(id, prefs) {
-        let path = `/admin/${id}/prefs`
-        return client.post(path, prefs)
+        return client.post(`/admin/${id}/prefs`, prefs)
     },
 
     async resetPosition(id) {
@@ -68,10 +57,6 @@ export const api = {
         return client.post(`/admin/${id}/ota`, null, { params: { version } })
     },
 
-    async triggerUpdate() {
-        return client.post('/update')
-    },
-
     async uploadFirmware(file, metadata) {
         const formData = new FormData()
         formData.append('file', file)
@@ -80,7 +65,6 @@ export const api = {
         formData.append('target', metadata.target)
         formData.append('version', metadata.version)
         formData.append('notes', metadata.notes || '')
-
         const response = await client.post('/firmware/upload', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         })
@@ -98,5 +82,5 @@ export const api = {
 
     async deleteFirmware(id) {
         return client.delete(`/firmware/${id}`)
-    }
+    },
 }

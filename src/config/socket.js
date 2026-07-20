@@ -6,15 +6,38 @@ import { useMap } from './map'
 const WS_URL = `ws://${window.location.host}/api/ws`
 
 let socket = null
-export const apiOnline = ref(true)
-
 let reconnectTimer = null
 
-function connect() {
-    if (reconnectTimer) {
-        clearTimeout(reconnectTimer)
-        reconnectTimer = null
+export const apiOnline = ref(true)
+
+function handle(store, type, data) {
+    const category = Object.keys(store.storage).find(cat => data.id in store.storage[cat])
+
+    switch (type) {
+
+        case 'device_state':
+            if (!category) return
+            store.storage[category][data.id].state = {
+                position:    data.state.position,
+                motor_state: data.state.motor_state,
+            }
+            break
+
+        case 'device_online':
+        case 'device_offline':
+            if (!category) return
+            store.storage[category][data.id].connection.online = type === 'device_online'
+            break
+
+        case 'device_info':
+            if (!category) return
+            store.storage[category][data.id].prefs = { ...data.prefs }
+            break
     }
+}
+
+function connect() {
+    if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null }
 
     socket = new WebSocket(WS_URL)
 
@@ -29,8 +52,7 @@ function connect() {
 
     socket.onmessage = (event) => {
         const { event: type, data } = JSON.parse(event.data)
-        const store = useDevices()
-        handle(store, type, data)
+        handle(useDevices(), type, data)
     }
 
     socket.onclose = () => {
@@ -42,40 +64,4 @@ function connect() {
     socket.onerror = (error) => console.error('[WS] Error:', error)
 }
 
-function handle(store, type, data) {
-    switch (type) {
-
-        case 'device_state': {
-            const category = Object.keys(store.storage).find(cat => data.id in store.storage[cat])
-            if (!category) return
-            store.storage[category][data.id].state = {
-                position:    data.state.position,
-                motor_state: data.state.motor_state
-            }
-            break
-        }
-
-        case 'device_online':
-        case 'device_offline': {
-            const online = type === 'device_online'
-            const category = Object.keys(store.storage).find(cat => data.id in store.storage[cat])
-            if (!category) return
-            store.storage[category][data.id].connection.online = online
-            break
-        }
-
-        case 'device_info': {
-            const category = Object.keys(store.storage).find(cat => data.id in store.storage[cat])
-            if (!category) return
-            store.storage[category][data.id].prefs = { ...data.prefs }
-            break
-        }
-    }
-}
-
-function reconnect() {
-    if (socket) socket.close()
-    connect()
-}
-
-export const socket_manager = { connect, reconnect }
+export const socket_manager = { connect }
