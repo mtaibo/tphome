@@ -5,23 +5,24 @@
     const props = defineProps({ activeSection: String, sections: Array })
     const emit = defineEmits(['update:activeSection'])
 
-    const navRef = ref(null)
-    const hoverIndex = ref(-1)
-    const isDragging = ref(false)
-    const isPointerDown = ref(false)
-    const startX = ref(0)
-    const startY = ref(0)
-    const directionLock = ref(null)
+    const navRef      = ref(null)
+    const hoverIndex  = ref(-1)
+    const isDragging  = ref(false)
+    const bubbleStyle = ref({ opacity: 0 })
+
+    // Non-reactive drag state — not needed in template or computed
+    let isPointerDown = false
+    let startX = 0
+    let startY = 0
+    let directionLock = null
+    let retryCount = 0
+    let resizeObserver = null
 
     const visualIndex = computed(() =>
         isDragging.value && hoverIndex.value >= 0
             ? hoverIndex.value
             : props.sections.findIndex(t => t.id === props.activeSection)
     )
-
-    const bubbleStyle = ref({ opacity: 0 })
-
-    let retryCount = 0
 
     function updateBubble() {
         const idx = visualIndex.value
@@ -53,34 +54,30 @@
     function activate(item) { emit('update:activeSection', item.id) }
 
     function getButtonIndex(nav, clientX) {
-        const navRect = nav.getBoundingClientRect()
-        const x = clientX - navRect.left
-        const buttons = nav.querySelectorAll('.tab-item')
-        return Array.from(buttons).findIndex(btn => {
-            const r = btn.getBoundingClientRect()
-            const bx = r.left - navRect.left
-            return x >= bx && x < bx + r.width
+        return Array.from(nav.querySelectorAll('.tab-item')).findIndex(btn => {
+            const { left, right } = btn.getBoundingClientRect()
+            return clientX >= left && clientX < right
         })
     }
 
     function onPointerDown(e) {
-        isPointerDown.value = true
-        directionLock.value = null
+        isPointerDown = true
+        directionLock = null
         const touch = e.touches?.[0] || e
-        startX.value = touch.clientX
-        startY.value = touch.clientY
+        startX = touch.clientX
+        startY = touch.clientY
     }
 
     function onPointerMove(e) {
-        if (!navRef.value || !isPointerDown.value) return
+        if (!navRef.value || !isPointerDown) return
         const touch = e.touches?.[0] || e
-        const deltaX = Math.abs(touch.clientX - startX.value)
-        const deltaY = Math.abs(touch.clientY - startY.value)
+        const deltaX = Math.abs(touch.clientX - startX)
+        const deltaY = Math.abs(touch.clientY - startY)
 
-        if (directionLock.value === null && (deltaX > 5 || deltaY > 5)) {
-            directionLock.value = deltaY > deltaX ? 'vertical' : 'horizontal'
+        if (directionLock === null && (deltaX > 5 || deltaY > 5)) {
+            directionLock = deltaY > deltaX ? 'vertical' : 'horizontal'
         }
-        if (directionLock.value === 'vertical') return
+        if (directionLock === 'vertical') return
 
         const index = getButtonIndex(navRef.value, touch.clientX)
         if (index >= 0) { hoverIndex.value = index; isDragging.value = true }
@@ -93,34 +90,33 @@
         }
         isDragging.value = false
         hoverIndex.value = -1
-        isPointerDown.value = false
-        directionLock.value = null
+        isPointerDown = false
+        directionLock = null
     }
 
     const listeners = [
-        ['mousedown',    onPointerDown],
-        ['touchstart',   onPointerDown, { passive: true }],
-        ['mousemove',    onPointerMove],
-        ['touchmove',    onPointerMove, { passive: true }],
-        ['mouseup',      onPointerEnd],
-        ['touchend',     onPointerEnd],
-        ['touchcancel',  onPointerEnd],
-        ['mouseleave',   onPointerEnd],
+        ['mousedown',   onPointerDown],
+        ['touchstart',  onPointerDown, { passive: true }],
+        ['mousemove',   onPointerMove],
+        ['touchmove',   onPointerMove, { passive: true }],
+        ['mouseup',     onPointerEnd],
+        ['touchend',    onPointerEnd],
+        ['touchcancel', onPointerEnd],
+        ['mouseleave',  onPointerEnd],
     ]
 
     onMounted(() => {
-        if (!navRef.value) return
-        listeners.forEach(([event, handler, opts]) =>
-            navRef.value.addEventListener(event, handler, opts)
-        )
-        new ResizeObserver(updateBubble).observe(navRef.value)
+        const nav = navRef.value
+        if (!nav) return
+        listeners.forEach(([event, handler, opts]) => nav.addEventListener(event, handler, opts))
+        resizeObserver = new ResizeObserver(updateBubble)
+        resizeObserver.observe(nav)
     })
 
     onUnmounted(() => {
-        if (!navRef.value) return
-        listeners.forEach(([event, handler, opts]) =>
-            navRef.value.removeEventListener(event, handler, opts)
-        )
+        const nav = navRef.value
+        if (nav) listeners.forEach(([event, handler, opts]) => nav.removeEventListener(event, handler, opts))
+        resizeObserver?.disconnect()
     })
 
 </script>
