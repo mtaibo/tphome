@@ -1,7 +1,6 @@
 <script setup>
 
     import { computed } from 'vue'
-
     import { useDevices } from '@/config/devices'
 
     const props = defineProps({
@@ -18,21 +17,16 @@
     )
 
     const isHorizontal = (blind) => blind.map.width > blind.map.height
-    const coverWidth   = (blind) => {
-        if (props.mode === 'config' || !blind.state) return blind.map.width
-        return isHorizontal(blind) ? blind.map.width  * (100 - blind.state.position) / 100 : blind.map.width
-    }
-    const coverHeight  = (blind) => {
-        if (props.mode === 'config' || !blind.state) return blind.map.height
-        return isHorizontal(blind) ? blind.map.height : blind.map.height * (100 - blind.state.position) / 100
+
+    const cover = (blind) => {
+        if (props.mode === 'config' || !blind.state) return { w: blind.map.width, h: blind.map.height }
+        const t = (100 - blind.state.position) / 100
+        return isHorizontal(blind)
+            ? { w: blind.map.width * t, h: blind.map.height }
+            : { w: blind.map.width,     h: blind.map.height * t }
     }
 
-    const isActive = (blind) => blind.state && blind.state.position > 0
-
-    const onClick = (id) => {
-        if (props.mode === 'config') return emit('pick', id)
-        emit('select', id)
-    }
+    const onClick = (id) => emit(props.mode === 'config' ? 'pick' : 'select', id)
 
 </script>
 
@@ -73,7 +67,7 @@
         <rect
             v-else
             :x="blind.map.x" :y="blind.map.y" rx="1.5"
-            :width="coverWidth(blind)" :height="coverHeight(blind)"
+            :width="cover(blind).w" :height="cover(blind).h"
             :fill="isHorizontal(blind) ? 'url(#blind-slat-h)' : 'url(#blind-slat-v)'"
             class="transition-all duration-500 ease-in-out"
         />

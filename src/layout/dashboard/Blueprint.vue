@@ -18,9 +18,6 @@
         selectedId.value ? store.blinds[selectedId.value] : null
     )
 
-    const handleSelection = (id) => { selectedId.value = id }
-
-
 </script>
 
 <template>
@@ -36,7 +33,7 @@
             >
                 <HouseLayer />
                 <LightsLayer />
-                <BlindsLayer @select="handleSelection" />
+                <BlindsLayer @select="selectedId = $event" />
             </svg>
         </div>
 
