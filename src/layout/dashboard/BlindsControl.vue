@@ -1,4 +1,5 @@
 <script setup>
+
     import { ref, computed, watch, nextTick } from 'vue'
     import { X, ChevronUp, ChevronDown, Pause, Blinds } from 'lucide-vue-next'
     import { api } from '@/config/api'
@@ -12,7 +13,6 @@
     })
     const emit = defineEmits(['close'])
 
-    // Ensure shared anim state exists for this blind
     getAnim(props.id, props.device.state?.position ?? 0)
 
     const tempPosition = ref(Math.round(props.device.state?.position ?? 0))
@@ -22,7 +22,6 @@
     const smoothPos = computed(() => positions[props.id]       ?? 0)
     const handlePos = computed(() => handlePositions[props.id] ?? 0)
 
-    // Keep tempPosition in sync with fill position (animates whether free-running or set-pending)
     watch(smoothPos, (val) => { tempPosition.value = Math.round(val) })
 
     const snapToReal = () => {
@@ -49,7 +48,7 @@
         }
     })
 
-    // Snap only when motor reaches IDLE (0) — clears setPending and confirms final position
+    // Snap when motor reaches IDLE — clears setPending and confirms final position
     watch(() => props.device.state?.motor_state, (newState) => {
         if (newState === 0) {
             const a = getAnim(props.id)
@@ -69,35 +68,21 @@
 
     const sendCommand = async (command, value = null) => {
         isLoading.value = true
-        try {
-            await api.sendCommand(props.id, command, value)
-        } catch (error) {
-            console.error('TPHome - BlindsControl error:', error)
-        } finally {
-            isLoading.value = false
-        }
+        try { await api.sendCommand(props.id, command, value) }
+        catch (e) { console.error('TPHome - BlindsControl error:', e) }
+        finally { isLoading.value = false }
     }
 
-    const updatePosition = (val) => {
-        let value = Math.max(0, Math.min(100, parseInt(val) || 0))
-        tempPosition.value = value
-        sendCommand('set', value)
-    }
+    const handleMove = (dir) => pressBtn(dir, () => {
+        const a       = getAnim(props.id)
+        const timeKey = dir === 'up' ? 'up_time' : 'down_time'
+        const sign    = dir === 'up' ? 1 : -1
+        setPending(props.id, false)
+        a.velocity = sign * 100 / ((props.device.prefs?.[timeKey] ?? 3000) * 10)
+        a.moveStartPos = a.displayPos; a.moveStartTime = Date.now()
+        sendCommand(dir)
+    })
 
-    const handleUp = () => pressBtn('up', () => {
-        const a = getAnim(props.id)
-        setPending(props.id, false)
-        a.velocity = 100 / ((props.device.prefs?.up_time ?? 3000) * 10)
-        a.moveStartPos = a.displayPos; a.moveStartTime = Date.now()
-        sendCommand('up')
-    })
-    const handleDown = () => pressBtn('down', () => {
-        const a = getAnim(props.id)
-        setPending(props.id, false)
-        a.velocity = -(100 / ((props.device.prefs?.down_time ?? 3000) * 10))
-        a.moveStartPos = a.displayPos; a.moveStartTime = Date.now()
-        sendCommand('down')
-    })
     const handleStop = () => pressBtn('stop', () => { snapToReal(); sendCommand('stop') })
 
     let dragging = false
@@ -126,9 +111,8 @@
 
         a.handlePos = pos; handlePositions[props.id] = pos
         tempPosition.value = pos
-
-        a.displayPos = a.realPos; positions[props.id] = a.realPos
-        a.moveStartPos = a.realPos; a.moveStartTime = Date.now()
+        a.displayPos = a.realPos; a.moveStartPos = a.realPos; a.moveStartTime = Date.now()
+        positions[props.id] = a.realPos
 
         if (pos < a.realPos) {
             a.velocity = -(100 / ((props.device.prefs?.down_time ?? 3000) * 10))
@@ -140,7 +124,7 @@
             a.velocity = 0; setPending(props.id, false)
         }
 
-        updatePosition(pos)
+        sendCommand('set', pos)
     }
 
 </script>
@@ -160,64 +144,57 @@
             </Btn>
         </header>
 
-        <!-- MOBILE LAYOUT -->
+        <!-- MOBILE: slider + display left, buttons right -->
         <div class="md:hidden flex-1 flex items-center justify-center px-5 pb-6 gap-4">
             <div class="flex flex-col items-center gap-3 flex-1 max-w-[110px]">
                 <BlindSlider
                     class="w-full aspect-[3/5]"
-                    :fill-pos="smoothPos"
-                    :handle-pos="handlePos"
-                    @drag-start="onSliderDragStart"
-                    @drag-move="onSliderDragMove"
-                    @drag-end="onSliderDragEnd"
+                    :fill-pos="smoothPos" :handle-pos="handlePos"
+                    @drag-start="onSliderDragStart" @drag-move="onSliderDragMove" @drag-end="onSliderDragEnd"
                 />
                 <div class="flex items-baseline gap-1">
                     <span class="text-2xl font-mono font-bold text-tp-text">{{ tempPosition }}</span>
                     <span class="text-sm font-bold text-tp-accent">%</span>
                 </div>
             </div>
-
             <div class="flex flex-col gap-3">
-                <Btn :pressing="pressing['up']" @click="handleUp">
+                <Btn :pressing="pressing['up']"   @click="handleMove('up')">
                     <ChevronUp class="w-[18px] h-[18px] text-tp-text/80" />
                 </Btn>
                 <Btn :pressing="pressing['stop']" @click="handleStop">
                     <Pause class="w-[15px] h-[15px] fill-current text-tp-text/80" />
                 </Btn>
-                <Btn :pressing="pressing['down']" @click="handleDown">
+                <Btn :pressing="pressing['down']" @click="handleMove('down')">
                     <ChevronDown class="w-[18px] h-[18px] text-tp-text/80" />
                 </Btn>
             </div>
         </div>
 
-        <!-- DESKTOP LAYOUT -->
+        <!-- DESKTOP: slider + display + buttons stacked -->
         <div class="hidden md:flex flex-1 flex-col items-center justify-center p-6 gap-8">
             <div class="flex flex-col items-center gap-4">
                 <BlindSlider
                     class="w-40 h-64"
-                    :fill-pos="smoothPos"
-                    :handle-pos="handlePos"
-                    @drag-start="onSliderDragStart"
-                    @drag-move="onSliderDragMove"
-                    @drag-end="onSliderDragEnd"
+                    :fill-pos="smoothPos" :handle-pos="handlePos"
+                    @drag-start="onSliderDragStart" @drag-move="onSliderDragMove" @drag-end="onSliderDragEnd"
                 />
                 <div class="flex items-baseline gap-1">
                     <span class="text-3xl font-mono font-bold text-tp-text">{{ tempPosition }}</span>
                     <span class="text-sm font-bold text-tp-accent">%</span>
                 </div>
             </div>
-
             <div class="flex gap-3">
-                <Btn :pressing="pressing['up']" @click="handleUp">
+                <Btn :pressing="pressing['up']"   @click="handleMove('up')">
                     <ChevronUp class="w-[18px] h-[18px] text-tp-text/80" />
                 </Btn>
                 <Btn :pressing="pressing['stop']" @click="handleStop">
                     <Pause class="w-[15px] h-[15px] fill-current text-tp-text/80" />
                 </Btn>
-                <Btn :pressing="pressing['down']" @click="handleDown">
+                <Btn :pressing="pressing['down']" @click="handleMove('down')">
                     <ChevronDown class="w-[18px] h-[18px] text-tp-text/80" />
                 </Btn>
             </div>
         </div>
+
     </div>
 </template>
