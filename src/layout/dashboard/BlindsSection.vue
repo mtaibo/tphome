@@ -1,25 +1,29 @@
 <script setup>
+
     import { ref, watch, nextTick } from 'vue'
+
     import { ChevronUp, ChevronDown, ChevronRight, Pause, Settings, Blinds } from 'lucide-vue-next'
-    import { useDevices } from '@/config/devices'
-    import { api } from '@/config/api'
-    import { navigateToDevice } from '@/config/sections.js'
-    import BlindSlider from '@/components/BlindSlider.vue'
-    import Btn from '@/components/Btn.vue'
     import { positions, handlePositions, getAnim, setPending, isPending } from '@/composables/useBlindAnimations'
 
-    const store   = useDevices()
+    import { api } from '@/config/api'
+    import { useDevices } from '@/config/devices'
+    import { navigateToDevice } from '@/config/sections.js'
+
+    import Btn from '@/components/Btn.vue'
+    import BlindSlider from '@/components/BlindSlider.vue'
+
+    const store = useDevices()
 
     const loading       = ref({})
-    const dragging      = ref({})
     const pressing      = ref({})
     const positionInput = ref({})
+    const dragging      = {}   // not reactive — only read in watcher/handlers, never in template
 
     // WS update: recalibrate anchor while moving; auto-detect direction when motor is
     // running but velocity is unknown (e.g. blind was started from another view)
     watch(() => store.blinds, (blinds) => {
         for (const [id, device] of Object.entries(blinds)) {
-            if (dragging.value[id]) continue
+            if (dragging[id]) continue
             const newPos     = device.state?.position ?? 0
             const motorState = device.state?.motor_state ?? 0
             const a = getAnim(id, newPos)
@@ -71,22 +75,17 @@
         action()
     }
 
-    const handleUp = (id) => pressBtn(`${id}-up`, () => {
-        const device = store.blinds[id]
-        const a = getAnim(id, positions[id])
+    const handleMove = (id, dir) => pressBtn(`${id}-${dir}`, () => {
+        const device  = store.blinds[id]
+        const a       = getAnim(id, positions[id])
+        const timeKey = dir === 'up' ? 'up_time' : 'down_time'
+        const sign    = dir === 'up' ? 1 : -1
         setPending(id, false)
-        a.velocity = 100 / ((device?.prefs?.up_time ?? 3000) * 10)
+        a.velocity = sign * 100 / ((device?.prefs?.[timeKey] ?? 3000) * 10)
         a.moveStartPos = a.displayPos; a.moveStartTime = Date.now()
-        sendCommand(id, 'up')
+        sendCommand(id, dir)
     })
-    const handleDown = (id) => pressBtn(`${id}-down`, () => {
-        const device = store.blinds[id]
-        const a = getAnim(id, positions[id])
-        setPending(id, false)
-        a.velocity = -(100 / ((device?.prefs?.down_time ?? 3000) * 10))
-        a.moveStartPos = a.displayPos; a.moveStartTime = Date.now()
-        sendCommand(id, 'down')
-    })
+
     const handleStop = (id) => pressBtn(`${id}-stop`, () => {
         const a = getAnim(id)
         a.velocity = 0; a.displayPos = a.realPos; a.handlePos = a.realPos
@@ -95,18 +94,19 @@
         setPending(id, false)
         sendCommand(id, 'stop')
     })
+
     const handleSettings = (id) => pressBtn(`${id}-cfg`, () => navigateToDevice(id))
 
     function sendPosition(id) {
         const raw = positionInput.value[id]
+        if (raw === '' || raw == null) return
         const pos = Math.min(100, Math.max(0, Number(raw)))
-        if (isNaN(pos)) return
         positionInput.value[id] = ''
         onBlindDragEnd(id, pos)
     }
 
     function onBlindDragStart(id, pos) {
-        dragging.value[id] = true
+        dragging[id] = true
         const a = getAnim(id, pos)
         a.velocity = 0; setPending(id, false)
         a.displayPos = pos; a.handlePos = pos
@@ -120,7 +120,7 @@
     }
 
     function onBlindDragEnd(id, pos) {
-        dragging.value[id] = false
+        dragging[id] = false
         const a = getAnim(id)
 
         a.handlePos = pos; handlePositions[id] = pos
@@ -140,6 +140,7 @@
 
         sendCommand(id, 'set', pos)
     }
+
 </script>
 
 <template>
@@ -190,13 +191,13 @@
 
                     <!-- Buttons column -->
                     <div class="flex flex-col justify-between items-center h-[180px]">
-                        <Btn :pressing="pressing[`${id}-up`]" @click="handleUp(id)">
+                        <Btn :pressing="pressing[`${id}-up`]" @click="handleMove(id, 'up')">
                             <ChevronUp class="w-[18px] h-[18px] text-tp-text/80" />
                         </Btn>
                         <Btn :pressing="pressing[`${id}-stop`]" @click="handleStop(id)">
                             <Pause class="w-[15px] h-[15px] fill-current text-tp-text/80" />
                         </Btn>
-                        <Btn :pressing="pressing[`${id}-down`]" @click="handleDown(id)">
+                        <Btn :pressing="pressing[`${id}-down`]" @click="handleMove(id, 'down')">
                             <ChevronDown class="w-[18px] h-[18px] text-tp-text/80" />
                         </Btn>
                         <Btn muted :pressing="pressing[`${id}-cfg`]" @click="handleSettings(id)">
@@ -239,7 +240,6 @@
         inset 0 -1px 0 rgba(0, 0, 0, 0.15);
 }
 
-
 .pos-input {
     flex: 1;
     min-width: 0;
@@ -258,5 +258,4 @@
 .pos-input::-webkit-outer-spin-button,
 .pos-input::-webkit-inner-spin-button { -webkit-appearance: none; }
 .pos-input[type=number] { -moz-appearance: textfield; }
-
 </style>
