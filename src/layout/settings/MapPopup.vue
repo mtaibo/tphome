@@ -1,7 +1,7 @@
 <script setup>
 
     import { ref, computed, watch } from 'vue'
-    import { X, ChevronRight, Cpu } from 'lucide-vue-next'
+    import { X, ChevronRight, Cpu, Blinds, Lightbulb } from 'lucide-vue-next'
     import { useMap } from '@/config/map'
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
@@ -21,10 +21,10 @@
     const pickedId = ref(null)
     const picking  = ref(false)
 
-    const pickedName = computed(() => {
+    const picked = computed(() => {
         if (!pickedId.value) return null
-        for (const devices of Object.values(store.storage)) {
-            if (pickedId.value in devices) return devices[pickedId.value]?.name
+        for (const [category, devices] of Object.entries(store.storage)) {
+            if (pickedId.value in devices) return { name: devices[pickedId.value]?.name, category }
         }
         return null
     })
@@ -67,10 +67,13 @@
                     <header class="px-5 pt-5 pb-4 flex items-center gap-3 shrink-0">
                         <Cpu class="text-white w-5 h-5 shrink-0" />
                         <span class="text-base font-bold tracking-tight text-tp-text font-mono shrink-0">{{ device.mac }}</span>
-                        <span v-if="pickedName" class="flex-1 text-sm text-tp-muted truncate text-right">{{ pickedName }}</span>
-                        <div v-else class="flex-1" />
+                        <template v-if="picked">
+                            <component :is="picked.category === 'blinds' ? Blinds : Lightbulb" class="w-4 h-4 text-tp-muted shrink-0" />
+                            <span class="flex-1 text-sm text-tp-muted truncate text-right">{{ picked.name }}</span>
+                        </template>
+                        <div v-if="!picked" class="flex-1" />
                         <Transition name="btn-fade">
-                            <Btn v-if="pickedId" muted :class="{ 'opacity-50 pointer-events-none': picking }" @click="confirm">
+                            <Btn v-if="picked" muted :class="{ 'opacity-50 pointer-events-none': picking }" @click="confirm">
                                 <ChevronRight class="w-[15px] h-[15px] text-tp-muted" />
                             </Btn>
                         </Transition>
