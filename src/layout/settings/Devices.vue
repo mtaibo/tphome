@@ -19,24 +19,21 @@
     async function fetchPending() {
         try {
             pendingDevices.value = (await api.getPending()).map(m => ({ mac: m }))
-        } catch (error) {
-            console.error('TPHome - Error fetching pending devices:', error)
+        } catch (e) {
+            console.error('TPHome - Error fetching pending devices:', e)
         }
     }
 
-    function startConfig(device)  { selectedPending.value = device }
-    function onConfigDone()        { selectedPending.value = null; fetchPending(); store.setup() }
-    function onConfigCancel()      { selectedPending.value = null }
+    function startConfig(device) { selectedPending.value = device }
+    function onConfigDone()      { selectedPending.value = null; fetchPending(); store.setup() }
+    function onConfigCancel()    { selectedPending.value = null }
 
     onMounted(fetchPending)
 
-    const lightDevices = computed(() =>
-        Object.entries(store.storage.lights ?? {}).map(([id, d]) => ({ id, ...d, category: 'lights' }))
-    )
-    const blindDevices = computed(() =>
-        Object.entries(store.storage.blinds ?? {}).map(([id, d]) => ({ id, ...d, category: 'blinds' }))
-    )
-    const allDevices = computed(() => [...blindDevices.value, ...lightDevices.value])
+    const deviceGroups = computed(() => [
+        { label: 'Persianas', devices: Object.entries(store.storage.blinds ?? {}).map(([id, d]) => ({ id, ...d, category: 'blinds' })) },
+        { label: 'Luces',     devices: Object.entries(store.storage.lights ?? {}).map(([id, d]) => ({ id, ...d, category: 'lights' })) },
+    ].filter(g => g.devices.length > 0))
 
     // --- Detail view ---
 
@@ -61,10 +58,7 @@
     watch(pendingDeviceId, (id) => {
         if (!id) return
         for (const [category, devices] of Object.entries(store.storage)) {
-            if (id in devices) {
-                openDevice({ ...devices[id], id, category })
-                break
-            }
+            if (id in devices) { openDevice({ ...devices[id], id, category }); break }
         }
         pendingDeviceId.value = null
     }, { immediate: true })
@@ -117,32 +111,14 @@
             </section>
 
             <section>
-                <div v-if="allDevices.length === 0" class="text-sm text-tp-muted/50 italic px-1">
+                <div v-if="deviceGroups.length === 0" class="text-sm text-tp-muted/50 italic px-1">
                     No hay dispositivos configurados.
                 </div>
-
-                <div v-if="blindDevices.length > 0" class="mb-6">
-                    <p class="text-base font-semibold text-white px-1 pb-3 pt-1">Persianas</p>
+                <div v-for="group in deviceGroups" :key="group.label" class="mb-6">
+                    <p class="text-base font-semibold text-white px-1 pb-3 pt-1">{{ group.label }}</p>
                     <div class="rounded-2xl overflow-hidden bg-[#111113] device-list">
                         <div
-                            v-for="device in blindDevices"
-                            :key="device.id"
-                            class="flex items-center gap-4 px-4 py-3 select-none"
-                            @click="openDevice(device)"
-                        >
-                            <div class="w-2 h-2 rounded-full shrink-0" :class="device.connection?.online ? 'bg-tp-on shadow-[0_0_6px_var(--color-tp-on)]' : 'bg-tp-off'"></div>
-                            <span class="font-mono text-xs text-tp-muted shrink-0 hidden md:block">{{ device.id }}</span>
-                            <span class="text-sm text-tp-text flex-1 truncate">{{ device.name }}</span>
-                            <ChevronRight class="w-4 h-4 shrink-0 text-tp-muted/50" />
-                        </div>
-                    </div>
-                </div>
-
-                <div v-if="lightDevices.length > 0" class="mb-6">
-                    <p class="text-base font-semibold text-white px-1 pb-3 pt-1">Luces</p>
-                    <div class="rounded-2xl overflow-hidden bg-[#111113] device-list">
-                        <div
-                            v-for="device in lightDevices"
+                            v-for="device in group.devices"
                             :key="device.id"
                             class="flex items-center gap-4 px-4 py-3 select-none"
                             @click="openDevice(device)"

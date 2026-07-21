@@ -4,7 +4,7 @@ import { LayoutDashboard, Blinds, Lightbulb, Wand2, Smartphone, Cpu } from 'luci
 
 import Blueprint      from '@/layout/dashboard/Blueprint.vue'
 import BlindsSection  from '@/layout/dashboard/BlindsSection.vue'
-import ActiveDevices  from '@/layout/settings/ActiveDevices.vue'
+import Devices        from '@/layout/settings/Devices.vue'
 import FirmwareManager from '@/layout/settings/FirmwareManager.vue'
 
 export const dashboardSections = [
@@ -15,7 +15,7 @@ export const dashboardSections = [
 ]
 
 export const settingsSections = [
-    { id: 'active',   name: 'Dispositivos', icon: Smartphone, component: ActiveDevices },
+    { id: 'active',   name: 'Dispositivos', icon: Smartphone, component: Devices },
     { id: 'firmware', name: 'Firmware',     icon: Cpu,        component: FirmwareManager },
 ]
 
