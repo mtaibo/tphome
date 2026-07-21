@@ -5,10 +5,12 @@
 
     const map = useMap()
 
-    const roomRx = computed(() => {
-        const parts = (map.storage.viewBox ?? '0 0 100 100').split(' ').map(Number)
-        return Math.round(Math.min(parts[2] || 100, parts[3] || 100) * 0.08)
+    const vb = computed(() => {
+        const parts = (map.storage.viewBox ?? '0 0 0 0').split(' ').map(Number)
+        return { w: parts[2] ?? 0, h: parts[3] ?? 0 }
     })
+
+    const roomRx = computed(() => Math.round(Math.min(vb.value.w || 100, vb.value.h || 100) * 0.08))
 
     // Classify wall segments by testing each boundary only within the room that owns it.
     // This avoids generating phantom walls where a room-corner y/x passes through another room's interior.
@@ -141,7 +143,7 @@
 
     <defs>
         <mask id="door-mask">
-            <rect :width="map.storage.viewBox?.split(' ')[2]" :height="map.storage.viewBox?.split(' ')[3]" fill="white"/>
+            <rect :width="vb.w" :height="vb.h" fill="white"/>
             <line
                 v-for="(door, i) in map.storage.doors"
                 :key="i"

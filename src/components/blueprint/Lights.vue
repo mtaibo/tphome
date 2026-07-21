@@ -1,7 +1,6 @@
 <script setup>
 
     import { computed } from 'vue'
-
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
 
@@ -18,9 +17,9 @@
             : store.lights
     )
 
-    const toggleLight = async (id) => {
+    const onClick = (id) => {
         if (props.mode === 'config') return emit('pick', id)
-        await api.sendCommand(id, 'toggle')
+        api.sendCommand(id, 'toggle')
     }
 
     const circleClass = (light) => {
@@ -40,19 +39,19 @@
 <template>
 
     <g
-        v-for="(light, id) in lights" 
+        v-for="(light, id) in lights"
         :key="id"
         :transform="`translate(${light.map.x}, ${light.map.y})`"
         class="cursor-pointer select-none"
-        @click="toggleLight(id)"
+        @click="onClick(id)"
     >
 
         <!-- Hit area (invisible, larger for accessibility) -->
         <circle r="14" fill="transparent" />
 
         <!-- Outline circle -->
-        <circle 
-            r="10" 
+        <circle
+            r="10"
             :class="['transition-all duration-300 stroke-2', circleClass(light)]"
         />
 
