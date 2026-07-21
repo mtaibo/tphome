@@ -36,6 +36,7 @@
         v-for="(blind, id) in blinds"
         :key="id"
         class="select-none cursor-pointer"
+        style="pointer-events: all"
         @click="onClick(id)"
     >
 
@@ -43,7 +44,8 @@
         <rect
             :x="blind.map.x - 4" :y="blind.map.y - 4"
             :width="blind.map.width + 8" :height="blind.map.height + 8"
-            fill="transparent" rx="3"
+            fill="rgba(0,0,0,0)" rx="3"
+            style="pointer-events: all"
         />
 
         <!-- Blind background -->
