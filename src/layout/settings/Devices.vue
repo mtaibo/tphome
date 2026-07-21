@@ -5,7 +5,7 @@
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
     import { pendingDeviceId } from '@/config/sections.js'
-    import ConfigWizard from './ConfigWizard.vue'
+    import MapPopup from './MapPopup.vue'
     import Btn from '@/components/Btn.vue'
     import { useDeviceDetail } from '@/composables/useDeviceDetail'
 
@@ -132,12 +132,7 @@
                 </div>
             </section>
 
-            <ConfigWizard
-                v-if="selectedPending"
-                :device="selectedPending"
-                @done="onConfigDone"
-                @cancel="onConfigCancel"
-            />
+            <MapPopup :device="selectedPending" @done="onConfigDone" @cancel="onConfigCancel" />
 
         </div>
 
