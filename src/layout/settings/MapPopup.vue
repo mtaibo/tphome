@@ -1,7 +1,7 @@
 <script setup>
 
-    import { ref, watch } from 'vue'
-    import { X, Check, Cpu } from 'lucide-vue-next'
+    import { ref, computed, watch } from 'vue'
+    import { X, ChevronRight, Cpu } from 'lucide-vue-next'
     import { useMap } from '@/config/map'
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
@@ -20,6 +20,14 @@
 
     const pickedId = ref(null)
     const picking  = ref(false)
+
+    const pickedName = computed(() => {
+        if (!pickedId.value) return null
+        for (const devices of Object.values(store.storage)) {
+            if (pickedId.value in devices) return devices[pickedId.value]?.name
+        }
+        return null
+    })
 
     function onPick(id) { pickedId.value = id }
 
@@ -40,7 +48,10 @@
 
     watch(() => props.device, async (d) => {
         if (!d) { pickedId.value = null; return }
-        if (Object.keys(store.storage).length === 0) await store.setup()
+        const loads = []
+        if (Object.keys(store.storage).length === 0) loads.push(store.setup())
+        if (map.unconfigured)                        loads.push(map.setup())
+        await Promise.all(loads)
     }, { immediate: true })
 
 </script>
@@ -53,20 +64,23 @@
                 <div class="map-popup">
 
                     <!-- Header -->
-                    <header class="px-5 pt-5 pb-4 flex items-center justify-between shrink-0">
-                        <div class="flex items-center gap-3">
-                            <div class="shrink-0 p-2 bg-tp-accent/10 rounded-[14px]">
-                                <Cpu class="text-tp-accent w-5 h-5" />
-                            </div>
-                            <span class="text-base font-bold tracking-tight text-tp-text font-mono">{{ device.mac }}</span>
-                        </div>
+                    <header class="px-5 pt-5 pb-4 flex items-center gap-3 shrink-0">
+                        <Cpu class="text-white w-5 h-5 shrink-0" />
+                        <span class="text-base font-bold tracking-tight text-tp-text font-mono shrink-0">{{ device.mac }}</span>
+                        <span v-if="pickedName" class="flex-1 text-sm text-tp-muted truncate text-right">{{ pickedName }}</span>
+                        <div v-else class="flex-1" />
+                        <Transition name="btn-fade">
+                            <Btn v-if="pickedId" muted :class="{ 'opacity-50 pointer-events-none': picking }" @click="confirm">
+                                <ChevronRight class="w-[15px] h-[15px] text-tp-muted" />
+                            </Btn>
+                        </Transition>
                         <Btn muted @click="emit('cancel')">
                             <X class="w-[15px] h-[15px] text-tp-muted" />
                         </Btn>
                     </header>
 
                     <!-- Blueprint -->
-                    <div class="flex items-center justify-center px-5 pb-4 md:px-8 md:pb-6">
+                    <div class="flex items-center justify-center px-5 pb-5 md:px-8 md:pb-8">
                         <svg
                             :viewBox="map.storage.viewBox ?? '0 0 0 0'"
                             class="w-full h-auto"
@@ -77,16 +91,6 @@
                             <BlindsLayer mode="config" @pick="onPick" />
                         </svg>
                     </div>
-
-                    <!-- Confirm (appears when a device is picked) -->
-                    <Transition name="btn-fade">
-                        <div v-if="pickedId" class="px-5 pb-5 md:px-8 md:pb-6 flex justify-end">
-                            <button @click="confirm" :disabled="picking" class="action-primary">
-                                <Check class="w-4 h-4 shrink-0" />
-                                <span>{{ picking ? 'Asignando…' : 'Asignar' }}</span>
-                            </button>
-                        </div>
-                    </Transition>
 
                 </div>
             </div>
