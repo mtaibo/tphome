@@ -71,7 +71,6 @@
                             :viewBox="map.storage.viewBox ?? '0 0 0 0'"
                             class="w-full h-auto"
                             xmlns="http://www.w3.org/2000/svg"
-                            :class="pickedId ? '' : 'cursor-crosshair'"
                         >
                             <HouseLayer />
                             <LightsLayer mode="config" @pick="onPick" />
