@@ -83,18 +83,17 @@ namespace Mqtt {
 
                 const char offlineByte = 0xFF;
 
+                _state.lastTime = now;
                 _client.disconnect();
 
-                if (_client.connect(
-                    Settings::config.deviceID, 
-                    Settings::config.mqttUser, 
+                _client.connect(
+                    Settings::config.deviceID,
+                    Settings::config.mqttUser,
                     Settings::config.mqttPass,
 
                     topics.state, 1, false,
                     &offlineByte, 1
-                )) {
-                    _state.lastTime = now;
-                }
+                );
             }
 
         } else {
