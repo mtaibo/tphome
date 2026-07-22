@@ -38,19 +38,12 @@ namespace Wifi {
 
         uint32_t now = (uint32_t) millis();
 
-        if (_state.isConnected) {
+        if (!Hardware::Wifi::isConnected()) {
 
-            if (now - _state.lastTime < 60000) return;
-            
-            if (!Hardware::Wifi::isConnected()) {
+            if (_state.isConnected) {
                 _state.isConnected = false;
                 _state.lastTime = now;
-            } 
-
-            return;
-        }
-
-        if (!Hardware::Wifi::isConnected()) {
+            }
 
             if (now - _state.lastTime > _state.reconnectInterval) {
                 WiFi.disconnect(false);
