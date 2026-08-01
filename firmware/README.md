@@ -176,15 +176,17 @@ The device publishes its state on `tp/{id}/s` as two bytes: `position` (0–100)
 See **[docs/build.md](docs/build.md)** for the full setup guide — wiring diagrams, bootloader entry, and per-environment commands.
 
 ```bash
-# Clone the monorepo
 git clone https://github.com/mtaibo/tphome
 cd tphome/firmware
 
-# Copy and fill in your WiFi and MQTT credentials
+# Fill in your WiFi and MQTT credentials
 cp include/settings/credentials.example.h include/settings/credentials.h
 
-# Build and flash — example: ESP8266 blind controller
-pio run -e blind_esp8266 -t upload
+# Build (default: blind_esp8266)
+./build.sh
+
+# Or build and flash directly
+./build.sh flash blind_esp8266
 ```
 
 Three build environments are available:

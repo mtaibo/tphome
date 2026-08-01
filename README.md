@@ -136,17 +136,25 @@ No cloud involved at any point. The entire system works on the local network.
 
 ## How to run
 
-Each module has its own setup guide. Clone the repo and navigate to the relevant folder:
-
 ```bash
 git clone https://github.com/mtaibo/tphome
+cd tphome
+cp api/.env.example api/.env
+docker compose up --build -d
 ```
 
-| Module | Guide |
-|---|---|
-| **firmware/** | [firmware/README.md](firmware/README.md) — PlatformIO build and flash |
-| **api/** | [api/README.md](api/README.md) — Docker + Mosquitto setup |
-| **frontend/** | [frontend/README.md](frontend/README.md) — npm dev or Docker |
+That's it. Caddy, Nginx, the API, and the MQTT broker all start together.
+
+**Firmware** is flashed separately — it runs on the physical chips, not in Docker:
+
+```bash
+cd firmware
+./build.sh              # compile blind_esp8266 (default)
+./build.sh all          # compile all environments
+./build.sh flash        # compile and flash
+```
+
+See [firmware/README.md](firmware/README.md) for wiring and first-flash instructions.
 
 ## License
 
