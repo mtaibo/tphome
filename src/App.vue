@@ -4,7 +4,7 @@
     import { onMounted } from 'vue'
 
     import { useDevices } from './config/devices'
-    import { useMap } from './config/map'
+    import { useBlueprint } from './config/blueprint'
     import { useSections } from './config/sections'
 
     import Sidebar   from '@/layout/Sidebar.vue'
@@ -12,7 +12,7 @@
     import Bottombar from '@/layout/Bottombar.vue'
 
     const devices = useDevices()
-    const map = useMap()
+    const map = useBlueprint()
 
     onMounted(async () => {
         await devices.setup()

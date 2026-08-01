@@ -6,7 +6,10 @@ import { api } from './api'
 export const useDevices = defineStore('devices', () => {
 
     const storage        = reactive({})
-    const unconfigured   = computed(() => Object.keys(storage).length === 0)
+    const unconfigured   = computed(() =>
+        Object.keys(storage.blinds ?? {}).length === 0 &&
+        Object.keys(storage.lights ?? {}).length === 0
+    )
     const blinds         = computed(() =>
         Object.fromEntries(
             Object.entries(storage.blinds ?? {}).filter(([, d]) => d.state != null)
@@ -23,42 +26,53 @@ export const useDevices = defineStore('devices', () => {
 
     async function setup() {
         try {
-            const config = await api.getConfig('devices')
-            if (Object.keys(config).length === 0) return
+            const [blindsData, lightsData] = await Promise.all([
+                api.getDevicesByCategory('blinds'),
+                api.getDevicesByCategory('lights'),
+            ])
 
-            for (const device of Object.keys(storage)) delete storage[device]
+            for (const key of Object.keys(storage)) delete storage[key]
 
-            for (const [category, devices] of Object.entries(config)) {
-                if (!storage[category]) storage[category] = {}
-                for (const [id, device] of Object.entries(devices)) {
-                    storage[category][id] = {
-                        name:       device.name,
-                        map:        { ...device.map },
-                        prefs:      { ...device.prefs },
-                        state:      null,
-                        connection: null,
-                    }
+            storage.blinds = {}
+            for (const device of blindsData) {
+                storage.blinds[device.id] = {
+                    name:       device.name,
+                    map:        device.map,
+                    prefs:      device.prefs,
+                    state:      device.state,
+                    connection: device.connection,
                 }
             }
 
-            await update()
+            storage.lights = {}
+            for (const device of lightsData) {
+                storage.lights[device.id] = {
+                    name:       device.name,
+                    map:        device.map,
+                    state:      device.state,
+                    connection: device.connection,
+                }
+            }
         } catch (error) { console.error('TPHome - Setup error:', error) }
     }
 
     async function update() {
         try {
-            const devices = await api.getDevices()
-            for (const device of devices) {
-                const category = Object.keys(storage).find(cat => device.id in storage[cat])
-                if (!category) continue
+            const [blindsData, lightsData] = await Promise.all([
+                api.getDevicesByCategory('blinds'),
+                api.getDevicesByCategory('lights'),
+            ])
 
-                storage[category][device.id].connection = { ...device.connection }
-                storage[category][device.id].state      = { ...device.state }
+            for (const device of blindsData) {
+                if (!storage.blinds?.[device.id]) continue
+                storage.blinds[device.id].connection = device.connection
+                storage.blinds[device.id].state      = device.state
+            }
 
-                const configPrefs  = storage[category][device.id].prefs
-                const currentPrefs = device.prefs
-                const notSync = Object.keys(configPrefs).some(k => configPrefs[k] !== currentPrefs[k])
-                if (notSync) await api.sendPrefs(device.id, configPrefs)
+            for (const device of lightsData) {
+                if (!storage.lights?.[device.id]) continue
+                storage.lights[device.id].connection = device.connection
+                storage.lights[device.id].state      = device.state
             }
         } catch (error) { console.error('TPHome - Update error:', error) }
     }

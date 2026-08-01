@@ -1,9 +1,9 @@
 <script setup>
 
     import { computed } from 'vue'
-    import { useMap } from '@/config/map'
+    import { useBlueprint } from '@/config/blueprint'
 
-    const map = useMap()
+    const map = useBlueprint()
 
     const vb = computed(() => {
         const parts = (map.storage.viewBox ?? '0 0 0 0').split(' ').map(Number)

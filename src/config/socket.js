@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 
 import { useDevices } from './devices'
-import { useMap } from './map'
+import { useBlueprint } from './blueprint'
 
 const WS_URL = `ws://${window.location.host}/api/ws`
 
@@ -45,7 +45,7 @@ function connect() {
         console.log('[WS] Connected')
         apiOnline.value = true
         const devices = useDevices()
-        const map = useMap()
+        const map = useBlueprint()
         if (devices.unconfigured) await devices.setup()
         if (map.unconfigured) await map.setup()
     }

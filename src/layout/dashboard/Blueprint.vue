@@ -2,7 +2,7 @@
 
     import { ref, computed } from 'vue'
     import { useDevices } from '@/config/devices'
-    import { useMap } from '@/config/map'
+    import { useBlueprint } from '@/config/blueprint'
 
     import LightsLayer   from '@/components/blueprint/Lights.vue'
     import BlindsLayer   from '@/components/blueprint/Blinds.vue'
@@ -11,7 +11,7 @@
     import BlindsControl from './BlindsControl.vue'
 
     const store = useDevices()
-    const map = useMap()
+    const map = useBlueprint()
 
     const selectedId = ref(null)
     const selectedBlind = computed(() =>

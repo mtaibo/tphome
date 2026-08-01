@@ -3,7 +3,7 @@
     import { ref, watch, nextTick } from 'vue'
 
     import { ChevronUp, ChevronDown, ChevronRight, Pause, Settings, Blinds } from 'lucide-vue-next'
-    import { positions, handlePositions, getAnim, setPending, isPending } from '@/composables/useBlindAnimations'
+    import { positions, handlePositions, getAnim, setPending, isPending } from '@/config/useBlindAnimations'
 
     import { api } from '@/config/api'
     import { useDevices } from '@/config/devices'
@@ -17,7 +17,7 @@
     const loading       = ref({})
     const pressing      = ref({})
     const positionInput = ref({})
-    const dragging      = {}   // not reactive — only read in watcher/handlers, never in template
+    const dragging      = {}
 
     // WS update: recalibrate anchor while moving; auto-detect direction when motor is
     // running but velocity is unknown (e.g. blind was started from another view)
@@ -144,6 +144,7 @@
 </script>
 
 <template>
+
     <div class="h-full overflow-y-auto overflow-x-hidden pt-28 pb-32 px-5 md:pt-8 md:pb-8 md:px-8">
 
         <!-- Empty state -->

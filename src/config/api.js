@@ -12,6 +12,11 @@ export const api = {
         return response.data
     },
 
+    async getDevicesByCategory(category) {
+        const response = await client.get(`/devices/${category}`)
+        return response.data
+    },
+
     async getPending() {
         const response = await client.get('/devices/pending')
         return response.data
@@ -24,6 +29,15 @@ export const api = {
 
     async postConfig(subject, newConfig) {
         return client.put(`/config/${subject}`, newConfig)
+    },
+
+    async getMetadata() {
+        const response = await client.get('/config/metadata')
+        return response.data
+    },
+
+    async patchDeviceConfig(id, key, data) {
+        return client.patch(`/config/devices/${id}/${key}`, data)
     },
 
     async sendCommand(id, command, value = null) {

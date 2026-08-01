@@ -18,15 +18,10 @@ export function useDeviceDetail() {
     const flashingFirmware = ref(false)
     const focusedPrefKey   = ref(null)
 
-    const prefLabels = {
-        up_time:         'Tiempo de subida',
-        down_time:       'Tiempo de bajada',
-        down_pos:        'Posición de bajada',
-        inverted_relays: 'Invertir relés',
-    }
-    const mapLabels   = { x: 'X', y: 'Y', width: 'Ancho', height: 'Alto' }
-    const timeKeys    = new Set(['up_time', 'down_time'])
-    const percentKeys = new Set(['down_pos'])
+    const prefLabels  = reactive({})
+    const mapLabels   = reactive({})
+    const timeKeys    = ref(new Set())
+    const percentKeys = ref(new Set())
 
     const prefsChanged = computed(() =>
         Object.keys(devicePrefs).some(k => String(devicePrefs[k]) !== String(originalPrefs[k]))
@@ -36,8 +31,8 @@ export function useDeviceDetail() {
     )
 
     function formatPrefDisplay(key, value) {
-        if (timeKeys.has(key))    return (Number(value) / 100).toFixed(2) + ' s'
-        if (percentKeys.has(key)) return (Number(value) / 100).toFixed(2) + ' %'
+        if (timeKeys.value.has(key))    return (Number(value) / 100).toFixed(2) + ' s'
+        if (percentKeys.value.has(key)) return (Number(value) / 100).toFixed(2) + ' %'
         return value
     }
 
@@ -60,7 +55,23 @@ export function useDeviceDetail() {
         resetObj(originalMap,   device.map   ?? {})
         selectedFirmware.value = null
         firmwareList.value = []
+
         try { firmwareList.value = await api.getFirmwares() } catch {}
+
+        try {
+            const meta      = await api.getMetadata()
+            const category  = device.category ?? 'blinds'
+            const catMeta   = meta[category] ?? {}
+
+            resetObj(prefLabels, Object.fromEntries(
+                Object.entries(catMeta.prefs ?? {}).map(([k, v]) => [k, v.label])
+            ))
+            resetObj(mapLabels, Object.fromEntries(
+                Object.entries(catMeta.map ?? {}).map(([k, v]) => [k, v.label])
+            ))
+            timeKeys.value    = new Set(Object.entries(catMeta.prefs ?? {}).filter(([, v]) => v.type === 'time').map(([k]) => k))
+            percentKeys.value = new Set(Object.entries(catMeta.prefs ?? {}).filter(([, v]) => v.type === 'percent').map(([k]) => k))
+        } catch {}
     }
 
     function close() { selectedDevice.value = null }
@@ -102,9 +113,7 @@ export function useDeviceDetail() {
                 else if (typeof orig === 'boolean') parsed[k] = (v === 'true' || v === true)
                 else parsed[k] = v
             }
-            const config = await api.getConfig('devices')
-            config[category][id].prefs = parsed
-            await api.postConfig('devices', config)
+            await api.patchDeviceConfig(id, 'prefs', parsed)
             store.storage[category][id].prefs = parsed
             await api.sendPrefs(id, parsed)
             resetObj(originalPrefs, parsed)
@@ -118,9 +127,7 @@ export function useDeviceDetail() {
             const { id, category } = selectedDevice.value
             const parsed = {}
             for (const [k, v] of Object.entries(deviceMap)) parsed[k] = Number(v)
-            const config = await api.getConfig('devices')
-            config[category][id].map = parsed
-            await api.postConfig('devices', config)
+            await api.patchDeviceConfig(id, 'map', parsed)
             store.storage[category][id].map = parsed
             resetObj(originalMap, parsed)
         } catch (e) { console.error('TPHome - Save map error:', e) }
