@@ -80,7 +80,7 @@
         </div>
 
         <!-- LIST VIEW -->
-        <div v-if="!selectedDevice" class="flex-1 overflow-y-auto px-8 pt-6 pb-8 flex flex-col gap-8">
+        <div v-if="!selectedDevice" class="flex-1 overflow-y-auto px-5 md:px-8 pt-28 md:pt-6 pb-32 md:pb-8 flex flex-col gap-8">
 
             <section v-if="pendingDevices.length > 0">
                 <p class="text-base font-semibold text-white px-1 pb-3 pt-1">Sin configurar</p>
@@ -125,7 +125,7 @@
         </div>
 
         <!-- DETAIL VIEW -->
-        <div v-else class="flex-1 overflow-y-auto px-8 pb-8 flex flex-col gap-6">
+        <div v-else class="flex-1 overflow-y-auto px-5 md:px-8 pt-24 md:pt-0 pb-32 md:pb-8 flex flex-col gap-6">
 
             <!-- Mobile back + title -->
             <div class="md:hidden flex items-center gap-3 pt-4">
