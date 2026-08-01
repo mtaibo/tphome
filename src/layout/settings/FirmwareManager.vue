@@ -82,7 +82,7 @@
 
 <template>
 
-    <div class="h-full flex flex-col overflow-y-auto px-5 md:px-8 pt-28 md:pt-6 pb-32 md:pb-8 gap-8">
+    <div class="h-full overflow-y-auto px-5 md:px-8 pt-28 md:pt-6 pb-32 md:pb-8 space-y-8">
 
         <!-- Upload section -->
         <section>
