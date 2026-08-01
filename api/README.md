@@ -170,7 +170,7 @@ The API runs alongside Mosquitto inside the monorepo's shared Docker stack. Star
 
 ```bash
 # From tphome/
-cp api/.env.example api/.env
+cp .env.example .env
 docker compose up --build -d
 ```
 
