@@ -1,6 +1,9 @@
 <div align="center">
 
-<img src="docs/banner.svg" alt="TPHome" width="100%" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../images/banner/dark.svg">
+  <img src="../images/banner/light.svg" alt="TPHome" width="100%" />
+</picture>
 
 <br/>
 <br/>
@@ -17,19 +20,21 @@
 
 ---
 
-I'm a first-year computer engineering student and this repository is the lowest layer of a home automation system I built from scratch — the C++ firmware that runs directly on the chips inside commercial smart switches and blind controllers, replacing their factory software.
+I'm a first-year computer engineering student and this is the firmware layer of a home automation system I built from scratch. The full system lives in this monorepo: this firmware (C++ for ESP8266/BK7231N switches), the API (FastAPI on Raspberry Pi), and the frontend (Vue 3, also on the Pi).
+
+The firmware runs directly on the chips inside commercial smart switches and blind controllers, replacing their factory software.
 
 The hardware I target are off-the-shelf Wi-Fi connected devices (mostly Tuya-based) that ship with vendor-cloud-dependent firmware. I desolder the original chip, dump the factory flash, and flash my own code over a USB-TTL adapter. After that, the device lives entirely on my local network and answers to MQTT commands from the backend.
 
 > **Note:** This is a personal project tailored to my specific hardware. Pin mappings must be reviewed before deploying on different boards.
 
-## Repositories
+## Monorepo structure
 
 <table>
 <tr>
 <td width="33%">
 
-### tphome-firmware (this repo)
+### firmware/ (this module)
 
 Custom C++ firmware for proprietary chips, built with PlatformIO.
 
@@ -40,7 +45,7 @@ Replaces factory software on commercial blind controllers and light switches wit
 </td>
 <td width="33%">
 
-### [tphome-api](https://github.com/mtaibo/tphome-api)
+### [api/](../api/)
 
 FastAPI backend running on a Raspberry Pi alongside a Mosquitto MQTT broker, managed with Docker.
 
@@ -51,7 +56,7 @@ Handles device management, state persistence, OTA firmware serving and real-time
 </td>
 <td width="33%">
 
-### [tphome](https://github.com/mtaibo/tphome)
+### [frontend/](../frontend/)
 
 Vue 3 frontend served by Nginx behind a Caddy reverse proxy, also hosted on the Raspberry Pi.
 
@@ -171,9 +176,9 @@ The device publishes its state on `tp/{id}/s` as two bytes: `position` (0–100)
 See **[docs/build.md](docs/build.md)** for the full setup guide — wiring diagrams, bootloader entry, and per-environment commands.
 
 ```bash
-# Clone the repo
-git clone https://github.com/mtaibo/tphome-firmware
-cd tphome-firmware
+# Clone the monorepo
+git clone https://github.com/mtaibo/tphome
+cd tphome/firmware
 
 # Copy and fill in your WiFi and MQTT credentials
 cp include/settings/credentials.example.h include/settings/credentials.h
