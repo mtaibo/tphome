@@ -1,13 +1,13 @@
 <script setup>
 
     import { ref, computed, watch, onMounted } from 'vue'
-    import { Lightbulb, Blinds, Trash2, Radio, Info, ChevronRight, Crosshair, Cpu, Settings, ChevronLeft, Save, Zap } from 'lucide-vue-next'
+    import { Lightbulb, Blinds, Trash2, Radio, Info, ChevronRight, Crosshair, Cpu, ChevronLeft, Save, Zap } from 'lucide-vue-next'
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
     import { pendingDeviceId } from '@/config/sections.js'
     import MapPopup from './MapPopup.vue'
     import Btn from '@/components/Btn.vue'
-    import { useDeviceDetail } from '@/composables/useDeviceDetail'
+    import { useDeviceDetail } from '@/config/useDeviceDetail'
 
     const store = useDevices()
 
@@ -83,29 +83,17 @@
         <div v-if="!selectedDevice" class="flex-1 overflow-y-auto px-8 pt-6 pb-8 flex flex-col gap-8">
 
             <section v-if="pendingDevices.length > 0">
-                <div class="flex items-center gap-3 mb-5">
-                    <div class="w-2 h-2 rounded-full bg-tp-off shadow-[0_0_6px_var(--color-tp-off)] animate-pulse"></div>
-                    <h2 class="text-sm font-bold uppercase tracking-widest text-tp-muted">
-                        Sin configurar
-                        <span class="text-tp-off font-mono ml-1.5">{{ pendingDevices.length }}</span>
-                    </h2>
-                </div>
-                <div class="space-y-2">
+                <p class="text-base font-semibold text-white px-1 pb-3 pt-1">Sin configurar</p>
+                <div class="rounded-2xl overflow-hidden bg-[#111113] device-list">
                     <div
                         v-for="device in pendingDevices"
                         :key="device.mac"
-                        class="flex items-center gap-4 px-4 py-3 rounded-xl bg-tp-surface border border-tp-off/30 hover:border-tp-off/50 transition-colors"
+                        class="flex items-center gap-4 px-4 py-3 select-none"
+                        @click="startConfig(device)"
                     >
-                        <div class="w-2 h-2 rounded-full shrink-0 bg-tp-off shadow-[0_0_6px_var(--color-tp-off)] animate-pulse"></div>
                         <Cpu class="w-4 h-4 shrink-0 text-tp-muted" />
                         <span class="font-mono text-xs text-tp-muted flex-1">{{ device.mac }}</span>
-                        <button
-                            @click="startConfig(device)"
-                            class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-tp-accent/10 border border-tp-accent/20 text-tp-accent hover:bg-tp-accent/20 transition-all text-xs font-bold uppercase tracking-wider cursor-pointer"
-                        >
-                            <Settings class="w-3.5 h-3.5" />
-                            Configurar
-                        </button>
+                        <ChevronRight class="w-4 h-4 shrink-0 text-tp-muted/50" />
                     </div>
                 </div>
             </section>

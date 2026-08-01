@@ -5,7 +5,7 @@
     import { api } from '@/config/api'
     import BlindSlider from '@/components/BlindSlider.vue'
     import Btn from '@/components/Btn.vue'
-    import { positions, handlePositions, getAnim, setPending, isPending } from '@/composables/useBlindAnimations'
+    import { positions, handlePositions, getAnim, setPending, isPending } from '@/config/useBlindAnimations'
 
     const props = defineProps({
         id:     { type: String, required: true },

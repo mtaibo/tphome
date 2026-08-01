@@ -2,7 +2,7 @@
 
     import { ref, computed, watch } from 'vue'
     import { X, ChevronRight, Cpu, Blinds, Lightbulb } from 'lucide-vue-next'
-    import { useMap } from '@/config/map'
+    import { useBlueprint } from '@/config/blueprint'
     import { useDevices } from '@/config/devices'
     import { api } from '@/config/api'
     import HouseLayer  from '@/components/blueprint/Map.vue'
@@ -15,7 +15,7 @@
     })
     const emit = defineEmits(['done', 'cancel'])
 
-    const map   = useMap()
+    const map   = useBlueprint()
     const store = useDevices()
 
     const pickedId = ref(null)
