@@ -179,8 +179,8 @@ See **[docs/build.md](docs/build.md)** for the full setup guide — wiring diagr
 git clone https://github.com/mtaibo/tphome
 cd tphome/firmware
 
-# Fill in your WiFi and MQTT credentials
-cp include/settings/credentials.example.h include/settings/credentials.h
+# credentials.h is generated automatically from the root .env
+# (already done if you filled in .env for the Docker stack)
 
 # Build (default: blind_esp8266)
 ./build.sh

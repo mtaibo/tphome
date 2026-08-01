@@ -139,7 +139,7 @@ No cloud involved at any point. The entire system works on the local network.
 ```bash
 git clone https://github.com/mtaibo/tphome
 cd tphome
-cp api/.env.example api/.env
+cp .env.example .env   # fill in WiFi, MQTT and API values
 docker compose up --build -d
 ```
 
