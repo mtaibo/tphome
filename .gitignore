@@ -1,6 +1,91 @@
-# Environment
+# =============================================================================
+# Global
+# =============================================================================
+
 .env
+.DS_Store
+*.log
 
 # Database
 db/*
 !db/.gitkeep
+
+
+# =============================================================================
+# API  ·  Python / FastAPI
+# =============================================================================
+
+# Python bytecode
+__pycache__/
+*.py[codz]
+*$py.class
+*.so
+
+# Packaging
+*.egg-info/
+*.egg
+MANIFEST
+.Python
+build/
+dist/
+wheels/
+
+# Virtual environments
+.venv
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing & type checking
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+.mypy_cache/
+.dmypy.json
+.ruff_cache/
+.pytype/
+.pyre/
+
+# Tools
+.pdm-python
+.pdm-build/
+.pixi
+
+# API runtime data
+api/storage/*
+api/mosquitto/data/*
+
+
+# =============================================================================
+# Firmware  ·  C++ / PlatformIO
+# =============================================================================
+
+firmware/.pio/
+firmware/.vscode/
+firmware/include/settings/credentials.h
+firmware/config.json
+
+
+# =============================================================================
+# Frontend  ·  Vue 3 / Node
+# =============================================================================
+
+# Dependencies & build
+frontend/node_modules/
+frontend/dist/
+
+# Cache
+frontend/.cache/
+frontend/.parcel-cache/
+frontend/.npm
+frontend/.eslintcache
+frontend/.stylelintcache
+
+# Vite
+frontend/vite.config.js.timestamp-*
+frontend/vite.config.ts.timestamp-*
