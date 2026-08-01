@@ -1,0 +1,31 @@
+services:
+  api:
+    build: .
+    image: tphome-api
+    container_name: tphome-api
+    expose:
+      - "8000"
+    volumes:
+      - ./storage:/app/storage
+    env_file: .env
+    depends_on:
+      - mosquitto
+    networks:
+      - tphome-network
+    restart: unless-stopped
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: tphome-broker
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/data:/mosquitto/data
+    networks:
+      - tphome-network
+    restart: unless-stopped
+
+networks:
+  tphome-network:
+    external: true
