@@ -166,17 +166,11 @@ The binary protocol keeps messages compact — state updates are 2 bytes, device
 
 ## How to run
 
-The API is designed to run alongside a Mosquitto MQTT broker, both managed by Docker on a shared network.
+The API runs alongside Mosquitto inside the monorepo's shared Docker stack. Start everything from the root:
 
 ```bash
-# Clone the monorepo
-git clone https://github.com/mtaibo/tphome
-cd tphome/api
-
-# Set up environment
-cp .env.example .env
-
-# Start services
+# From tphome/
+cp api/.env.example api/.env
 docker compose up --build -d
 ```
 
@@ -188,7 +182,7 @@ MQTT_PORT=1883
 DATABASE_URL=sqlite:////app/storage/tphome.db
 ```
 
-The API exposes port `8000` internally and expects to be reached through the `tphome-network` Docker network (shared with the frontend).
+The API exposes port `8000` internally, reached through Caddy at `/api/*` and `/ws/*`.
 
 ## License
 

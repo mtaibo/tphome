@@ -1,0 +1,56 @@
+services:
+
+  api:
+    build: ./api
+    image: tphome-api
+    container_name: tphome-api
+    expose:
+      - "8000"
+    volumes:
+      - ./api/storage:/app/storage
+    env_file: ./api/.env
+    depends_on:
+      - mosquitto
+    networks:
+      - tphome-network
+    restart: unless-stopped
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: tphome-broker
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./api/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./api/mosquitto/data:/mosquitto/data
+    networks:
+      - tphome-network
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    image: tphome-frontend
+    container_name: tphome-frontend
+    networks:
+      - tphome-network
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:latest
+    container_name: tphome-caddy
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - tphome-network
+    restart: unless-stopped
+
+networks:
+  tphome-network:
+
+volumes:
+  caddy_data:
+  caddy_config:
