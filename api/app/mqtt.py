@@ -1,6 +1,6 @@
 from sqlmodel import Session, select
 from db.database import engine
-from db.models import Device, Blind
+from db.models import Device, Blind, Config
 from connections import manager
 
 import paho.mqtt.client as mqtt
@@ -146,13 +146,31 @@ def _update_device_info(device_id: str, info: dict):
         device.mac = info["hardware"]["mac"]
 
         if device.id[0] == "B":
-            blind = session.exec(select(Blind).where(Blind.id == device_id)).first()
-            blind.up_time = info["prefs"]["up_time"]
-            blind.down_time = info["prefs"]["down_time"]
-            blind.down_pos = info["prefs"]["down_pos"]
-            blind.inverted_relays = info["prefs"]["inverted_relays"]
+            blind        = session.exec(select(Blind).where(Blind.id == device_id)).first()
+            device_prefs = info["prefs"]
+
+            config       = session.get(Config, 1)
+            config_prefs = (
+                config.devices.get("blinds", {}).get(device_id, {}).get("prefs", {})
+                if config and config.devices else {}
+            )
+
+            if config_prefs and any(config_prefs.get(k) != device_prefs.get(k) for k in config_prefs):
+                try:
+                    payload = struct.pack('<HHH?',
+                        config_prefs['up_time'], config_prefs['down_time'],
+                        config_prefs['down_pos'], config_prefs['inverted_relays']
+                    )
+                    publish(f"tp/{device_id}/a", bytes([0xA5]) + payload)
+                except (KeyError, struct.error) as e:
+                    print(f"[MQTT] Drift correction failed for {device_id}: {e}")
+
+            blind.up_time        = device_prefs["up_time"]
+            blind.down_time      = device_prefs["down_time"]
+            blind.down_pos       = device_prefs["down_pos"]
+            blind.inverted_relays = device_prefs["inverted_relays"]
             session.add(blind)
-        
+
         session.add(device)
         session.commit()
 

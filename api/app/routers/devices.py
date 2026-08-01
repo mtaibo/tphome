@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from db.database import get_session
-from db.models import Device, Blind, Light, PendingDevice
+from db.models import Device, Blind, Light, PendingDevice, Config
 from pydantic import BaseModel
 from typing import Union
 from routers.admin import reset_mem
@@ -104,6 +104,64 @@ def _encode_device_id(id: str) -> bytes:
 def get_devices(session: Session = Depends(get_session)):
     devices = session.exec(select(Device)).all()
     return [_build_response(device, session) for device in devices]
+
+
+@router.get("/devices/blinds")
+def get_blinds(session: Session = Depends(get_session)):
+    config = session.get(Config, 1)
+    config_blinds = config.devices.get("blinds", {}) if config and config.devices else {}
+
+    result = []
+    for device_id, cfg in config_blinds.items():
+        device = session.exec(select(Device).where(Device.id == device_id)).first()
+        blind  = session.exec(select(Blind).where(Blind.id == device_id)).first()
+
+        state      = None
+        connection = None
+        if device and blind:
+            state      = {"position": blind.position, "motor_state": blind.motor_state}
+            connection = {"online": device.online, "last_seen": str(device.last_seen)}
+
+        prefs = cfg.get("prefs") or (BlindPrefs(
+            up_time=blind.up_time, down_time=blind.down_time,
+            down_pos=blind.down_pos, inverted_relays=blind.inverted_relays
+        ).model_dump() if blind else {})
+
+        result.append({
+            "id":         device_id,
+            "name":       cfg.get("name", device_id),
+            "map":        cfg.get("map", {}),
+            "prefs":      prefs,
+            "state":      state,
+            "connection": connection,
+        })
+    return result
+
+
+@router.get("/devices/lights")
+def get_lights(session: Session = Depends(get_session)):
+    config = session.get(Config, 1)
+    config_lights = config.devices.get("lights", {}) if config and config.devices else {}
+
+    result = []
+    for device_id, cfg in config_lights.items():
+        device = session.exec(select(Device).where(Device.id == device_id)).first()
+        light  = session.exec(select(Light).where(Light.id == device_id)).first()
+
+        state      = None
+        connection = None
+        if device and light:
+            state      = {"on": light.on}
+            connection = {"online": device.online, "last_seen": str(device.last_seen)}
+
+        result.append({
+            "id":         device_id,
+            "name":       cfg.get("name", device_id),
+            "map":        cfg.get("map", {}),
+            "state":      state,
+            "connection": connection,
+        })
+    return result
 
 
 @router.get("/devices/pending", response_model=list[str])
