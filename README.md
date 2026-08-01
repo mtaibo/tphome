@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../images/banner/dark.svg">
-  <img src="../images/banner/light.svg" alt="TPHome" width="100%" />
+  <source media="(prefers-color-scheme: dark)" srcset="images/banner/dark.svg">
+  <img src="images/banner/light.svg" alt="TPHome" width="100%" />
 </picture>
 
 <br/>
@@ -20,15 +20,11 @@
 
 ---
 
-I'm a first-year computer engineering student and this is the frontend layer of a home automation system I built from scratch. The full system lives in this monorepo: firmware (C++ for ESP8266/BK7231N switches), API (FastAPI on Raspberry Pi), and this frontend (Vue 3, also on the Pi).
-
-This module contains the frontend layer that lets you easily interact with all devices, customize your house through JSON files, and host the web panel wherever you want.
+I'm a first-year computer engineering student and this is a home automation system I built from scratch — every layer of it. The C++ firmware runs on the chips inside commercial switches, the Python backend runs on a Raspberry Pi, and the Vue frontend serves as the single control panel for every device in the house.
 
 ## How it started
 
-I got tired of needing different apps to control my house. Every brand has its own cloud and its own account, they hardly talk to each other, and if you want a specific device behaviour — like closing at 20% first and then going fully closed — there was no way to do it. So I started building my own system — one that lives entirely on my local network.
-
-The whole project is made of three parts: the C++ firmware inside the switches, a Python backend hosted on a Raspberry Pi, and the Vue frontend in this repo (also hosted on the same Pi). I wrote every layer myself to get what I needed: a fast, personalized way to control my devices.
+I got tired of needing different apps to control my house. Every brand has its own cloud and its own account, they hardly talk to each other, and if you want a specific device behaviour — like closing a blind to 20% on first press instead of fully closed — there was no way to do it. So I built my own system, one that lives entirely on my local network.
 
 Everything here is:
 - **Local** — no cloud needed, everything runs on my home network
@@ -37,8 +33,6 @@ Everything here is:
 - **Unified** — one screen shows every device in the house
 
 ## Architecture
-
-Three layers, one monorepo:
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -60,15 +54,13 @@ Three layers, one monorepo:
 └─────────────────────────────────────────────────────┘
 ```
 
-Each layer lives in its own subdirectory of this monorepo. The firmware runs on the chips inside the switches. The backend is hosted on a Raspberry Pi and communicates with the firmware via MQTT using a custom protocol. The frontend also runs on the Pi and talks to the backend through HTTP requests and WebSockets.
-
-## Monorepo structure
+## Modules
 
 <table>
 <tr>
 <td width="33%">
 
-### [firmware/](../firmware/)
+### [firmware/](firmware/)
 
 Custom C++ firmware for proprietary chips, built with PlatformIO.
 
@@ -79,7 +71,7 @@ Replaces factory software on commercial blind controllers and light switches wit
 </td>
 <td width="33%">
 
-### [api/](../api/)
+### [api/](api/)
 
 FastAPI backend running on a Raspberry Pi alongside a Mosquitto MQTT broker, managed with Docker.
 
@@ -90,31 +82,17 @@ Handles device management, state persistence, OTA firmware serving and real-time
 </td>
 <td width="33%">
 
-### frontend/ (this module)
+### [frontend/](frontend/)
 
 Vue 3 frontend served by Nginx behind a Caddy reverse proxy, also hosted on the Raspberry Pi.
 
-You can manage devices in multiple ways — through simple cards, or by rendering an interactive SVG floor plan of my house where I can see and control every light and blind in real time. You can also configure chip firmwares from here.
+Renders an interactive SVG floor plan where you can see and control every light and blind in real time.
 
 **Vue 3 · Tailwind CSS · Nginx**
 
 </td>
 </tr>
 </table>
-
-## What's managed here
-
-This repository is the **frontend layer** of TPHome — the single interface to control every device in the house:
-
-| What | How |
-|---|---|
-| **Blueprint view** | Interactive SVG floor plan of the house with rooms, labels, and doors |
-| **Lights** | Click any light fixture on the plan to toggle it on/off |
-| **Blinds** | Click a blind to open a control panel with position slider, quick buttons, and presets |
-| **Live updates** | WebSocket connection receives device state changes and updates the UI in real time |
-| **Device management** | Pinia store syncs device configuration and state from the API |
-| **API communication** | Axios client for REST calls, WebSocket for real-time events |
-| **Docker deployment** | Nginx serves the static build, Caddy handles routing |
 
 ## How it works
 
@@ -124,16 +102,16 @@ A typical interaction — pressing "down" on a blind from the frontend:
 Frontend sends POST /commands/B0101/down
         │
         ▼
-API publishes command via MQTT
+API publishes 0xC1 to tp/B0101/c via MQTT
         │
         ▼
 ESP8266 chip receives command, activates relay, starts motor
         │
         ▼
-Chip publishes position + motor state every second
+Chip publishes 2-byte state (position + motor_state) every second
         │
         ▼
-API receives state, updates database, pushes WebSocket event
+API parses binary payload, updates SQLite, pushes WebSocket event
         │
         ▼
 Frontend updates position in real time
@@ -145,33 +123,30 @@ No cloud involved at any point. The entire system works on the local network.
 
 | Layer | Technology |
 |---|---|
-| **Framework** | Vue 3 with Composition API |
-| **Build** | Vite 8 |
-| **Styling** | Tailwind CSS 4 |
-| **State** | Pinia |
-| **Routing** | Vue Router 4 |
-| **HTTP** | Axios |
-| **Icons** | Lucide |
-| **Reverse proxy** | Caddy |
-| **Container** | Docker + docker-compose |
+| **Firmware language** | C++17 |
+| **Firmware framework** | Arduino (ESP8266 Core / LibreTiny) |
+| **Firmware build** | PlatformIO |
+| **API framework** | FastAPI · Python 3.11 |
+| **API database** | SQLite via SQLModel |
+| **API broker** | Mosquitto (MQTT) |
+| **Frontend framework** | Vue 3 · Composition API |
+| **Frontend styling** | Tailwind CSS 4 |
+| **Frontend state** | Pinia |
+| **Hosting** | Docker + Nginx + Caddy · Raspberry Pi |
 
 ## How to run
 
+Each module has its own setup guide. Clone the repo and navigate to the relevant folder:
+
 ```bash
-# Development
-npm install
-npm run dev
-
-# Production build
-npm run build
-
-# Docker
-docker compose up --build -d
+git clone https://github.com/mtaibo/tphome
 ```
 
-The frontend expects `tphome-api` to be available on the same Docker network. See the [Caddyfile](Caddyfile) for routing details.
-
-> **Note:** `package-lock.json` is committed to ensure reproducible installs. Requires **npm >= 10**. If you use a different npm version the lockfile may be reformatted — just commit the result.
+| Module | Guide |
+|---|---|
+| **firmware/** | [firmware/README.md](firmware/README.md) — PlatformIO build and flash |
+| **api/** | [api/README.md](api/README.md) — Docker + Mosquitto setup |
+| **frontend/** | [frontend/README.md](frontend/README.md) — npm dev or Docker |
 
 ## License
 

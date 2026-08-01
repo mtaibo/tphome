@@ -1,6 +1,9 @@
 <div align="center">
 
-<img src="images/banner.svg" alt="TPHome" width="100%" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../images/banner/dark.svg">
+  <img src="../images/banner/light.svg" alt="TPHome" width="100%" />
+</picture>
 
 <br/>
 <br/>
@@ -17,17 +20,17 @@
 
 ---
 
-I'm a first-year computer engineering student and this repository is the middle layer of a home automation system I built from scratch — from the C++ firmware inside the switches to the Vue 3 frontend running in the browser. You can find the other layers across my GitHub profile.
+I'm a first-year computer engineering student and this is the backend layer of a home automation system I built from scratch. The full system lives in this monorepo: firmware (C++ for ESP8266/BK7231N switches), this API (FastAPI on Raspberry Pi), and the frontend (Vue 3, also on the Pi).
 
-This repo contains the **backend layer** that sits between the physical devices and the web interface. It's a FastAPI server that handles MQTT orchestration, device management, state persistence, real-time WebSocket events, OTA firmware updates, and device discovery — all running on a Raspberry Pi on my home network.
+This module contains the **backend layer** that sits between the physical devices and the web interface. It's a FastAPI server that handles MQTT orchestration, device management, state persistence, real-time WebSocket events, OTA firmware updates, and device discovery — all running on a Raspberry Pi on my home network.
 
-## Repositories
+## Monorepo structure
 
 <table>
 <tr>
 <td width="33%">
 
-### [tphome-firmware](https://github.com/mtaibo/tphome-firmware)
+### [firmware/](../firmware/)
 
 Custom C++ firmware for proprietary chips, built with PlatformIO.
 
@@ -38,7 +41,7 @@ Replaces factory software on commercial blind controllers and light switches wit
 </td>
 <td width="33%">
 
-### tphome-api (this repo)
+### api/ (this module)
 
 FastAPI backend running on a Raspberry Pi alongside a Mosquitto MQTT broker, managed with Docker.
 
@@ -49,7 +52,7 @@ Handles device management, state persistence, OTA firmware serving and real-time
 </td>
 <td width="33%">
 
-### [tphome](https://github.com/mtaibo/tphome)
+### [frontend/](../frontend/)
 
 Vue 3 frontend served by Nginx behind a Caddy reverse proxy, also hosted on the Raspberry Pi.
 
@@ -166,9 +169,9 @@ The binary protocol keeps messages compact — state updates are 2 bytes, device
 The API is designed to run alongside a Mosquitto MQTT broker, both managed by Docker on a shared network.
 
 ```bash
-# Clone the repo
-git clone https://github.com/mtaibo/tphome-api
-cd tphome-api
+# Clone the monorepo
+git clone https://github.com/mtaibo/tphome
+cd tphome/api
 
 # Set up environment
 cp .env.example .env
