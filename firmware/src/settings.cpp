@@ -2,6 +2,7 @@
 #include "defaults.h"
 #include "leds.h"
 #include "wifi.h"
+#include "diagnostics.h"
 
 #include <Preferences.h> // Lib to save information on flash memory
 
@@ -61,8 +62,10 @@ namespace Settings {
         State storedState;
         storage.begin("storage", false);
         storage.getBytes("s", &storedState, sizeof(State));
-        if (memcmp(&state, &storedState, sizeof(State)) != 0)
+        if (memcmp(&state, &storedState, sizeof(State)) != 0) {
             storage.putBytes("s", &state, sizeof(State));
+            Diagnostics::flashWrites++;
+        }
         storage.end();
     }
 
@@ -82,14 +85,20 @@ namespace Settings {
         storage.getBytes("s", &storedState, sizeof(State));
 
         // Save every settings division to storage only if the data actually changed
-        if (memcmp(&config, &storedConfig, sizeof(Config)) != 0)
+        if (memcmp(&config, &storedConfig, sizeof(Config)) != 0) {
             storage.putBytes("c", &config, sizeof(Config));
+            Diagnostics::flashWrites++;
+        }
 
-        if (memcmp(&prefs, &storedPrefs, sizeof(Prefs)) != 0)
+        if (memcmp(&prefs, &storedPrefs, sizeof(Prefs)) != 0) {
             storage.putBytes("p", &prefs, sizeof(Prefs));
+            Diagnostics::flashWrites++;
+        }
 
-        if (memcmp(&state, &storedState, sizeof(State)) != 0)
+        if (memcmp(&state, &storedState, sizeof(State)) != 0) {
             storage.putBytes("s", &state, sizeof(State));
+            Diagnostics::flashWrites++;
+        }
 
         storage.end();
     }

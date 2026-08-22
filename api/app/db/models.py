@@ -55,3 +55,14 @@ class FirmwareInfo(SQLModel, table=True):
     notes: str = ""
     uploaded_at: str
     active: bool = False
+
+
+class DeviceLog(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    device_id: str = Field(index=True)
+    timestamp: datetime = Field(default_factory=datetime.now)
+    direction: str        # "rx" | "tx"
+    topic: str
+    payload_hex: str
+    event_label: str
+    event_detail: str = ""
