@@ -6,7 +6,7 @@ import asyncio
 from db import database
 import mqtt
 
-from routers import devices, commands, admin, config, firmware
+from routers import devices, commands, admin, config, firmware, logs
 import connections
 
 
@@ -29,6 +29,7 @@ app.include_router(devices.router)
 app.include_router(config.router)
 app.include_router(admin.router)
 app.include_router(firmware.router)
+app.include_router(logs.router)
 
 app.add_middleware(
     CORSMiddleware,
