@@ -16,7 +16,7 @@ namespace Hardware::Wifi {
 
         /* Adjust the frequency and the power the wifi antenna transmits */
         WiFi.setSleepMode(WIFI_MODEM_SLEEP);
-        WiFi.setOutputPower(16.0);
+        WiFi.setOutputPower(10.0);
 
         /* Set wifi on station mode to just connect and don't create any AP */
         WiFi.mode(WIFI_STA);
