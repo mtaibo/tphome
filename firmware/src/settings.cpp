@@ -58,8 +58,11 @@ namespace Settings {
     // Save only the state settings struct, this function will be called just when
     // the blind was moving and stops
     void saveState() {
+        State storedState;
         storage.begin("storage", false);
-        storage.putBytes("s", &state, sizeof(State));
+        storage.getBytes("s", &storedState, sizeof(State));
+        if (memcmp(&state, &storedState, sizeof(State)) != 0)
+            storage.putBytes("s", &state, sizeof(State));
         storage.end();
     }
 
@@ -68,6 +71,7 @@ namespace Settings {
         // Temp variables to store current config and prefs on the flash memory
         Config storedConfig;
         Prefs storedPrefs;
+        State storedState;
 
         storage.begin("storage", false); // Open storage on write mode (false)
 
@@ -75,16 +79,18 @@ namespace Settings {
         // are the same as the intended to save
         storage.getBytes("c", &storedConfig, sizeof(Config));
         storage.getBytes("p", &storedPrefs, sizeof(Prefs));
+        storage.getBytes("s", &storedState, sizeof(State));
 
-        // Save every settings division to storage if needed and check if every bit
-        // of information on storedConfig and storedConfig are the same.
+        // Save every settings division to storage only if the data actually changed
         if (memcmp(&config, &storedConfig, sizeof(Config)) != 0)
             storage.putBytes("c", &config, sizeof(Config));
 
         if (memcmp(&prefs, &storedPrefs, sizeof(Prefs)) != 0)
             storage.putBytes("p", &prefs, sizeof(Prefs));
 
-        storage.putBytes("s", &state, sizeof(State));
+        if (memcmp(&state, &storedState, sizeof(State)) != 0)
+            storage.putBytes("s", &state, sizeof(State));
+
         storage.end();
     }
 

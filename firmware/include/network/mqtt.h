@@ -6,12 +6,14 @@
 #include "settings.h"
 #include "wifi.h"
 
-#define RECONNECT_INTERVAL 5000
+#define RECONNECT_INTERVAL_MIN  5000
+#define RECONNECT_INTERVAL_MAX 60000
 
 namespace Mqtt {
 
     struct State {
         uint32_t lastTime = 0;
+        uint32_t reconnectInterval = RECONNECT_INTERVAL_MIN;
         bool isConnected = false;
     };
 
@@ -57,7 +59,7 @@ namespace Mqtt {
         _client.setServer(Settings::config.mqttIP, Settings::config.mqttPort);
         _client.setBufferSize(Sizes::MQTT_BUFFER); 
         _client.setSocketTimeout(10);
-        _client.setKeepAlive(30); 
+        _client.setKeepAlive(60);
     }
 
     void update() {
@@ -79,11 +81,12 @@ namespace Mqtt {
 
             if (_state.lastTime == 0) {_state.lastTime = now + 3000; return;}
 
-            if (now - _state.lastTime > RECONNECT_INTERVAL) {
+            if (now - _state.lastTime > _state.reconnectInterval) {
 
                 const char offlineByte = 0xFF;
 
                 _state.lastTime = now;
+                _state.reconnectInterval = min(_state.reconnectInterval * 2, (uint32_t) RECONNECT_INTERVAL_MAX);
                 _client.disconnect();
 
                 _client.connect(
@@ -99,6 +102,7 @@ namespace Mqtt {
         } else {
             _state.isConnected = true;
             _state.lastTime = now;
+            _state.reconnectInterval = RECONNECT_INTERVAL_MIN;
 
             if (strlen(Settings::config.deviceID) == 4) _client.subscribe(topics.def);
             else {
