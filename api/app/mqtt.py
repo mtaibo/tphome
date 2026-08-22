@@ -129,8 +129,8 @@ def on_message(client, userdata, message):
 
     device_id = topic[1]
 
-    # Log all incoming device traffic (skip global tp/a/c)
-    if topic[0] in ("tp", "def") and device_id != "a":
+    # Log incoming state and chip-log messages (skip echoed commands/admin)
+    if topic[0] in ("tp", "def") and device_id != "a" and topic[2] in ("s", "l"):
         label, detail = _decode_incoming(topic, payload)
         _log_message(device_id, "rx", message.topic, payload, label, detail)
 
