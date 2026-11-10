@@ -1,8 +1,14 @@
+#ifndef AP_H
+#define AP_H
+
 #include <ESP8266WebServer.h>
 #include "settings.h"
 #include "leds.h"
 
 namespace AP {
+
+    /* The AP keeps the radio transmitting nonstop, give up and reboot if nobody configures it */
+    static constexpr uint32_t CONFIG_WINDOW = 10UL * 60UL * 1000UL; // 10 min
     
     ESP8266WebServer server(80);
 
@@ -47,10 +53,15 @@ namespace AP {
 
         server.on("/save", HTTP_POST, save);
         server.begin();
-        
-        while(true) {
+
+        uint32_t openedAt = millis();
+        while (millis() - openedAt < CONFIG_WINDOW) {
             server.handleClient();
-            yield(); 
+            delay(5);
         }
+
+        Settings::reboot();
     }
 }
+
+#endif // AP_H

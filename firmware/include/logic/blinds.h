@@ -26,12 +26,12 @@ namespace Blinds {
     struct Motor {
         State state = IDLE;
         Direction direction = NONE;
-        float realPosition = (float) Settings::state.currentPosition;
+        float realPosition = 0.0f;  // Settings aren't loaded yet here, both are set when a movement starts
         uint32_t startTime = 0;
         uint32_t lastTime = 0;
         uint32_t waitingTime = 0;
         uint32_t statePublishTime = 0;
-        uint16_t nextPosition = Settings::state.currentPosition;
+        uint16_t nextPosition = 0;
     };
         
     static Motor _motor;

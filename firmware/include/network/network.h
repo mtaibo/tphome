@@ -32,7 +32,10 @@ namespace Network {
         bool hadWifi = Wifi::isConnected();
         Wifi::update();
 
-        if (Wifi::isConnected()) Mqtt::update();
+        if (Wifi::isConnected()) {
+            Mqtt::update(busy);
+            if (Mqtt::isConnected()) Commands::update();
+        }
         else if (hadWifi) Mqtt::drop();
 
         uint32_t now = millis();

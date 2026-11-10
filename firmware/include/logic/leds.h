@@ -77,7 +77,7 @@ namespace Leds {
             if (state.mode != BLINK) continue;
 
             /* Blinking control */
-            if (now - state.lastTime >= state.interval) {
+            if ((uint16_t)(now - state.lastTime) >= state.interval) { // Cast keeps it right when the counter wraps
 
                 state.lastTime = now;
 

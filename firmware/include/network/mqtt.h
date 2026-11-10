@@ -28,6 +28,7 @@ namespace Mqtt {
         uint32_t lastTime = 0;
         uint32_t reconnectInterval = RECONNECT_INTERVAL_MIN;
         bool isConnected = false;
+        bool attempted = false;
         bool firstConnect = true;
         uint16_t lastReportedFlashWrites = 0;
     };
@@ -99,11 +100,14 @@ namespace Mqtt {
 
         _client.setServer(Settings::config.mqttIP, Settings::config.mqttPort);
         _client.setBufferSize(Sizes::MQTT_BUFFER);
-        _client.setSocketTimeout(10);
+        /* connect() blocks the loop, keep every wait short on a local broker */
+        _wifiClient.setTimeout(2000);
+        _client.setSocketTimeout(2);
         _client.setKeepAlive(60);
     }
 
-    void update() {
+    /* busy: skip reconnect attempts, connect() blocks for a couple of seconds */
+    void update(bool busy) {
 
         uint32_t now = millis();
 
@@ -122,25 +126,25 @@ namespace Mqtt {
 
         if (!_client.connected()) {
 
-            if (_state.lastTime == 0) {_state.lastTime = now + 3000; return;}
+            if (busy) return;
+            if (_state.attempted && now - _state.lastTime < _state.reconnectInterval) return;
 
-            if (now - _state.lastTime > _state.reconnectInterval) {
+            /* PubSubClient sends the will message with strlen(), so it needs the terminator */
+            static const char offlineMsg[] = {(char) 0xFF, '\0'};
 
-                const char offlineByte = 0xFF;
+            _state.attempted = true;
+            _state.lastTime = now;
+            _state.reconnectInterval = min(_state.reconnectInterval * 2, (uint32_t) RECONNECT_INTERVAL_MAX);
+            _wifiClient.stop();
 
-                _state.lastTime = now;
-                _state.reconnectInterval = min(_state.reconnectInterval * 2, (uint32_t) RECONNECT_INTERVAL_MAX);
-                _client.disconnect();
+            _client.connect(
+                Settings::config.deviceID,
+                Settings::config.mqttUser,
+                Settings::config.mqttPass,
 
-                _client.connect(
-                    Settings::config.deviceID,
-                    Settings::config.mqttUser,
-                    Settings::config.mqttPass,
-
-                    topics.state, 1, false,
-                    &offlineByte, 1
-                );
-            }
+                topics.state, 1, false,
+                offlineMsg
+            );
 
         } else {
             _state.isConnected = true;

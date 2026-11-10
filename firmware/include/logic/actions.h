@@ -29,13 +29,13 @@ namespace Actions {
                 }
 
                 else if (auto action = Buttons::getAction(Pins::BTN_MID)) {
-                    if (action == Buttons::SHORT) AP::start();
+                    if (action == Buttons::SHORT) {Blinds::stop(); AP::start();}
                     else if (action == Buttons::MEDIUM) {}
                     else if (action == Buttons::LONG) {}
                 }
 
                 else if (auto action = Buttons::getAction(Pins::BTN_BTM)) {
-                    if (action == Buttons::SHORT) Settings::reboot();
+                    if (action == Buttons::SHORT) {Blinds::stop(); Settings::reboot();}
                     else if (action == Buttons::MEDIUM) {}
                     else if (action == Buttons::LONG) {}
                 }
@@ -48,7 +48,7 @@ namespace Actions {
                         if (Settings::state.currentPosition < Settings::prefs.downPosition) 
                             Blinds::Position::set(Settings::prefs.downPosition);
                     }
-                    else if (action == Buttons::LONG) Mode::set(Mode::Value::CONNECTION);
+                    else if (action == Buttons::LONG) {Blinds::stop(); Mode::set(Mode::Value::CONNECTION);}
                 }
 
                 else if (auto action = Buttons::getAction(Pins::BTN_MID)) {

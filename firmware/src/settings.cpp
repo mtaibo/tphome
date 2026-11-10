@@ -15,6 +15,8 @@ namespace Settings {
     Preferences storage;
 
     void reboot() {
+        Hardware::RelayUp::off(); // Never leave a relay on through the wait below
+        Hardware::RelayDown::off();
         Leds::off();
         delay(3000);
         ESP.restart();

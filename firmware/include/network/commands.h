@@ -48,6 +48,16 @@ namespace Commands {
         Settings::Prefs prefs;
     };
 
+    /* Global ping answers are spread over a random delay so every device doesn't
+     * publish at once, the wait runs from update() instead of blocking the callback */
+    struct PendingPing {
+        bool active = false;
+        uint32_t since = 0;
+        uint32_t wait = 0;
+    };
+
+    inline PendingPing _pendingPing;
+
     /* Get, if the device is connected, a 1 */
     void ping() {
         uint8_t payload = 1;
@@ -146,19 +156,16 @@ namespace Commands {
         const uint8_t dataLen = length - 1;
 
         switch (cmd) {
-            case AdminCmd::OTA: 
-                if (dataLen == 3) {
-                    memcpy(&Settings::config.version, data, 3);
-                    Settings::save();
-                    OTA::start(); 
-                } break;
+            case AdminCmd::OTA: // Never while the motor runs, the update blocks for a while
+                if (dataLen == 3 && Blinds::isIdle()) OTA::start(data);
+                break;
 
             case AdminCmd::GET_INFO: if (dataLen == 0) publishInfo(); break;
-            case AdminCmd::REBOOT: if (dataLen == 0) Settings::reboot(); break;
-            case AdminCmd::RESET_MEM: if (dataLen == 0) Settings::reset(); break;
+            case AdminCmd::REBOOT: if (dataLen == 0) {Blinds::stop(); Settings::reboot();} break;
+            case AdminCmd::RESET_MEM: if (dataLen == 0) {Blinds::stop(); Settings::reset();} break;
 
-            case AdminCmd::SET_POS:
-                if (dataLen == sizeof(uint16_t)) {
+            case AdminCmd::SET_POS: // Moving overwrites the position on every loop
+                if (dataLen == sizeof(uint16_t) && Blinds::isIdle()) {
                     memcpy(&Settings::state.currentPosition, data, sizeof(uint16_t));
                     Settings::save();
                 } break;
@@ -173,14 +180,21 @@ namespace Commands {
         }
     }
 
+    void update() {
+        if (_pendingPing.active && millis() - _pendingPing.since >= _pendingPing.wait) {
+            _pendingPing.active = false;
+            ping();
+        }
+    }
+
     void callback(char* topic, byte* payload, unsigned int length) {
 
         if (length == 0) return;
 
         /* Command for global topic */
         if (strcmp(topic, Mqtt::topics.global) == 0) {
-            delay(random(50, 1000)); // Random delay to prevent all devices publishing at the same time
-            if (payload[0] == 0x01) ping();
+            if (payload[0] == 0x01) _pendingPing = {true, (uint32_t) millis(), (uint32_t) random(50, 1000)};
+            return;
         }
 
         /* Command for non-configured deviceID */
@@ -196,6 +210,7 @@ namespace Commands {
             Settings::prefs = prov->prefs;
 
             /* Reboot with new deviceID to build new topics */
+            Blinds::stop();
             Settings::save();
             Settings::reboot();
             return;
