@@ -9,7 +9,8 @@ from datetime import datetime
 
 router = APIRouter(tags=["Firmware"])
 
-FIRMWARE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", "storage", "firmwares")
+# Inside the mounted volume (/app/storage → db/ on the host) so binaries survive rebuilds
+FIRMWARE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage", "firmwares")
 os.makedirs(FIRMWARE_DIR, exist_ok=True)
 
 
