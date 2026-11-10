@@ -121,7 +121,7 @@ Results:
 - **API `fd4a014`** (deployed on the Pi, `docker compose up -d --build api` in `~/tphome`), which fixes two things:
   - Now that the LWT works, a rebooted device stayed "offline" because nothing marked it online again. BOOT (`0x01`) and MQTT_CONNECTED (`0x20`) logs now mark it online.
   - Any state payload starting with `0xFF` is treated as LWT. Firmware before 2.2.0 sent `FF` plus stack garbage (20 bytes), which the API parsed as DEVICE_INFO. That is why every device had version `3f.98.ae`, MAC `20:40`, junk prefs, and never went offline, and why the API kept re-sending SET_PREFS.
-- **Live devices** (global ping): B0101, B0102, B0201. **B0301 does not answer** (last seen by the API 2026-11-07), so it is the likely "offline for a week" blind, not B0101. **B0401** appears in the broker log until 2026-08-28 but isn't in the API.
+- **Live devices** (global ping): B0101, B0102, B0201. **B0301 does not answer** (last seen by the API 2026-11-07), so it is the likely "offline for a week" blind, not B0101. **B0401** is the switch that burned out (last seen 2026-08-28). It hasn't been replaced yet, which is why it isn't in the API.
 - The broker's Docker log (json-file) has NUL bytes from around 2026-10-30/31. The broker restarted 2026-10-31 07:38 UTC, which looks like an unclean shutdown. `docker logs` stops reading there, and the raw file needs sudo, which the SSH session doesn't have.
 
 ## Next steps
@@ -146,6 +146,7 @@ Results:
 
 The firmware can't tell what happened. Ask Miguel:
 
+- **B0301's buttons work perfectly** (Miguel, 2026-11-10), so the MCU is alive and it's a network problem. Next: put it in connection mode, read the WiFi/MQTT LEDs, then reboot it from the buttons. If it comes back, OTA it to 2.2.0.
 - **Do its buttons still move the blind?**
   - Yes → the MCU is alive and the problem is network: a wedged WiFi stack, or a weak link at 10 dBm. Power-cycling it from the breaker for 10 s should bring it back, then flash the new firmware.
   - No, with LEDs off → hardware or power supply. Same model as the one that burned, so open it.
