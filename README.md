@@ -145,7 +145,7 @@ I assign it a zone and number, the API sends the ID to def/{MAC4}/a
 Switch saves the ID to flash, reboots and starts listening on tp/{ID}/*
 ```
 
-If a switch can't reach the WiFi or the broker, a short press on the middle button in connection mode turns it into an access point named after its ID. Connecting to it and opening `http://192.168.4.1` shows a form to enter new WiFi and MQTT credentials.
+If a switch can't reach the WiFi or the broker, a short press on the middle button in connection mode turns it into an access point named after its ID. Connecting to it and opening `http://192.168.4.1` shows a form to enter new WiFi and MQTT credentials. The access point closes and the switch reboots after 10 minutes without a configuration.
 
 ### Inside the firmware
 
@@ -160,9 +160,10 @@ The firmware is split into four layers, each one only depending on the ones belo
 
 A few rules I kept to, since the ESP8266 only has 80KB of RAM:
 
-- **Non-blocking loop** — no `delay()` anywhere in the main path, everything runs on `millis()` timers
+- **Non-blocking loop** — everything runs on `millis()` timers, and the only wait is a 10 ms idle at the end of each loop so the WiFi modem can sleep between beacons. Nothing that blocks (MQTT reconnects, OTA, access point) runs while the motor is moving
 - **No dynamic allocation** — no `new`, `malloc` or `std::vector`, all state lives in fixed structs
 - **Packed structs** — anything written to flash or sent over MQTT has a predictable byte layout
+- **Low power when offline** — a switch that can't reach the router turns its radio off between reconnect attempts, and reboots itself after 15 minutes offline
 
 The blind's position is tracked from time, not from a sensor: each direction has a calibrated travel time, and the motor state machine (`IDLE → MOVING → STOPPING`, with a `WAITING` pause before reversing direction) accumulates the position every loop tick. The relays are interlocked so both directions can never be on at once, and the wiring can be inverted from the preferences without reflashing.
 
