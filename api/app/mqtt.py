@@ -27,9 +27,9 @@ def _push(event: str, data: dict):
 # --- Payload decoders ---
 
 def _decode_state_msg(payload: bytes) -> tuple[str, str]:
-    if len(payload) == 1:
-        if payload[0] == 0x01: return "PING", ""
-        if payload[0] == 0xFF: return "LWT_OFFLINE", ""
+    if len(payload) == 1 and payload[0] == 0x01: return "PING", ""
+    # Firmware before 2.2.0 sent the will message with stack garbage after 0xFF
+    if payload and payload[0] == 0xFF: return "LWT_OFFLINE", "" if len(payload) == 1 else f"{len(payload)}B"
     if len(payload) == 2:
         motor_names = {0: "IDLE", 1: "WAITING", 2: "MOVING", 3: "STOPPING"}
         return "STATE", f"pos={payload[0]}% state={motor_names.get(payload[1], payload[1])}"
@@ -147,6 +147,12 @@ def on_message(client, userdata, message):
         label, detail = _decode_incoming(topic, payload)
         _log_message(device_id, "rx", message.topic, payload, label, detail)
 
+    # BOOT or MQTT_CONNECTED log — the device just (re)connected, after its LWT if there was one
+    if topic[0] == "tp" and topic[2] == "l" and payload[:1] in (b"\x01", b"\x20"):
+        _update_online(device_id, online=True)
+        _push("device_online", {"id": device_id})
+        return
+
     if topic[2] != "s": return  # Stop here for /l and other non-state topics
     if len(payload) == 0: return
 
@@ -155,8 +161,8 @@ def on_message(client, userdata, message):
         update.handle_announcement(device_id)
         return
 
-    # LWT — device disconnected unexpectedly
-    if len(payload) == 1 and payload[0] == 0xFF:
+    # LWT — device disconnected unexpectedly (any length, see _decode_state_msg)
+    if payload[0] == 0xFF:
         _update_online(device_id, online=False)
         _push("device_offline", {"id": device_id})
         return
