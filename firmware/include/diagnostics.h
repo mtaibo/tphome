@@ -1,6 +1,10 @@
-#pragma once
+#ifndef DIAGNOSTICS_H
+#define DIAGNOSTICS_H
+
 #include <stdint.h>
 
 namespace Diagnostics {
-    inline uint16_t flashWrites = 0;
+    extern uint16_t flashWrites; // Flash writes since boot, reported over MQTT
 }
+
+#endif // DIAGNOSTICS_H

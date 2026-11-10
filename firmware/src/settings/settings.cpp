@@ -1,8 +1,10 @@
+#include <Arduino.h>
+
 #include "settings.h"
 #include "defaults.h"
 #include "leds.h"
-#include "wifi.h"
 #include "diagnostics.h"
+#include "hardware/board.h"
 
 #include <Preferences.h> // Lib to save information on flash memory
 
@@ -15,8 +17,7 @@ namespace Settings {
     Preferences storage;
 
     void reboot() {
-        Hardware::RelayUp::off(); // Never leave a relay on through the wait below
-        Hardware::RelayDown::off();
+        Hardware::relaysOff(); // Never leave a relay on through the wait below
         Leds::off();
         delay(3000);
         ESP.restart();
@@ -35,7 +36,7 @@ namespace Settings {
 
         /* --------------   Identification  -------------- */
         uint8_t mac[6];
-        WiFi.macAddress(mac);
+        Hardware::Wifi::macAddress(mac);
         snprintf(config.deviceID, Sizes::ID, "%02X%02X", mac[4], mac[5]);
 
         /* -----------------   Network   ----------------- */

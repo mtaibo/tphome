@@ -1,0 +1,89 @@
+#include <Arduino.h>
+#include "leds.h"
+
+namespace Leds {
+
+    /* Struct that contains every relevant value of each led */
+    struct LedState {
+        uint8_t pin;
+        Mode mode;
+        bool state;
+        uint16_t interval;
+        uint16_t counter;
+        uint16_t lastTime;
+        uint16_t offTime;
+    };
+
+    /* Array that stores every active led */
+    static LedState _states[4] = {
+        {Pins::NO_PIN}, {Pins::NO_PIN}, {Pins::NO_PIN}, {Pins::NO_PIN}  // Initialize _states with no pins
+    }; 
+
+    /* Function that provides the indicated led the indicated state */
+    void set(uint8_t pin, Mode mode, Speed speed, uint16_t blinks, uint16_t duration) {
+
+        LedState* slot = nullptr; // Pointer to the slot to be modified
+
+        /* Looking for the pin slot, or an empty slot if pin not found */
+        for (auto &state : _states) {
+            if (state.pin == pin) { slot = &state; break; }
+            if (state.pin == Pins::NO_PIN && !slot) slot = &state;
+        }
+
+        if (!slot) return; // Every slot taken by other pins
+
+        /* Adjust every variable of the state */
+        slot -> pin = pin;
+        slot -> mode = mode;
+        slot -> state = (mode == ON);
+        slot -> interval = speed;
+        slot -> counter = blinks * 2;
+        slot -> lastTime = (uint16_t)(millis() / 10);
+        slot -> offTime = (duration > 0) ? (uint16_t)(millis() / 10) + duration : 0;
+
+        /* Hardware interaction */
+        Hardware::setState(pin, slot->state);
+    }
+
+    void off() { // Turn every pin off
+        for (auto &state : _states) {
+            if (state.pin != Pins::NO_PIN) {Hardware::setState(state.pin, false); state.mode = OFF;}
+        } Hardware::disableLight();
+    }
+
+    /* Function that controls every led state */
+    void update() {
+        uint16_t now = (uint16_t)(millis() / 10); // now: Variable to prevent calculating millis() each time
+        for (auto &state : _states) { // Loop to update every active led
+
+            /* If there is no pin on that led state slot, continue with other led */
+            if (state.pin == Pins::NO_PIN) continue;
+
+            /* Duration control */
+            if (state.offTime > 0 && (int16_t)(now - state.offTime) >= 0) {
+                Hardware::setState(state.pin, false);
+                state.mode = OFF; continue;
+            } 
+
+            /* If the pin mode is not blink, skip blinking control */
+            if (state.mode != BLINK) continue;
+
+            /* Blinking control */
+            if ((uint16_t)(now - state.lastTime) >= state.interval) { // Cast keeps it right when the counter wraps
+
+                state.lastTime = now;
+
+                state.state = !state.state;
+                Hardware::setState(state.pin, state.state);
+
+                if (state.counter > 0) {
+                    state.counter--;
+                    if (state.counter == 0) {
+                        state.mode = OFF;
+                        Hardware::setState(state.pin, false);
+                    }
+                }
+            }
+        }
+    }
+}

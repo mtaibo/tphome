@@ -1,3 +1,6 @@
+#ifndef DRIVER_INPUT_H
+#define DRIVER_INPUT_H
+
 #include <Arduino.h>
 
 template <uint8_t _pin, uint16_t _maxTime>
@@ -43,3 +46,5 @@ class InputPin {
         return 0;
     }
 };
+
+#endif // DRIVER_INPUT_H

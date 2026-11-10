@@ -2,14 +2,10 @@
 #define HARDWARE_H
 
 #include "defaults.h"
-#include "settings.h"
 #include "hardware/esp8266/pinout.h"
 #include "hardware/esp8266/driver_input.h"
 #include "hardware/esp8266/driver_output.h"
-
-extern "C" {
-    #include <user_interface.h>
-}
+#include "hardware/esp8266/driver_wifi.h"
 
 namespace Hardware { // Hardware for ESP8266
 
@@ -29,42 +25,22 @@ namespace Hardware { // Hardware for ESP8266
     using RelayUp   = OutputPin<Pins::RELAY_UP>;
     using RelayDown = OutputPin<Pins::RELAY_DOWN>;
 
+    inline void relaysOff() {RelayUp::off(); RelayDown::off();}
+
     // --- LIGHT CONTROL ---
-    static inline void enableLight() {LedConfig::setup(); LedConfig::on();}
-    static inline void disableLight() {LedConfig::off();}
+    inline void enableLight() {LedConfig::setup(); LedConfig::on();}
+    inline void disableLight() {LedConfig::off();}
 
     // --- LED CONTROL ---
-    static void setState(uint8_t pin, bool state) {
-        switch (pin) {
-            case Pins::LED_GREEN: state ? LedGreen::on() : LedGreen::off(); break;
-            case Pins::LED_BTM: state ? LedBtm::on() : LedBtm::off(); break;
-            case Pins::LED_MID: state ? LedMid::on() : LedMid::off(); break;
-            case Pins::LED_TOP: state ? LedTop::on() : LedTop::off(); break;
-        }
-    }
+    void setState(uint8_t pin, bool state);
 
     // --- SYSTEM ---
     /* Why the chip last started: 0 power on, 1 hw watchdog, 2 exception,
      * 3 sw watchdog, 4 software restart, 5 deep sleep wake, 6 reset pin */
-    static inline uint8_t resetReason() {return (uint8_t) ESP.getResetInfoPtr()->reason;}
+    uint8_t resetReason();
 
     // --- GLOBAL SETUP ---
-    static inline void setup() {
-
-        LedGreen::setup();
-        LedBtm::setup();
-        LedMid::setup();
-        LedTop::setup();
-
-        BtnBtm::setup();
-        BtnMid::setup();
-        BtnTop::setup();
-
-        RelayUp::setup();
-        RelayDown::setup();
-
-        enableLight();
-    }
+    void setup();
 }
 
 #endif // HARDWARE_H

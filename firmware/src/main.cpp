@@ -1,6 +1,11 @@
+#include <Arduino.h>
+
 #include "settings.h"
 #include "network.h"
 #include "actions.h"
+#include "leds.h"
+#include "buttons.h"
+#include "hardware/board.h"
 
 #if defined(DEVICE_TYPE_BLIND)
     #include "blinds.h"
