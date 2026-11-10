@@ -1,6 +1,6 @@
 # Firmware handoff — power, reconnect and refactor (Nov 2026)
 
-Temporary working notes for the next Claude session (on the Raspberry Pi, where the toolchain can be installed). **Delete this file once everything below is verified**, and update `~/workspace/agents/repos/tphome.md`.
+Temporary working notes for the next Claude session. **Delete this file once everything below is verified**, and update `~/workspace/agents/repos/tphome.md`.
 
 ## Why this work happened
 
@@ -67,37 +67,31 @@ src/logic/{leds,buttons,blinds,actions}.cpp
 src/network/{wifi,mqtt,commands,network,ota,ap}.cpp
 ```
 
-## ⚠️ Verification status: NOT compiled for the target
+## Verification status: builds, not yet tested on a device
 
-The Mac's PlatformIO xtensa toolchain is x86 (`Bad CPU type`, needs Rosetta), so **nothing has been built for the ESP8266**.
+Built on the Mac on 2026-11-10 (Rosetta installed) with the Arduino ESP8266 core **3.1.2** (`framework-arduinoespressif8266 3.30102.0`). `blind_esp8266` builds with no warnings from the project sources.
 
-What was checked: every `.cpp` passed `clang++ -std=gnu++17 -fsyntax-only -Wall -Wextra`, using minimal stub headers for Arduino, ESP8266WiFi, PubSubClient, ESP8266WebServer, ESP8266httpUpdate, Preferences and user_interface. The objects were also compiled and their symbols compared. Results:
+| Build | RAM | Flash |
+|---|---|---|
+| `d5a04d3` (before) | 30188 B (36.9 %) | 354627 B (46.5 %) |
+| `0729ee1` (after) | 30120 B (36.8 %) | 355479 B (46.7 %) |
 
-- no firmware symbol is left undefined;
-- no symbol is defined twice;
-- the only warning is the pre-existing `missing field 'mode' initializer` in `leds.cpp`.
+The sketch area is 761840 B, so an OTA image of about 355 KB still fits in the free space.
 
-The stubs only check *my* code against the API as I assumed it, not against the real libraries.
+Spots that were checked against the core source, so no need to recheck them:
 
-Spots I'm least sure compile or behave as expected on the real core:
+- `WiFiClient::setTimeout()` is passed to `ClientContext` and limits `connect()`. The 2 s cap works.
+- The radio sleep sequence works on 3.1.2: `forceSleepBegin()` stores the current mode (already `WIFI_OFF` after `disconnect(true)`). Then `forceSleepWake()` wakes the modem, and `configure()` → `WiFi.mode(WIFI_STA)` turns station mode back on, with hostname and TX power applied again. `forceSleepBegin()` already waits 10 ms internally, so the extra `delay(1)` is harmless.
+- `user_interface.h` and the reset reason, the function-pointer callback and `min()` all compile.
 
-1. `extern "C" { #include <user_interface.h> }` plus `ESP.getResetInfoPtr()->reason` (`src/hardware/esp8266/hardware.cpp`).
-2. `WiFi.disconnect(true)` → `WiFi.mode(WIFI_OFF)` → `WiFi.forceSleepBegin()` → `delay(1)`, then `forceSleepWake()` → `delay(1)` → `configure()` → `WiFi.begin()`. Check that it **really reconnects after waking** on this core version, and that the hostname and TX power stick.
-3. `WiFiClient::setTimeout(2000)` actually limiting `connect()` on this core version.
-4. `PubSubClient::setCallback()` receiving a plain function pointer (`Mqtt::Callback`). It should convert to `std::function` on ESP8266.
-5. `min(uint32_t, uint32_t)` from the ESP8266 `Arduino.h`.
-6. `WiFi.setAutoConnect()` is deprecated in core 3.1+ (warning only, pre-existing).
+Still unverified, and only a real device can tell: that it actually reconnects after a radio sleep, the real current draw, and everything in the checklist below.
 
-## To do on the Pi
+## Next steps
 
-1. **Toolchain**: `cd firmware && python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt`. Copy the root `.env` (from `.env.example`, real values from Miguel).
-2. **Build**: `./build.sh` (generates `include/settings/credentials.h` from `.env`, builds `blind_esp8266`).
-   - Fix whatever fails, one commit per fix.
-   - Only `blind_esp8266` is expected to build. The `blind_bk7231n` and `light_bk7231` drivers are empty files, so those envs were already broken.
-3. **Size and OTA**:
-   - Note the RAM/flash usage printed by PlatformIO. Build `d5a04d3` too (`git worktree add /tmp/old d5a04d3`) and compare: the refactor shouldn't grow the binary noticeably.
-   - The board is `esp01_1m` with `eagle.flash.1m256.ld` (1 MB flash, 256 KB filesystem). OTA needs free sketch space ≥ the new image, so make sure the image still fits.
-4. **First flash on ONE switch**, by OTA from the frontend's firmware manager, ideally a reachable one near the router. Check:
+1. **Build** (done on the Mac, repeat wherever you flash from): `cd firmware && ./build.sh`. This generates `include/settings/credentials.h` from the root `.env` and builds `blind_esp8266`.
+   - The binary is at `.pio/build/blind_esp8266/firmware.bin`.
+   - Only `blind_esp8266` builds. The `blind_bk7231n` and `light_bk7231` drivers are empty files, so those envs were already broken.
+2. **First flash on ONE switch**, by OTA from the frontend's firmware manager, ideally a reachable one near the router. Check:
    - [ ] Boots and connects. The BOOT log shows a reason ("software restart" after an OTA).
    - [ ] Up / down / stop from the frontend and the buttons. Position tracking is right. Down twice → `downPosition` first, then fully closed.
    - [ ] Reversing while moving waits 1 s (`WAITING`) before the other relay closes.
@@ -107,8 +101,8 @@ Spots I'm least sure compile or behave as expected on the real core:
    - [ ] WiFi loss (turn the AP off or block the MAC) → the radio goes off between attempts, it reconnects when WiFi returns, and it reboots after 15 min offline if WiFi never returns.
    - [ ] OTA while moving is ignored. A failed OTA (no active binary) leaves the version unchanged and the switch working.
    - [ ] Connection mode: the top LED keeps blinking after more than 11 min of uptime. AP mode closes after 10 min.
-5. **Measure current** if possible (bench unit on 3.3 V with a meter): connected idle, offline, and moving, before (`d5a04d3`) vs after. The expectation is a lower idle draw and a much lower offline draw.
-6. Then roll out to the rest by OTA, one at a time.
+3. **Measure current** if possible (bench unit on 3.3 V with a meter): connected idle, offline, and moving, before (`d5a04d3`) vs after. The expectation is a lower idle draw and a much lower offline draw.
+4. Then roll out to the rest by OTA, one at a time.
 
 ## The blind that's been offline for a week
 
