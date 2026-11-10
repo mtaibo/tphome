@@ -84,27 +84,65 @@ Spots that were checked against the core source, so no need to recheck them:
 - The radio sleep sequence works on 3.1.2: `forceSleepBegin()` stores the current mode (already `WIFI_OFF` after `disconnect(true)`). Then `forceSleepWake()` wakes the modem, and `configure()` → `WiFi.mode(WIFI_STA)` turns station mode back on, with hostname and TX power applied again. `forceSleepBegin()` already waits 10 ms internally, so the extra `delay(1)` is harmless.
 - `user_interface.h` and the reset reason, the function-pointer callback and `min()` all compile.
 
-Still unverified, and only a real device can tell: that it actually reconnects after a radio sleep, the real current draw, and everything in the checklist below.
+## On-device test, B0101 (2026-11-10)
+
+Firmware **2.2.0** (API firmware id 3, now the *active* one) was flashed to **B0101** by OTA, run from the Pi over SSH (`ssh tphome`).
+
+How the tests were done:
+
+- **Commands:** published straight to the broker with `docker exec tphome-broker mosquitto_pub` (binary payloads via `printf`).
+- **Traffic:** recorded with `mosquitto_sub -F "%I %t %x"`.
+- **API calls:** made from inside the container with `docker exec tphome-api python -c "urllib…"`. The container has no `curl` or `requests`, so uploads use a hand-built multipart body.
+
+Results:
+
+- **OTA:** works. The BOOT log came back as `01 04` (software restart). GET_INFO returns 15 bytes: `B 01 01`, version `2.2.0` (saved only after a successful OTA), the real MAC `06:28`, and the real prefs (32 s up / 30 s down / 20 % / not inverted).
+- **Ping, state and global ping:** they answer. The global ping answer is delayed without blocking.
+- **Movement:**
+  - 100 → 90 % lands exactly.
+  - An OTA sent mid-move is ignored.
+  - UP followed by 80 % reverses after the 1 s pause.
+  - Back to 100 % includes the 2 s end-of-travel run.
+  - One FLASH_WRITE log per stop.
+- **Remote reboot (`0xA1`):** the LWT is now exactly 1 byte, `FF`. Then `01 04`, then online again (after the API fix below).
+- **Broker restart:** B0101 reconnects within 6 s and logs `MQTT_CONNECTED`. The old-firmware switches came back too.
+
+**Not tested** (needs physical access or the router):
+
+- WiFi loss: radio off between attempts, reconnect after a radio sleep, and the 15 min offline reboot;
+- AP mode timeout;
+- LED blink after 11 min;
+- buttons;
+- current draw.
+
+### Things fixed or found during the test
+
+- **OTA had been broken since the tphome Caddy was dropped.** Nothing listened on `192.168.1.160:80`, and the tpcloud gateway only matches hostnames. Fixed in tpcloud `181994f`: a gateway listener on `:8081` that only serves `/firmware`, published as host port 80. It is LAN-only (no router port forward), every other path returns 404 even with a spoofed Host, and the public sites are unaffected.
+- **API `fd4a014`** (deployed on the Pi, `docker compose up -d --build api` in `~/tphome`), which fixes two things:
+  - Now that the LWT works, a rebooted device stayed "offline" because nothing marked it online again. BOOT (`0x01`) and MQTT_CONNECTED (`0x20`) logs now mark it online.
+  - Any state payload starting with `0xFF` is treated as LWT. Firmware before 2.2.0 sent `FF` plus stack garbage (20 bytes), which the API parsed as DEVICE_INFO. That is why every device had version `3f.98.ae`, MAC `20:40`, junk prefs, and never went offline, and why the API kept re-sending SET_PREFS.
+- **Live devices** (global ping): B0101, B0102, B0201. **B0301 does not answer** (last seen by the API 2026-11-07), so it is the likely "offline for a week" blind, not B0101. **B0401** appears in the broker log until 2026-08-28 but isn't in the API.
+- The broker's Docker log (json-file) has NUL bytes from around 2026-10-30/31. The broker restarted 2026-10-31 07:38 UTC, which looks like an unclean shutdown. `docker logs` stops reading there, and the raw file needs sudo, which the SSH session doesn't have.
 
 ## Next steps
 
 1. **Build** (done on the Mac, repeat wherever you flash from): `cd firmware && ./build.sh`. This generates `include/settings/credentials.h` from the root `.env` and builds `blind_esp8266`.
    - The binary is at `.pio/build/blind_esp8266/firmware.bin`.
    - Only `blind_esp8266` builds. The `blind_bk7231n` and `light_bk7231` drivers are empty files, so those envs were already broken.
-2. **First flash on ONE switch**, by OTA from the frontend's firmware manager, ideally a reachable one near the router. Check:
-   - [ ] Boots and connects. The BOOT log shows a reason ("software restart" after an OTA).
-   - [ ] Up / down / stop from the frontend and the buttons. Position tracking is right. Down twice → `downPosition` first, then fully closed.
-   - [ ] Reversing while moving waits 1 s (`WAITING`) before the other relay closes.
-   - [ ] Global ping (`tp/a/c` payload `0x01`): every switch answers, spread out in time.
-   - [ ] Cut power to a switch → the API logs `LWT_OFFLINE` with a **1-byte** payload and marks it offline (this was broken).
-   - [ ] Stop the broker (`docker compose stop mosquitto`) → buttons and motor still respond instantly, and MQTT reconnects with backoff when the broker comes back.
-   - [ ] WiFi loss (turn the AP off or block the MAC) → the radio goes off between attempts, it reconnects when WiFi returns, and it reboots after 15 min offline if WiFi never returns.
-   - [ ] OTA while moving is ignored. A failed OTA (no active binary) leaves the version unchanged and the switch working.
-   - [ ] Connection mode: the top LED keeps blinking after more than 11 min of uptime. AP mode closes after 10 min.
+2. **First switch (B0101)** — see the test above:
+   - [x] Boots and connects. The BOOT log shows "software restart" after an OTA.
+   - [x] Up / stop / set position by MQTT, and position tracking is right. *Buttons and the down-twice behaviour not tried.*
+   - [x] Reversing while moving waits 1 s before the other relay closes.
+   - [x] The global ping is answered.
+   - [x] The LWT is 1 byte (`FF`). The API marks the device offline, then online again on BOOT.
+   - [x] Broker restart → MQTT reconnects on its own. *Button responsiveness during the outage not checked.*
+   - [ ] WiFi loss → the radio goes off between attempts, it reconnects when WiFi returns, and it reboots after 15 min offline. **Most important open item.**
+   - [x] OTA while moving is ignored. *A failed OTA was not tried.*
+   - [ ] Connection mode LED after 11 min, and the AP timeout after 10 min.
 3. **Measure current** if possible (bench unit on 3.3 V with a meter): connected idle, offline, and moving, before (`d5a04d3`) vs after. The expectation is a lower idle draw and a much lower offline draw.
-4. Then roll out to the rest by OTA, one at a time.
+4. Then roll out to the rest by OTA, one at a time. 2.2.0 is already the active firmware, so it's just `POST /admin/{id}/ota?version=2.2.0` (or the frontend button) for B0102 and B0201. B0301 needs the checks below first.
 
-## The blind that's been offline for a week
+## The blind that's been offline for a week (probably B0301)
 
 The firmware can't tell what happened. Ask Miguel:
 
