@@ -140,13 +140,16 @@ Results:
    - [x] OTA while moving is ignored. *A failed OTA was not tried.*
    - [ ] Connection mode LED after 11 min, and the AP timeout after 10 min.
 3. **Measure current** if possible (bench unit on 3.3 V with a meter): connected idle, offline, and moving, before (`d5a04d3`) vs after. The expectation is a lower idle draw and a much lower offline draw.
-4. Then roll out to the rest by OTA, one at a time. 2.2.0 is already the active firmware, so it's just `POST /admin/{id}/ota?version=2.2.0` (or the frontend button) for B0102 and B0201. B0301 needs the checks below first.
+4. ~~Roll out to the rest~~ **Done 2026-11-10:** B0301, B0102 and B0201 are on 2.2.0 by OTA. Every one booted with `01 04`, and GET_INFO returns real data. The API now shows all four online with version `02.02.00` and their real MAC and prefs.
+   - **Found during the rollout: uploaded firmware was lost on every API rebuild.** `FIRMWARE_DIR` resolved to `/storage/firmwares` inside the container, outside the `./db:/app/storage` volume. The rebuild for `fd4a014` wiped both `2.bin` (2.1.4) and `3.bin`, so B0301's first OTA got a 404. The old firmware had already saved "2.2.0" as its version before trying, and switched its backlight off.
+   - Fixed in `66f56e6`: binaries now live in `/app/storage/firmwares`, which is `~/tphome/db/firmwares/` on the Pi. `3.bin` was restored there (sha256 `04adfc1c…80c2`).
+   - **The 2.1.4 binary is gone.** Its DB record (id 2) points to a missing file. To roll back, build the firmware from `d5a04d3` (same firmware code as `5fb6f31`) and upload it again.
 
 ## The blind that's been offline for a week (probably B0301)
 
 The firmware can't tell what happened. Ask Miguel:
 
-- **B0301's buttons work perfectly** (Miguel, 2026-11-10), so the MCU is alive and it's a network problem. Next: put it in connection mode, read the WiFi/MQTT LEDs, then reboot it from the buttons. If it comes back, OTA it to 2.2.0.
+- **Resolved 2026-11-10:** B0301's buttons worked, so it was a network problem. A reboot from the buttons (connection mode, then a short press on the bottom button) brought it back. It had been unreachable since 2026-11-07 16:02, which fits a wedged WiFi stack (the old firmware had no offline reboot). It is on 2.2.0 now.
 - **Do its buttons still move the blind?**
   - Yes → the MCU is alive and the problem is network: a wedged WiFi stack, or a weak link at 10 dBm. Power-cycling it from the breaker for 10 s should bring it back, then flash the new firmware.
   - No, with LEDs off → hardware or power supply. Same model as the one that burned, so open it.
