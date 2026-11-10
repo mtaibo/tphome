@@ -16,7 +16,13 @@ void setup() {
 
 void loop() {
 
-    Network::update();
+    #if defined(DEVICE_TYPE_BLIND)
+        const bool busy = !Blinds::isIdle();
+    #else
+        const bool busy = false;
+    #endif
+
+    Network::update(busy);
 
     /* Check inputs */
     Actions::check();
@@ -31,4 +37,8 @@ void loop() {
     #elif defined(DEVICE_TYPE_LIGHT)
         Lights::update();
     #endif
+
+    /* Give the CPU idle time so the WiFi modem can sleep between beacons,
+     * 10 ms is the resolution every timer in the firmware already works with */
+    delay(10);
 }

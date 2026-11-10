@@ -7,6 +7,12 @@
 #include "wifi.h"
 #include "diagnostics.h"
 
+#if defined(DEVICE_HARDWARE_ESP8266)
+    #include "hardware/esp8266/hardware.h"
+#elif defined(DEVICE_HARDWARE_BK7231N)
+    #include "hardware/bk7231n/hardware.h"
+#endif
+
 #define RECONNECT_INTERVAL_MIN  5000
 #define RECONNECT_INTERVAL_MAX 60000
 
@@ -46,6 +52,12 @@ namespace Mqtt {
 
     bool isConnected() {
         return _state.isConnected;
+    }
+
+    /* WiFi is gone, close the socket now instead of waiting for the keepalive to expire */
+    void drop() {
+        _state.isConnected = false;
+        _wifiClient.stop();
     }
 
     inline void _publishLog(uint8_t code) {
@@ -135,7 +147,10 @@ namespace Mqtt {
             _state.lastTime = now;
             _state.reconnectInterval = RECONNECT_INTERVAL_MIN;
 
-            _publishLog(_state.firstConnect ? LOG_BOOT : LOG_MQTT_CONNECTED);
+            if (_state.firstConnect) {
+                uint8_t reason = Hardware::resetReason();
+                _publishLog(LOG_BOOT, &reason, 1);
+            } else _publishLog(LOG_MQTT_CONNECTED);
             _state.firstConnect = false;
             _checkAndReportFlashWrites();
 

@@ -191,6 +191,10 @@ namespace Blinds {
         }
     }
 
+    inline bool isIdle() {
+        return _motor.state == IDLE;
+    }
+
     /* Public blinds update */
     inline void update() {
         Position::update();

@@ -7,6 +7,10 @@
 #include "hardware/esp8266/driver_input.h"
 #include "hardware/esp8266/driver_output.h"
 
+extern "C" {
+    #include <user_interface.h>
+}
+
 namespace Hardware { // Hardware for ESP8266
 
     // --- BUTTONS ---
@@ -38,6 +42,11 @@ namespace Hardware { // Hardware for ESP8266
             case Pins::LED_TOP: state ? LedTop::on() : LedTop::off(); break;
         }
     }
+
+    // --- SYSTEM ---
+    /* Why the chip last started: 0 power on, 1 hw watchdog, 2 exception,
+     * 3 sw watchdog, 4 software restart, 5 deep sleep wake, 6 reset pin */
+    static inline uint8_t resetReason() {return (uint8_t) ESP.getResetInfoPtr()->reason;}
 
     // --- GLOBAL SETUP ---
     static inline void setup() {

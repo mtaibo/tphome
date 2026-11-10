@@ -38,10 +38,23 @@ def _decode_state_msg(payload: bytes) -> tuple[str, str]:
     return "UNKNOWN", ""
 
 
+RESET_REASONS = {
+    0: "power on",
+    1: "hardware watchdog",
+    2: "exception",
+    3: "software watchdog",
+    4: "software restart",
+    5: "deep sleep wake",
+    6: "external reset",
+}
+
+
 def _decode_log_msg(payload: bytes) -> tuple[str, str]:
     if not payload: return "UNKNOWN", ""
     code = payload[0]
-    if code == 0x01: return "BOOT", "chip rebooted"
+    if code == 0x01:
+        if len(payload) >= 2: return "BOOT", RESET_REASONS.get(payload[1], f"reason={payload[1]}")
+        return "BOOT", "chip rebooted"
     if code == 0x20: return "MQTT_CONNECTED", "MQTT reconnected"
     if code == 0x30 and len(payload) >= 3:
         total = struct.unpack_from('<H', payload, 1)[0]
