@@ -1,6 +1,5 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 
 from db import database
@@ -30,10 +29,3 @@ app.include_router(config.router)
 app.include_router(admin.router)
 app.include_router(firmware.router)
 app.include_router(logs.router)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Change to frontend URL in production
-    allow_methods=["*"],
-    allow_headers=["*"],
-)

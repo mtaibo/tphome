@@ -70,8 +70,8 @@ Control panel with an interactive SVG floor plan of the house. Open a blind to s
              └───────────────┬─────────────────┘
                              │ HTTPS · WSS
 ┌────────────────────────────▼─────────────────────────────┐
-│      tpcloud gateway · Caddy + Cloudflare Tunnel          │
-│        tphome.migueltaibo.com · protected by auth         │
+│                 tpcloud gateway · Caddy                   │
+│        /home and /home/api · protected by auth            │
 └───────────────┬──────────────────────────┬───────────────┘
                 │                          │
 ┌───────────────▼────────────┐ ┌───────────▼───────────────┐
@@ -195,7 +195,7 @@ cp .env.example .env    # WiFi, MQTT and database values, shared by the API and 
 docker compose up --build -d
 ```
 
-This starts the API, the MQTT broker and the frontend. To reach them from outside the LAN, start [tpcloud](https://github.com/mtaibo/tpcloud) on the same host, since its gateway joins the `tphome-network`.
+This starts the API, the MQTT broker and the frontend. Start [tpcloud](https://github.com/mtaibo/tpcloud) on the same host first: the API and the frontend join its `tpcloud_gateway` network, and its gateway serves them at `/home`. Its installer can set tphome up too.
 
 ### Flashing a switch
 
