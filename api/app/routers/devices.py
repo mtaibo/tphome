@@ -134,6 +134,7 @@ def get_blinds(session: Session = Depends(get_session)):
             "prefs":      prefs,
             "state":      state,
             "connection": connection,
+            "locked":     bool(blind and blind.locked),
         })
     return result
 

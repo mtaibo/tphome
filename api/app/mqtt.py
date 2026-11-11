@@ -5,6 +5,7 @@ from connections import manager
 
 import paho.mqtt.client as mqtt
 import update
+import lock
 import threading
 import asyncio
 import struct
@@ -83,11 +84,13 @@ def _decode_outgoing(topic: str, payload: bytes) -> tuple[str, str]:
         cmd = payload[0]
         names = {
             0xA0: "OTA", 0xA1: "REBOOT", 0xA2: "RESET_MEM",
-            0xA3: "GET_INFO", 0xA4: "SET_POS", 0xA5: "SET_PREFS"
+            0xA3: "GET_INFO", 0xA4: "SET_POS", 0xA5: "SET_PREFS", 0xA6: "SET_LOCK"
         }
         detail = ""
         if cmd == 0xA0 and len(payload) >= 4:
             detail = f"v{payload[1]}.{payload[2]}.{payload[3]}"
+        elif cmd == 0xA6 and len(payload) >= 2:
+            detail = "lock" if payload[1] else "unlock"
         elif cmd == 0xA4 and len(payload) >= 3:
             detail = f"pos={struct.unpack_from('<H', payload, 1)[0]}"
         return names.get(cmd, f"ADMIN_0x{cmd:02X}"), detail
@@ -151,6 +154,7 @@ def on_message(client, userdata, message):
     if topic[0] == "tp" and topic[2] == "l" and payload[:1] in (b"\x01", b"\x20"):
         _update_online(device_id, online=True)
         _push("device_online", {"id": device_id})
+        _resend_lock(device_id)
         return
 
     if topic[2] != "s": return  # Stop here for /l and other non-state topics
@@ -206,6 +210,10 @@ def on_message(client, userdata, message):
                     "inverted_relays"  : unpacked[8]
                 }
             }
+
+            # Firmware 2.3.0 appends the lock state
+            if len(payload) >= 16:
+                info["locked"] = payload[15] == 1
 
             _update_device_info(device_id, info)
             _push("device_info", info)
@@ -279,6 +287,14 @@ def _update_device_info(device_id: str, info: dict):
                 except (KeyError, struct.error) as e:
                     print(f"[MQTT] Drift correction failed for {device_id}: {e}")
 
+            # The admin's choice wins: a switch that disagrees (it missed the command while
+            # offline, or its storage was wiped) is sent the lock again
+            if "locked" in info:
+                if info["locked"] != blind.locked:
+                    publish(f"tp/{device_id}/a", bytes([lock.CMD_SET_LOCK, 1 if blind.locked else 0]))
+                else:
+                    push_lock(device_id, blind.locked, confirmed=True)
+
             blind.up_time        = device_prefs["up_time"]
             blind.down_time      = device_prefs["down_time"]
             blind.down_pos       = device_prefs["down_pos"]
@@ -287,6 +303,21 @@ def _update_device_info(device_id: str, info: dict):
 
         session.add(device)
         session.commit()
+
+
+def push_lock(device_id: str, locked: bool, confirmed: bool):
+    _push("device_lock", {"id": device_id, "locked": locked, "confirmed": confirmed})
+
+
+def _resend_lock(device_id: str):
+    """A lock or unlock sent while the switch was offline is lost (MQTT QoS 0, not retained),
+    so it's sent again whenever the switch reconnects. The switch answers with its info."""
+    with Session(engine) as session:
+        device = session.exec(select(Device).where(Device.id == device_id)).first()
+        blind  = session.exec(select(Blind).where(Blind.id == device_id)).first()
+        if not device or not blind or not lock.supports_lock(device.firmware_version): return
+        locked = blind.locked
+    publish(f"tp/{device_id}/a", bytes([lock.CMD_SET_LOCK, 1 if locked else 0]))
 
 
 def publish(topic: str, payload: bytes):

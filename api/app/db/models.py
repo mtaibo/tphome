@@ -40,6 +40,9 @@ class Blind(SQLModel, table=True):
     position: int = 0
     motor_state: int = 0
 
+    # Admin lock, what the admin asked for: resent to the switch until it reports the same
+    locked: bool = False
+
 
 class Light(SQLModel, table=True):
     id: str = Field(foreign_key="device.id", primary_key=True)

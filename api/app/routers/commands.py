@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from db.database import get_session
 from db.models import Device
+from lock import ensure_unlocked
 import mqtt
 
 router = APIRouter(prefix="/commands/{id}", tags=["Commands"])
@@ -27,6 +28,7 @@ def _cmd(id: str, byte: int):
 @router.post("/up")
 def up(id: str, session: Session = Depends(get_session)):
     _get_device(id, session)
+    ensure_unlocked(id, session)
     _cmd(id, CMD_UP)
     return {"sent": "UP", "device": id}
 
@@ -34,6 +36,7 @@ def up(id: str, session: Session = Depends(get_session)):
 @router.post("/down")
 def down(id: str, session: Session = Depends(get_session)):
     _get_device(id, session)
+    ensure_unlocked(id, session)
     _cmd(id, CMD_DOWN)
     return {"sent": "DOWN", "device": id}
 
@@ -41,6 +44,7 @@ def down(id: str, session: Session = Depends(get_session)):
 @router.post("/stop")
 def stop(id: str, session: Session = Depends(get_session)):
     _get_device(id, session)
+    ensure_unlocked(id, session)
     _cmd(id, CMD_STOP)
     return {"sent": "STOP", "device": id}
 
@@ -64,5 +68,6 @@ def set_pos(id: str, value: int, session: Session = Depends(get_session)):
     if not (0 <= value <= 100):
         raise HTTPException(status_code=422, detail="Position must be between 0 and 100")
     _get_device(id, session)
+    ensure_unlocked(id, session)
     _cmd(id, value)
     return {"sent": "SET", "value": value, "device": id}
