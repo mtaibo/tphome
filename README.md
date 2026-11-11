@@ -121,11 +121,13 @@ Every message on the wire is binary, and the first byte says what it is. Each de
 | Topic | Direction | Purpose |
 |---|---|---|
 | `tp/{ID}/c` | to device | Control: `0x00`–`0x64` sets a position, `0xC0` up, `0xC1` down, `0xC2` stop, `0xC3` ping, `0xC4` state |
-| `tp/{ID}/a` | to device | Admin: OTA, reboot, factory reset, device info, position override, preferences |
+| `tp/{ID}/a` | to device | Admin: OTA, reboot, factory reset, device info, position override, preferences, lock |
 | `tp/{ID}/s` | from device | State: 2 bytes, position (0–100) and motor state |
 | `tp/a/c` | to all | Broadcast: every device answers with its ID, after a random delay so they don't collide |
 
 If a switch drops off the network, the broker publishes its last will (`0xFF`) on its state topic and the API marks it offline straight away.
+
+An admin can **lock** a blind from the device settings. The switch turns off every LED and its backlight, ignores its buttons, and refuses any movement until it's unlocked. The lock is stored in flash, so a reboot or a power cut doesn't clear it. Only tpcloud admins can lock or unlock: the API asks tpcloud's auth service on every call. While a blind is locked, the API also refuses movement, factory reset and deletion. If the switch was offline when it was locked or unlocked, the API sends the change again when it reconnects. Needs firmware 2.3.0 or later.
 
 ### Adding a new device
 
