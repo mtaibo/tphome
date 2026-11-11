@@ -138,13 +138,8 @@ namespace Mqtt {
             _state.lastTime = now;
             _state.reconnectInterval = RETRY_MIN;
 
-            if (_state.firstConnect) {
-                uint8_t reason = Hardware::resetReason();
-                _publishLog(LOG_BOOT, &reason, 1);
-            } else _publishLog(LOG_MQTT_CONNECTED);
-            _state.firstConnect = false;
-            _checkAndReportFlashWrites();
-
+            /* Subscribe before the log: the API answers BOOT/MQTT_CONNECTED right away
+             * (it resends the lock), and that answer is lost if it beats the subscription */
             if (strlen(Settings::config.deviceID) == 4) _client.subscribe(topics.def);
             else {
                 _client.subscribe(topics.cmd);
@@ -152,6 +147,13 @@ namespace Mqtt {
             }
 
             _client.subscribe(topics.global);
+
+            if (_state.firstConnect) {
+                uint8_t reason = Hardware::resetReason();
+                _publishLog(LOG_BOOT, &reason, 1);
+            } else _publishLog(LOG_MQTT_CONNECTED);
+            _state.firstConnect = false;
+            _checkAndReportFlashWrites();
         }
     }
 }
