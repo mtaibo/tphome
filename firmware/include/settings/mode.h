@@ -5,7 +5,8 @@ namespace Mode {
 
     enum Value {
         NORMAL,
-        CONNECTION
+        CONNECTION,
+        LOCKED      // Admin lock, see Settings::locked
     };
 
     bool is(Value mode);

@@ -17,10 +17,11 @@ namespace Network {
     static uint32_t _lastOnline = 0;
 
     void setup() {
+        /* First, so a locked switch turns its backlight off before WiFi starts */
+        Mode::set(Settings::locked ? Mode::LOCKED : Mode::NORMAL);
         Wifi::setup();
         Mqtt::setup();
         Mqtt::setCallback(Commands::callback);
-        Mode::set(Mode::NORMAL);
     }
 
     bool isConnected() {
@@ -40,7 +41,7 @@ namespace Network {
 
         uint32_t now = millis();
         if (isConnected()) _lastOnline = now;
-        else if (!busy && Mode::is(Mode::Value::NORMAL) && now - _lastOnline >= OFFLINE_REBOOT) Settings::reboot();
+        else if (!busy && !Mode::is(Mode::Value::CONNECTION) && now - _lastOnline >= OFFLINE_REBOOT) Settings::reboot();
 
         if (Mode::is(Mode::Value::NORMAL)) {
             if (isConnected()) Leds::set(Pins::LED_GREEN, Leds::OFF);

@@ -12,6 +12,7 @@ namespace Mode {
         if (mode == current) return;
 
         if (mode == NORMAL) {
+            if (current == LOCKED) Hardware::enableLight();
             Leds::set(Pins::LED_TOP, Leds::OFF);
             Leds::set(Pins::LED_MID, Leds::OFF);
             Leds::set(Pins::LED_BTM, Leds::OFF);
@@ -24,6 +25,8 @@ namespace Mode {
             Leds::set(Pins::LED_BTM, Leds::ON);
             Leds::set(Pins::LED_GREEN, Leds::OFF);
         }
+
+        else if (mode == LOCKED) Leds::off(); // Backlight too
 
         current = mode;
     }

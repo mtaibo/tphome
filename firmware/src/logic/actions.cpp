@@ -16,6 +16,9 @@ namespace Actions {
 
         #if defined(DEVICE_TYPE_BLIND)
 
+            /* Locked by an admin, presses are dropped (connection mode included) */
+            if (Mode::is(Mode::Value::LOCKED)) return;
+
             if (Mode::is(Mode::Value::CONNECTION)) {
 
                 if (auto action = Buttons::getAction(Pins::BTN_TOP)) {

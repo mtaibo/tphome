@@ -165,6 +165,9 @@ namespace Blinds {
 
         void set(uint16_t targetPosition) {
 
+            /* Every movement goes through here, buttons and MQTT alike */
+            if (Settings::locked) return;
+
             /* Ignore this function call if the device is at asked position */
             if (targetPosition > Settings::state.currentPosition) {
                 if ((targetPosition - Settings::state.currentPosition) < TOL) return;

@@ -25,6 +25,7 @@ namespace OTA {
             Settings::reboot();
         }
 
-        Hardware::enableLight(); // Update failed, keep running the current firmware
+        // Update failed, keep running the current firmware
+        if (!Settings::locked) Hardware::enableLight();
     }
 }

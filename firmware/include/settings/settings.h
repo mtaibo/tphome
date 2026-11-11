@@ -47,11 +47,16 @@ namespace Settings {
     extern Prefs prefs;
     extern State state;
 
+    /* Admin lock: no movement, no buttons and every led off. Only an admin
+     * can clear it from tphome, so it is kept in flash across reboots */
+    extern bool locked;
+
     void reboot();
     void reset();
     void defaults();
 
     void saveState();
+    void saveLock();
 
     void save();
     void load();

@@ -13,6 +13,7 @@ namespace Settings {
     Config config;
     Prefs prefs;
     State state;
+    bool locked = false;
 
     Preferences storage;
 
@@ -72,6 +73,16 @@ namespace Settings {
         storage.end();
     }
 
+    /* Its own key, so devices from before the lock keep their stored settings */
+    void saveLock() {
+        storage.begin("storage", false);
+        if (storage.getBool("l", false) != locked) {
+            storage.putBool("l", locked);
+            Diagnostics::flashWrites++;
+        }
+        storage.end();
+    }
+
     void save() {
 
         // Temp variables to store current config and prefs on the flash memory
@@ -115,6 +126,7 @@ namespace Settings {
         size_t sizeConfig = storage.getBytes("c", &config, sizeof(Config));
         size_t sizePrefs = storage.getBytes("p", &prefs, sizeof(Prefs));
         size_t sizeState = storage.getBytes("s", &state, sizeof(State));
+        locked = storage.getBool("l", false);
 
         storage.end();
 

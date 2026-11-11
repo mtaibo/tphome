@@ -5,6 +5,7 @@
 #include "mqtt.h"
 #include "ota.h"
 #include "blinds.h"
+#include "mode.h"
 #include "hardware/board.h"
 
 namespace Commands {
@@ -31,6 +32,7 @@ namespace Commands {
             GET_INFO  = 0xA3, // No payload
             SET_POS   = 0xA4, // uint16_t (0-10000)
             SET_PREFS = 0xA5, // sizeof(Settings::Prefs) bytes
+            SET_LOCK  = 0xA6, // 1 byte: 1 locks, 0 unlocks
         };
 
     #elif defined(DEVICE_TYPE_LIGHT)
@@ -106,6 +108,7 @@ namespace Commands {
             uint8_t version[3];         // 3 byte
             uint8_t mac[2];             // 2 bytes
             Settings::Prefs prefs;      // 7 bytes
+            uint8_t locked;             // 1 byte, appended so older APIs still read the first 15
         } info;
 
         info.id = ID;
@@ -118,6 +121,7 @@ namespace Commands {
         info.mac[1] = MAC[5];
 
         info.prefs = Settings::prefs;
+        info.locked = Settings::locked ? 1 : 0;
 
         Mqtt::publish(
             Mqtt::topics.state,
@@ -163,7 +167,8 @@ namespace Commands {
 
             case AdminCmd::GET_INFO: if (dataLen == 0) publishInfo(); break;
             case AdminCmd::REBOOT: if (dataLen == 0) {Blinds::stop(); Settings::reboot();} break;
-            case AdminCmd::RESET_MEM: if (dataLen == 0) {Blinds::stop(); Settings::reset();} break;
+            case AdminCmd::RESET_MEM: // Clearing the storage would also clear the lock, unlock first
+                if (dataLen == 0 && !Settings::locked) {Blinds::stop(); Settings::reset();} break;
 
             case AdminCmd::SET_POS: // Moving overwrites the position on every loop
                 if (dataLen == sizeof(uint16_t) && Blinds::isIdle()) {
@@ -175,6 +180,19 @@ namespace Commands {
                 if (dataLen == sizeof(Settings::Prefs)) {
                     memcpy(&Settings::prefs, data, sizeof(Settings::Prefs));
                     Settings::save();
+                } break;
+
+            case AdminCmd::SET_LOCK:
+                if (dataLen == 1 && data[0] <= 1) {
+                    const bool lock = data[0] == 1;
+                    if (lock != Settings::locked) {
+                        if (lock) Blinds::stop(); // Stop first, so the position it ends at is the one kept
+                        Settings::saveState(); // Same flash as the lock, no write if it didn't change
+                        Settings::locked = lock;
+                        Settings::saveLock();
+                        Mode::set(lock ? Mode::LOCKED : Mode::NORMAL);
+                    }
+                    publishInfo(); // Confirms the lock state to the API
                 } break;
 
             default: break;
