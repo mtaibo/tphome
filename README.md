@@ -54,9 +54,9 @@ Backend on the Raspberry Pi next to a Mosquitto broker. Bridges REST commands to
 <td width="33%" valign="top">
 
 ### 🗺️ [`frontend`](frontend/)
-Control panel with an interactive SVG floor plan of the house. Open a blind to slide it to any position, and manage devices, map placement, firmware and logs from the settings.
+Control panel in TPCloud's iOS-style UI, with an interactive SVG floor plan of the house. Tap a blind on the plan or its tile to slide it to any position, and manage devices, map placement, firmware and logs from the settings.
 
-**Vue 3 · Pinia · Tailwind CSS · Nginx**
+**Vue 3 · Pinia · TPCloud UI kit · Nginx**
 
 </td>
 </tr>
@@ -185,7 +185,7 @@ Support for BK7231N chips (newer revisions of the same blind controller, and lig
 | **Firmware** | C++17 · Arduino ESP8266 Core · PlatformIO · PubSubClient |
 | **API** | FastAPI · Python · SQLModel · SQLite |
 | **Messaging** | Mosquitto (MQTT) · custom binary protocol · WebSocket |
-| **Frontend** | Vue 3 · Composition API · Pinia · Tailwind CSS 4 |
+| **Frontend** | Vue 3 · Composition API · Pinia · TPCloud's UI kit (copied into `frontend/src/ui`) |
 | **Hosting** | Docker Compose · Nginx · Raspberry Pi · behind the tpcloud gateway |
 
 ## How to run
