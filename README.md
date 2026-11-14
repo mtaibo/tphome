@@ -56,7 +56,7 @@ Backend on the Raspberry Pi next to a Mosquitto broker. Bridges REST commands to
 ### 🗺️ [`web/home`](https://github.com/mtaibo/tpcloud/tree/main/web/home) (in tpcloud)
 Control panel in TPCloud's iOS-style UI, with an interactive SVG floor plan of the house. Tap a blind on the plan or its tile to slide it to any position, and manage devices, map placement, firmware and logs from the settings. It lives in tpcloud with the rest of the web apps and its shared look; this repo is everything below it.
 
-**Vue 3 · Pinia · TPCloud UI · Nginx**
+**Vue 3 · Pinia · TPCloud UI**
 
 </td>
 </tr>
@@ -76,7 +76,7 @@ Control panel in TPCloud's iOS-style UI, with an interactive SVG floor plan of t
                 │                          │
 ┌───────────────▼────────────┐ ┌───────────▼───────────────┐
 │ control panel (in tpcloud) │ │           api/             │
-│   Vue 3 · Nginx container  │ │  FastAPI · SQLite · OTA    │
+│ Vue 3 · served by gateway  │ │  FastAPI · SQLite · OTA    │
 └────────────────────────────┘ └───────────┬───────────────┘
                                            │ MQTT (binary)
                                ┌───────────▼───────────────┐
@@ -186,7 +186,7 @@ Support for BK7231N chips (newer revisions of the same blind controller, and lig
 | **API** | FastAPI · Python · SQLModel · SQLite |
 | **Messaging** | Mosquitto (MQTT) · custom binary protocol · WebSocket |
 | **Control panel** | Vue 3 · Composition API · Pinia · TPCloud's shared UI, in [tpcloud's `web/home`](https://github.com/mtaibo/tpcloud/tree/main/web/home) |
-| **Hosting** | Docker Compose · Nginx · Raspberry Pi · behind the tpcloud gateway |
+| **Hosting** | Docker Compose (`home-api`, `mqtt-broker`) · Raspberry Pi · behind the tpcloud gateway |
 
 ## How to run
 
