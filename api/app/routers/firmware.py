@@ -1,3 +1,4 @@
+from auth import require_admin
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from fastapi.responses import FileResponse
 from sqlmodel import Session, select
@@ -22,7 +23,7 @@ def _get_firmware(id: int, session: Session) -> FirmwareInfo:
     return fw
 
 
-@router.post("/firmware/upload")
+@router.post("/firmware/upload", dependencies=[Depends(require_admin)])
 async def upload_firmware(
     file: UploadFile = File(...),
     name: str = Form(...),
@@ -84,7 +85,7 @@ def list_firmware(session: Session = Depends(get_session)):
     ]
 
 
-@router.post("/firmware/{fw_id}/activate")
+@router.post("/firmware/{fw_id}/activate", dependencies=[Depends(require_admin)])
 def activate_firmware(fw_id: int, session: Session = Depends(get_session)):
     fw = _get_firmware(fw_id, session)
 
@@ -96,7 +97,7 @@ def activate_firmware(fw_id: int, session: Session = Depends(get_session)):
     return {"id": fw.id, "name": fw.name, "active": True}
 
 
-@router.delete("/firmware/{fw_id}")
+@router.delete("/firmware/{fw_id}", dependencies=[Depends(require_admin)])
 def delete_firmware(fw_id: int, session: Session = Depends(get_session)):
     fw = _get_firmware(fw_id, session)
 

@@ -37,13 +37,13 @@ def _cmd(id: str, cmd_byte: int, payload: bytes = b""):
     mqtt.publish(f"tp/{id}/a", bytes([cmd_byte]) + payload)
 
 
-@router.post("/update")
+@router.post("/update", dependencies=[Depends(require_admin)])
 async def start_update():
     await update.start()
     return {"sent": "UPDATE"}
 
 
-@router.post("/admin/{id}/prefs")
+@router.post("/admin/{id}/prefs", dependencies=[Depends(require_admin)])
 def set_prefs(id: str, prefs: PrefsPayload, session: Session = Depends(get_session)):
     _get_device(id, session)
     try:
@@ -60,7 +60,7 @@ def set_prefs(id: str, prefs: PrefsPayload, session: Session = Depends(get_sessi
         raise HTTPException(status_code=500, detail=f"Packaging error: {str(e)}")
 
 
-@router.post("/admin/{id}/ota")
+@router.post("/admin/{id}/ota", dependencies=[Depends(require_admin)])
 def ota(id: str, version: str, session: Session = Depends(get_session)):
     _get_device(id, session)
     
@@ -84,21 +84,21 @@ def ota(id: str, version: str, session: Session = Depends(get_session)):
     return {"sent": "OTA", "device": id, "version": f"{major}.{minor}.{patch}"}
 
 
-@router.post("/admin/{id}/info")
+@router.post("/admin/{id}/info", dependencies=[Depends(require_admin)])
 def info(id: str, session: Session = Depends(get_session)):
     _get_device(id, session)
     _cmd(id, CMD_GET_INFO)
     return {"sent": "INFO", "device": id}
 
 
-@router.post("/admin/{id}/reboot")
+@router.post("/admin/{id}/reboot", dependencies=[Depends(require_admin)])
 def reboot(id: str, session: Session = Depends(get_session)):
     _get_device(id, session)
     _cmd(id, CMD_REBOOT)
     return {"sent": "REBOOT", "device": id}
 
 
-@router.post("/admin/{id}/reset")
+@router.post("/admin/{id}/reset", dependencies=[Depends(require_admin)])
 def reset_mem(id: str, session: Session = Depends(get_session)):
     _get_device(id, session)
     ensure_unlocked(id, session) # Wiping the switch would also clear its lock
@@ -106,7 +106,7 @@ def reset_mem(id: str, session: Session = Depends(get_session)):
     return {"sent": "RESET_MEM", "device": id}
 
 
-@router.post("/admin/{id}/set/{value}")
+@router.post("/admin/{id}/set/{value}", dependencies=[Depends(require_admin)])
 def set_position(id: str, value: int, session: Session = Depends(get_session)):
     if not (0 <= value <= 10000):
         raise HTTPException(status_code=422, detail="Position must be between 0 and 10000")

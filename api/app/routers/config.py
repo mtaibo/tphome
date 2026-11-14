@@ -1,3 +1,4 @@
+from auth import require_admin
 from fastapi import APIRouter, Depends, HTTPException
 
 from sqlmodel import Session
@@ -45,7 +46,7 @@ def get_map(session: Session = Depends(get_session)):
     return config.map if config else {}
 
 
-@router.patch("/devices/{device_id}/prefs")
+@router.patch("/devices/{device_id}/prefs", dependencies=[Depends(require_admin)])
 def patch_device_prefs(device_id: str, data: dict, session: Session = Depends(get_session)):
     config = session.get(Config, 1)
     if not config:
@@ -60,7 +61,7 @@ def patch_device_prefs(device_id: str, data: dict, session: Session = Depends(ge
     raise HTTPException(status_code=404, detail=f"Device {device_id} not found in config")
 
 
-@router.patch("/devices/{device_id}/map")
+@router.patch("/devices/{device_id}/map", dependencies=[Depends(require_admin)])
 def patch_device_map(device_id: str, data: dict, session: Session = Depends(get_session)):
     config = session.get(Config, 1)
     if not config:
@@ -75,7 +76,7 @@ def patch_device_map(device_id: str, data: dict, session: Session = Depends(get_
     raise HTTPException(status_code=404, detail=f"Device {device_id} not found in config")
 
 
-@router.put("/devices")
+@router.put("/devices", dependencies=[Depends(require_admin)])
 def update_devices(data: dict, session: Session = Depends(get_session)):
     config = session.get(Config, 1)
 
@@ -90,7 +91,7 @@ def update_devices(data: dict, session: Session = Depends(get_session)):
     return config.devices
 
 
-@router.put("/map")
+@router.put("/map", dependencies=[Depends(require_admin)])
 def update_map(data: dict, session: Session = Depends(get_session)):
     config = session.get(Config, 1)
 

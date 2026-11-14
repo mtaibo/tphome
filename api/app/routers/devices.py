@@ -1,3 +1,4 @@
+from auth import require_admin
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from db.database import get_session
@@ -177,7 +178,7 @@ def get_device(id: str, session: Session = Depends(get_session)):
     return _build_response(device, session)
 
 
-@router.put("/devices/{id}")
+@router.put("/devices/{id}", dependencies=[Depends(require_admin)])
 def update_device(id: str, data: Update, session: Session = Depends(get_session)):
     device = _get_device(id, session)
     device.prefs = data.prefs
@@ -187,7 +188,7 @@ def update_device(id: str, data: Update, session: Session = Depends(get_session)
     return _build_response(device, session)
 
 
-@router.delete("/devices/{id}")
+@router.delete("/devices/{id}", dependencies=[Depends(require_admin)])
 def delete_device(id: str, session: Session = Depends(get_session)):
     device = _get_device(id, session)
     reset_mem(id, session)
@@ -207,7 +208,7 @@ def delete_device(id: str, session: Session = Depends(get_session)):
 # DB PROVISIONING DEVICES ROUTES
 
 
-@router.post("/devices/pending/configure")
+@router.post("/devices/pending/configure", dependencies=[Depends(require_admin)])
 def configure_device(data: ConfigureDevice, session: Session = Depends(get_session)):
 
     pending = session.exec(select(PendingDevice).where(PendingDevice.mac == data.mac)).first()
