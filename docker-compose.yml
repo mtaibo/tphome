@@ -30,19 +30,9 @@ services:
       - tphome-network
     restart: unless-stopped
 
-  frontend:
-    build: ./frontend
-    image: tphome-frontend
-    container_name: tphome-frontend
-    networks:
-      - gateway
-    security_opt:
-      - no-new-privileges:true
-    restart: unless-stopped
-
 networks:
   tphome-network:
-  # tpcloud's network: the gateway reaches the API and the frontend through it.
+  # tpcloud's network: the gateway reaches the API through it (tpcloud runs the control panel).
   gateway:
     external: true
     name: tpcloud_gateway

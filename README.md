@@ -53,10 +53,10 @@ Backend on the Raspberry Pi next to a Mosquitto broker. Bridges REST commands to
 </td>
 <td width="33%" valign="top">
 
-### 🗺️ [`frontend`](frontend/)
-Control panel in TPCloud's iOS-style UI, with an interactive SVG floor plan of the house. Tap a blind on the plan or its tile to slide it to any position, and manage devices, map placement, firmware and logs from the settings.
+### 🗺️ [`web/home`](https://github.com/mtaibo/tpcloud/tree/main/web/home) (in tpcloud)
+Control panel in TPCloud's iOS-style UI, with an interactive SVG floor plan of the house. Tap a blind on the plan or its tile to slide it to any position, and manage devices, map placement, firmware and logs from the settings. It lives in tpcloud with the rest of the web apps and its shared look; this repo is everything below it.
 
-**Vue 3 · Pinia · TPCloud UI kit · Nginx**
+**Vue 3 · Pinia · TPCloud UI · Nginx**
 
 </td>
 </tr>
@@ -75,7 +75,7 @@ Control panel in TPCloud's iOS-style UI, with an interactive SVG floor plan of t
 └───────────────┬──────────────────────────┬───────────────┘
                 │                          │
 ┌───────────────▼────────────┐ ┌───────────▼───────────────┐
-│         frontend/          │ │           api/             │
+│ control panel (in tpcloud) │ │           api/             │
 │   Vue 3 · Nginx container  │ │  FastAPI · SQLite · OTA    │
 └────────────────────────────┘ └───────────┬───────────────┘
                                            │ MQTT (binary)
@@ -89,7 +89,7 @@ Control panel in TPCloud's iOS-style UI, with an interactive SVG floor plan of t
                                └───────────────────────────┘
 ```
 
-Everything above the broker runs in Docker on the Raspberry Pi. TPHome doesn't have its own reverse proxy: the [tpcloud](https://github.com/mtaibo/tpcloud) gateway reaches its containers over a shared Docker network and puts them behind the same login as the rest of my services.
+Everything above the broker runs in Docker on the Raspberry Pi. TPHome doesn't have its own reverse proxy or web app: the [tpcloud](https://github.com/mtaibo/tpcloud) gateway reaches the API over a shared Docker network and puts it behind the same login as the rest of my services, and the control panel is one of tpcloud's web apps.
 
 ## How it works
 
@@ -138,7 +138,7 @@ Fresh switch boots with no ID
 Derives a temporary ID from its MAC and announces itself on def/{MAC4}/s
         │
         ▼
-Shows up as "pending" in the frontend's device settings
+Shows up as "pending" in the control panel's device settings
         │
         ▼
 I assign it a zone and number, the API sends the ID to def/{MAC4}/a
@@ -185,7 +185,7 @@ Support for BK7231N chips (newer revisions of the same blind controller, and lig
 | **Firmware** | C++17 · Arduino ESP8266 Core · PlatformIO · PubSubClient |
 | **API** | FastAPI · Python · SQLModel · SQLite |
 | **Messaging** | Mosquitto (MQTT) · custom binary protocol · WebSocket |
-| **Frontend** | Vue 3 · Composition API · Pinia · TPCloud's UI kit (copied into `frontend/src/ui`) |
+| **Control panel** | Vue 3 · Composition API · Pinia · TPCloud's shared UI, in [tpcloud's `web/home`](https://github.com/mtaibo/tpcloud/tree/main/web/home) |
 | **Hosting** | Docker Compose · Nginx · Raspberry Pi · behind the tpcloud gateway |
 
 ## How to run
@@ -197,7 +197,7 @@ cp .env.example .env    # WiFi, MQTT and database values, shared by the API and 
 docker compose up --build -d
 ```
 
-This starts the API, the MQTT broker and the frontend. Start [tpcloud](https://github.com/mtaibo/tpcloud) on the same host first: the API and the frontend join its `tpcloud_gateway` network, and its gateway serves them at `/home`. Its installer can set tphome up too.
+This starts the API and the MQTT broker. Start [tpcloud](https://github.com/mtaibo/tpcloud) on the same host first, with `home` in its `COMPOSE_PROFILES`: the API joins its `tpcloud_gateway` network, its gateway serves it at `/home/api`, and tpcloud runs the control panel at `/home`. Its installer can set tphome up too.
 
 ### Flashing a switch
 
@@ -210,4 +210,4 @@ pip install -r requirements.txt   # PlatformIO and esptool
 ./build.sh flash                  # build and flash over serial
 ```
 
-After that, updates go over the air: upload the binary in the frontend's firmware manager, activate it, and trigger the OTA from each device's settings. The switch downloads it from the Pi and reboots into the new version.
+After that, updates go over the air: upload the binary in the control panel's firmware manager, activate it, and trigger the OTA from each device's settings. The switch downloads it from the Pi and reboots into the new version.

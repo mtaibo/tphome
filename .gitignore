@@ -71,21 +71,3 @@ firmware/include/settings/credentials.h
 firmware/config.json
 
 
-# =============================================================================
-# Frontend  ·  Vue 3 / Node
-# =============================================================================
-
-# Dependencies & build
-frontend/node_modules/
-frontend/dist/
-
-# Cache
-frontend/.cache/
-frontend/.parcel-cache/
-frontend/.npm
-frontend/.eslintcache
-frontend/.stylelintcache
-
-# Vite
-frontend/vite.config.js.timestamp-*
-frontend/vite.config.ts.timestamp-*
