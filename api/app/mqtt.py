@@ -13,7 +13,7 @@ import os
 
 BROKER_HOST = os.getenv("MQTT_BROKER", "mqtt-broker")
 BROKER_PORT = int(os.getenv("MQTT_PORT", 1883))
-CMD_PING = 0xC3  # same command as routers/commands.py's ping
+CMD_PING = 0xC3  # the same ping as routers/commands.py, on the command topic tp/<id>/c
 
 client = mqtt.Client()
 _loop: asyncio.AbstractEventLoop = None
@@ -147,7 +147,7 @@ def _ping_known_devices():
     with Session(engine) as session:
         ids = [device.id for device in session.exec(select(Device)).all()]
     for device_id in ids:
-        publish(f"tp/{device_id}/a", bytes([CMD_PING]))
+        publish(f"tp/{device_id}/c", bytes([CMD_PING]))
     if ids:
         print(f"[MQTT] Pinged {len(ids)} known devices")
 
