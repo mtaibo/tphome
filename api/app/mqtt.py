@@ -13,6 +13,7 @@ import os
 
 BROKER_HOST = os.getenv("MQTT_BROKER", "mqtt-broker")
 BROKER_PORT = int(os.getenv("MQTT_PORT", 1883))
+CMD_PING = 0xC3  # same command as routers/commands.py's ping
 
 client = mqtt.Client()
 _loop: asyncio.AbstractEventLoop = None
@@ -135,6 +136,20 @@ def on_connect(client, userdata, flags, rc):
         print("[MQTT] Connected to broker")
         client.subscribe("tp/#")
         client.subscribe("def/#")
+        _ping_known_devices()
+
+
+def _ping_known_devices():
+    """A switch tells the API it's back with its BOOT/MQTT_CONNECTED log. If it reconnected to
+    the broker before the API subscribed (a restart of either, a deploy), that log reached nobody
+    and it looked offline until its next message, or was marked offline by a retained LWT. So on
+    every connection each known switch is asked; the ones that answer are online again."""
+    with Session(engine) as session:
+        ids = [device.id for device in session.exec(select(Device)).all()]
+    for device_id in ids:
+        publish(f"tp/{device_id}/a", bytes([CMD_PING]))
+    if ids:
+        print(f"[MQTT] Pinged {len(ids)} known devices")
 
 
 def on_message(client, userdata, message):
