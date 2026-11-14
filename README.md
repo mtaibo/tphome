@@ -89,7 +89,7 @@ Control panel in TPCloud's iOS-style UI, with an interactive SVG floor plan of t
                                └───────────────────────────┘
 ```
 
-Everything above the broker runs in Docker on the Raspberry Pi. TPHome doesn't have its own reverse proxy or web app: the [tpcloud](https://github.com/mtaibo/tpcloud) gateway reaches the API over a shared Docker network and puts it behind the same login as the rest of my services, and the control panel is one of tpcloud's web apps.
+Everything above the switches runs on the Raspberry Pi as part of [tpcloud](https://github.com/mtaibo/tpcloud): its single `tpcloud` file carries this repo's API and a Mosquitto broker, and runs both when Home is turned on. TPHome doesn't have its own reverse proxy or web app: tpcloud's gateway puts the API behind the same login as the rest of my services, and the control panel is one of tpcloud's web apps.
 
 ## How it works
 
@@ -186,9 +186,21 @@ Support for BK7231N chips (newer revisions of the same blind controller, and lig
 | **API** | FastAPI · Python · SQLModel · SQLite |
 | **Messaging** | Mosquitto (MQTT) · custom binary protocol · WebSocket |
 | **Control panel** | Vue 3 · Composition API · Pinia · TPCloud's shared UI, in [tpcloud's `web/home`](https://github.com/mtaibo/tpcloud/tree/main/web/home) |
-| **Hosting** | Docker Compose (`home-api`, `mqtt-broker`) · Raspberry Pi · behind the tpcloud gateway |
+| **Hosting** | Inside the `tpcloud` server (`home-api` and `mqtt-broker` processes) · Raspberry Pi · behind the tpcloud gateway |
 
 ## How to run
+
+The API and the broker come with [TPCloud](https://github.com/mtaibo/tpcloud), so there's nothing to install from this repo on the server. On the Linux machine that runs it:
+
+```bash
+curl -fsSL https://tpcloud.migueltaibo.com/install | sh   # then say yes to Home in the setup
+# or, on a server that already has TPCloud:
+sudo tpcloud module enable home
+```
+
+That starts the API and Mosquitto (port 1883 on the local network, where the switches connect), serves the control panel at `/home` and the API at `/home/api`, and adds the `tphome` command to move the blinds from the server's terminal (`tphome --blind B0101 down`). Home's settings (WiFi and MQTT) live in `/var/lib/tpcloud/home/home.env`.
+
+With Docker instead, start tpcloud's [compose file](https://github.com/mtaibo/tpcloud/blob/main/docker-compose.yml) first, then this one: the API joins its `tpcloud_gateway` network.
 
 ```bash
 git clone https://github.com/mtaibo/tphome
@@ -197,11 +209,11 @@ cp .env.example .env    # WiFi, MQTT and database values, shared by the API and 
 docker compose up --build -d
 ```
 
-This starts the API and the MQTT broker. Start [tpcloud](https://github.com/mtaibo/tpcloud) on the same host first, with `home` in its `COMPOSE_PROFILES`: the API joins its `tpcloud_gateway` network, its gateway serves it at `/home/api`, and tpcloud runs the control panel at `/home`. Its installer can set tphome up too.
-
 ### Flashing a switch
 
-The firmware runs on the physical switches, not in Docker. The first flash needs a USB-TTL adapter at **3.3V** (never 5V) wired to the chip's TX, RX, GND and VCC, with GPIO 0 pulled to GND on power-up to enter the bootloader.
+The firmware runs on the physical switches, not on the server. The first flash needs a USB-TTL adapter at **3.3V** (never 5V) wired to the chip's TX, RX, GND and VCC, with GPIO 0 pulled to GND on power-up to enter the bootloader.
+
+The build takes the WiFi and broker values from this repo's `.env` (`cp .env.example .env`, with `MQTT_IP` set to the server's address on the local network):
 
 ```bash
 cd firmware
