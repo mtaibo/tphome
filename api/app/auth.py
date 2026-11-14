@@ -5,7 +5,7 @@ import json
 import os
 
 # tpcloud's auth service, reached through the tpcloud_gateway network the API shares with it
-AUTH_URL = os.getenv("AUTH_URL", "http://tpcloud-auth:8000")
+AUTH_URL = os.getenv("AUTH_URL", "http://auth:8000")
 
 
 def require_admin(request: Request) -> dict:

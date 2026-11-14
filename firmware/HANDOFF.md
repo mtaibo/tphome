@@ -90,9 +90,9 @@ Firmware **2.2.0** (API firmware id 3, now the *active* one) was flashed to **B0
 
 How the tests were done:
 
-- **Commands:** published straight to the broker with `docker exec tphome-broker mosquitto_pub` (binary payloads via `printf`).
+- **Commands:** published straight to the broker with `docker exec mqtt-broker mosquitto_pub` (binary payloads via `printf`).
 - **Traffic:** recorded with `mosquitto_sub -F "%I %t %x"`.
-- **API calls:** made from inside the container with `docker exec tphome-api python -c "urllib…"`. The container has no `curl` or `requests`, so uploads use a hand-built multipart body.
+- **API calls:** made from inside the container with `docker exec home-api python -c "urllib…"`. The container has no `curl` or `requests`, so uploads use a hand-built multipart body.
 
 Results:
 

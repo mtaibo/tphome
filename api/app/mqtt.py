@@ -11,7 +11,7 @@ import asyncio
 import struct
 import os
 
-BROKER_HOST = os.getenv("MQTT_BROKER", "mosquitto")
+BROKER_HOST = os.getenv("MQTT_BROKER", "mqtt-broker")
 BROKER_PORT = int(os.getenv("MQTT_PORT", 1883))
 
 client = mqtt.Client()
