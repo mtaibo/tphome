@@ -1,3 +1,7 @@
+# Data and settings default to ./db, ./api/mosquitto/data and .env; the `tpcloud` command points
+# them at /var/lib/tpcloud/home instead.
+name: tphome
+
 services:
 
   home-api:
@@ -6,8 +10,8 @@ services:
     expose:
       - "8000"
     volumes:
-      - ./db:/app/storage
-    env_file: .env
+      - ${TPHOME_DB:-./db}:/app/storage
+    env_file: ${TPHOME_ENV_FILE:-.env}
     depends_on:
       - mqtt-broker
     networks:
@@ -24,7 +28,7 @@ services:
       - "1883:1883"
     volumes:
       - ./api/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
-      - ./api/mosquitto/data:/mosquitto/data
+      - ${TPHOME_MQTT_DATA:-./api/mosquitto/data}:/mosquitto/data
     networks:
       - tphome-network
     restart: unless-stopped
