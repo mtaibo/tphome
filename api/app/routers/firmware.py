@@ -9,8 +9,9 @@ from datetime import datetime
 
 router = APIRouter(tags=["Firmware"])
 
-# Inside the mounted volume (/app/storage → db/ on the host) so binaries survive rebuilds
-FIRMWARE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage", "firmwares")
+# Next to the database (/app/storage, db/ on the host, in Docker) so binaries survive rebuilds;
+# run without Docker, FIRMWARE_DIR points at the state folder.
+FIRMWARE_DIR = os.getenv("FIRMWARE_DIR", os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage", "firmwares"))
 os.makedirs(FIRMWARE_DIR, exist_ok=True)
 
 
